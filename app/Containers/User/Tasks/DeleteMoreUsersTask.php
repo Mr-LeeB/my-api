@@ -13,7 +13,7 @@ use Exception;
  *
  * @author  Mahmoud Zalt  <mahmoud@zalt.me>
  */
-class DeleteUserTask extends Task
+class DeleteMoreUsersTask extends Task
 {
 
   protected $repository;
@@ -30,13 +30,17 @@ class DeleteUserTask extends Task
    * @return bool
    * @throws DeleteResourceFailedException
    */
-  public function run(User $user)
+
+  //delete list user
+  public function run($user_Ids)
   {
     try {
-      // dd($user);
-      return $this->repository->delete($user->id);
+      // dd($user_Ids);
+      return User::whereIn('id', $user_Ids)->delete();
+
     } catch (Exception $exception) {
       throw new DeleteResourceFailedException();
     }
   }
+
 }

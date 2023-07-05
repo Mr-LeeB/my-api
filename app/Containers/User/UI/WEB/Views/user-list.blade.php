@@ -37,8 +37,6 @@
                     $userCanDelete = false;
 
                     echo 'You are logged in as ' . $role->name . '!';
-                    // show permisson in this role
-                    // echo '<br />Your permission: ';
                     foreach ($role->permissions as $permission) {
                         if ($permission->name == 'create-admins') {
                             $userCanCreate = true;
@@ -54,7 +52,8 @@
                 @endphp
 
                 @if ($userCanCreate)
-                    @if ($errors->first('email') || $errors->first('name') || $errors->first('password'))
+                    {{-- @if ($errors->first('email') || $errors->first('name') || $errors->first('password')) --}}
+                    @if (old('password'))
                         <style>
                             .create-form {
                                 display: block
@@ -85,13 +84,16 @@
 
                                 <input type="text" placeholder="email" id="email" name="email"
                                     value="{{ old('email') }}" />
+
                                 <span class="text-red">{{ $errors->first('email') }}</span>
 
                                 <input type="text" placeholder="name" id="name" name="name"
                                     value="{{ old('name') }}" />
+
                                 <span class="text-red">{{ $errors->first('name') }}</span>
 
                                 <input type="password" placeholder="password" id="password" name="password" />
+
                                 <span class="text-red">{{ $errors->first('password') }}</span>
 
                                 <input type="password" placeholder="confirm password" id="confirm_password" />
@@ -105,35 +107,40 @@
                 <hr>
 
                 @php
-                    // get all user id
+                    // get all user ids, user emails
                     $userIds = [];
+                    $userEmails = [];
                     foreach ($users as $user) {
                         if ($user->id != Auth::user()->id && $user->id != 1) {
                             array_push($userIds, $user->id);
                         }
+                        array_push($userEmails, $user->email);
                     }
-                    $userIds = json_encode($userIds);
-                    echo $userIds;
-
-                    // echo '<br />User Ids: ' . implode(', ', $userIds);
+                    $userIds_json = json_encode($userIds);
+                    $usersEmails_json = json_encode($userEmails);
 
                 @endphp
 
 
                 {{-- create button delete all users --}}
                 @if ($userCanDelete)
-                    <form class="delete-selected-form" action="{{ route('delete_user', $userIds) }}" method="POST">
+                    <form class="delete-selected-form" action="{{ route('delete_more_users') }}" method="POST">
                         {{ csrf_field() }}
                         {{ method_field('DELETE') }}
+                        @foreach ($userIds as $item)
+                            <input id="selectUser{{ $item }}" type="hidden" name="ids[]"
+                                value="{{ $item }}" />
+                        @endforeach
+
                         <button id="deleteAll" class="btn-delete-selected" type="button" name="deleteAll"
-                            onclick="deleteUserSelected()">Delete Users</button>
+                            onclick="deleteUserSelected({{ $userIds_json }})">Delete Users</button>
                     </form>
-                    <span>{{ $errors }}</span>
                 @endif
+
                 <table class="table table-hover">
                     <tr>
                         @if ($userCanDelete)
-                            <th><input type="checkbox" id="checkAll" onclick="checkAll({{ $userIds }})" /></th>
+                            <th><input type="checkbox" id="checkAll" onclick="checkAll({{ $userIds_json }})" /></th>
                         @endif
                         <th>ID</th>
                         <th>Name</th>
@@ -152,10 +159,12 @@
                             @if ($userCanDelete && $user->id != 1)
                                 <td style='text-align: center'>
                                     <input type="checkbox" id="select_user{{ $user->id }}"
-                                        onclick="selectOne({{ $userIds }})">
+                                        onclick="selectOne({{ $userIds_json }})">
                                 </td>
                             @else
-                                <td></td>
+                                @if ($userCanDelete)
+                                    <td></td>
+                                @endif
                             @endif
                             <td style='text-align:center;'>{{ $user->id }}</td>
                             <td>{{ $user->name }}</td>
@@ -201,6 +210,7 @@
                                                     <td style="width: 17rem">
                                                         <input style="border: none" type="text" name="email"
                                                             id="onEditEmail{{ $user->id }}"
+                                                            oninput="editEmail({{ $usersEmails_json }}, {{ $user }})"
                                                             value="{{ $user->email }}" />
                                                         <span id="errorEmail{{ $user->id }}"
                                                             class="text-red">{{ $errors->first('email') }}</span>
@@ -208,10 +218,12 @@
                                                 </tr>
                                             </table>
 
-                                            <button type="button" style="color: blue; font-weight: 1000;"
+                                            <button class="edit-save" type="button"
+                                                style="color: blue; font-weight: 1000;"
                                                 onclick="confirmSave({{ $user }})">Save</button>
 
-                                            <button type="button" style="color: red; font-weight: 1000;"
+                                            <button class="edit-cancle" type="button"
+                                                style="color: red; font-weight: 1000;"
                                                 onclick="cancleEdit({{ $user->id }})">Cancle</button>
                                         </form>
                                     </div>
@@ -220,13 +232,18 @@
 
                             @if ($userCanDelete)
                                 <td style='text-align:center; '>
-                                    <form id="delete{{ $user->id }}" class="delete-form{{ $user->id }}"
-                                        action="{{ route('delete_user', $user->id) }}" method="POST">
-                                        {{ csrf_field() }}
-                                        {{ method_field('DELETE') }}
+                                    @if ($user->id == 1 || $user->id == Auth::user()->id)
                                         <button type="button" style="color: red; font-weight: 1000;"
-                                            onclick="confirmDelete({{ $user->id }})">Delete</button>
-                                    </form>
+                                            onclick="confirmDelete({{ $user->id }})" disabled>Delete</button>
+                                    @else
+                                        <form id="delete{{ $user->id }}" class="delete-form{{ $user->id }}"
+                                            action="{{ route('delete_user', $user->id) }}" method="POST">
+                                            {{ csrf_field() }}
+                                            {{ method_field('DELETE') }}
+                                            <button type="button" style="color: red; font-weight: 1000;"
+                                                onclick="confirmDelete({{ $user->id }})">Delete</button>
+                                        </form>
+                                    @endif
                                 </td>
                             @endif
                         </tr>

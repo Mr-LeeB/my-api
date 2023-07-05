@@ -18,7 +18,7 @@ class ViewDashboardRequest extends Request
      * @var  array
      */
     protected $access = [
-        'roles'       => ['admin'],
+        'roles'       => 'admin',
         'permissions' => 'access-dashboard',
     ];
 

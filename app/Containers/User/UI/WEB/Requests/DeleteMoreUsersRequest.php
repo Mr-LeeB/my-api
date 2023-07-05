@@ -9,7 +9,7 @@ use App\Ship\Parents\Requests\Request;
  *
  * @author Mahmoud Zalt <mahmoud@zalt.me>
  */
-class DeleteUserRequests extends Request
+class DeleteMoreUsersRequests extends Request
 {
 
   /**
@@ -28,7 +28,7 @@ class DeleteUserRequests extends Request
    * @var  array
    */
   protected $decode = [
-    'id'
+    'ids.*'
   ];
 
   /**
@@ -38,7 +38,6 @@ class DeleteUserRequests extends Request
    * @var  array
    */
   protected $urlParameters = [
-    'id'
   ];
 
   /**
@@ -49,9 +48,9 @@ class DeleteUserRequests extends Request
   public function rules()
   {
     return [
-      'id' => 'required|exists:users,id',
-      // 'id' => 'array|required',
-      // 'id.*' => 'exists:users,id',
+      // 'id' => 'required|exists:users,id',
+      'ids' => 'array|required',
+      'ids.*' => 'exists:users,id',
     ];
   }
 
@@ -63,7 +62,7 @@ class DeleteUserRequests extends Request
   public function authorize()
   {
     return $this->check([
-      'hasAccess|isOwner',
+      'hasAccess',
     ]);
   }
 }

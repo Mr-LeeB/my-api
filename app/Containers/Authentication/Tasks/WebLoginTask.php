@@ -2,7 +2,9 @@
 
 namespace App\Containers\Authentication\Tasks;
 
+use Apiato\Core\Foundation\Facades\Apiato;
 use App\Containers\Authentication\Exceptions\LoginFailedException;
+use App\Containers\User\Models\User;
 use App\Ship\Parents\Tasks\Task;
 use Auth;
 use Illuminate\Contracts\Auth\Authenticatable;
@@ -26,7 +28,14 @@ class WebLoginTask extends Task
   public function run(string $email, string $password, bool $remember = false): Authenticatable
   {
     if (!$user = Auth::attempt(['email' => $email, 'password' => $password], $remember)) {
-      throw new LoginFailedException();
+      // throw new LoginFailedException();
+      $userExist = User::where('email', $email)->first();
+      if ($userExist) {
+        throw new LoginFailedException('Password is incorrect');
+      } else {
+        throw new LoginFailedException('Email does not exist');
+      }
+
     }
     return Auth::user();
   }

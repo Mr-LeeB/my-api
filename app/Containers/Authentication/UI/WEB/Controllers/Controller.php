@@ -9,6 +9,7 @@ use App\Containers\Authentication\UI\WEB\Requests\ViewDashboardRequest;
 use App\Ship\Parents\Controllers\WebController;
 use App\Ship\Transporters\DataTransporter;
 use Exception;
+use Log;
 
 /**
  * Class Controller
@@ -56,9 +57,24 @@ class Controller extends WebController
     try {
       $result = Apiato::call('Authentication@WebLoginAction', [new DataTransporter($request)]);
     } catch (Exception $e) {
+      // dd($e);
       return redirect('login')->with('status', $e->getMessage());
     }
-    return is_array($result) ? redirect('login')->with($result) : redirect('userdashboard');
+
+    try {
+      $permissions = $result->roles->first()->permissions->pluck('name');
+    } catch (Exception $e) {
+      Log::error($e->getMessage());
+      $permissions = [];
+    }
+
+    foreach ($permissions as $key => $value) {
+      if ($value == 'access-dashboard') {
+        return redirect('userdashboard');
+      }
+    }
+    // return $permission;
+    return is_array($result) ? redirect('login')->with($result) : redirect('user');
   }
 
   /**
@@ -67,7 +83,6 @@ class Controller extends WebController
   public function logoutUser(LogoutRequest $request)
   {
 
-    // dd($request);
     $result = Apiato::call('Authentication@WebLogoutAction');
 
     return redirect('logout')->with(['result' => $result]);

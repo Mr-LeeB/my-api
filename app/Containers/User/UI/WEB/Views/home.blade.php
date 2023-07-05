@@ -59,7 +59,7 @@
         .info {
             font-size: 24px;
             /* margin-left: 20%;
-                                                                                                                                                                                                                                                                                                                                                                                          margin-right: 20%; */
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              margin-right: 20%; */
             padding-bottom: 20px;
         }
 
@@ -109,6 +109,7 @@
             text-align: center;
             text-decoration: none;
             font-size: 16px;
+            border-radius: 5px;
         }
 
         .btn-cancle {
@@ -215,7 +216,7 @@
             left: 50%;
             transform: translate(-50%, -50%);
             background-color: #fff;
-            padding: 20px;
+            padding: 20px 20px 50px;
             border-radius: 5px;
         }
 
@@ -228,7 +229,7 @@
         }
 
         .save-form button {
-            background-color: #4CAF50;
+            background-color: #9bdbac;
             border: none;
             color: white;
             padding: 5px 10px;
@@ -240,10 +241,22 @@
 
         .save-form button:hover,
         .save-form button:active {
-            background: #43A047;
+            background: #4fad54;
         }
 
-        .save-form .btn-cancle {
+        .edit-save {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+        }
+
+        .edit-cancle {
+            position: absolute;
+            bottom: 10px;
+            right: 80px;
+        }
+
+        .btn-cancle {
             background-color: #c50e0e;
             border: none;
             color: white;
@@ -254,12 +267,12 @@
             border-radius: 5px;
         }
 
-        .save-form .btn-cancle:hover,
-        .save-form .btn-cancle:active {
+        .btn-cancle:hover,
+        .btn-cancle:active {
             background: #c50e0e;
         }
 
-        .save-form .text-red {
+        .text-red {
             color: red;
             margin-bottom: 10px;
         }
@@ -283,7 +296,7 @@
 
         .logout-form button:hover,
         .logout-form button:active {
-            background: #c50e0e;
+            background: #7c0d0d;
         }
 
         .btn-delete-selected {
@@ -298,9 +311,9 @@
             border-radius: 5px;
         }
 
-        .btn-delete:hover,
-        .btn-delete:active {
-            background: #c50e0e;
+        .btn-delete-selected:hover,
+        .btn-delete-selected:active {
+            background: #7f0c0c;
         }
     </style>
 @endsection
@@ -322,6 +335,8 @@
             var confirmEditEmail = document.getElementById('onEditEmail' + user.id.toString());
             var confirmEditName = document.getElementById('name' + user.id.toString());
 
+            console.log(confirmEditName, confirmEditEmail);
+
             if (confirmEditEmail.value.trim() == user.email.trim()) {
                 confirmEditEmail.removeAttribute("name");
             }
@@ -330,7 +345,7 @@
 
                 if (confirm("Are you sure you want to save?")) {
                     // Nếu người dùng xác nhận xóa, gửi form
-                    document.querySelector('.save-form' + user.id).submit();
+                    document.querySelector('.save-form' + user.id.toString()).submit();
                 }
             }
         }
@@ -379,13 +394,22 @@
         }
 
         function editEmail(users, user) {
-            // document.getElementById("onEditEmail" + user.id.toString()).setAttribute("name", "email");
-            // users.forEach(element => {
-            //     console.log(element.email);
-            //     if (element.email == user.email) {
-            //         document.getElementById("errorEmail" + user.id.toString()).innerHTML = "Email already exists";
-            //     }
-            // });
+            let email = document.getElementById("onEditEmail" + user.id.toString()).value;
+
+            if (email.trim() == user.email.trim()) {
+                document.getElementById("errorEmail" + user.id.toString()).innerHTML = "";
+            } else {
+                for (let i = 0; i < users.length; i++) {
+                    if (users[i] == email.trim()) {
+                        document.getElementById("errorEmail" + user.id.toString()).innerHTML = "Email already exists";
+                        document.getElementsByClassName("edit-save")[0].disabled = true;
+                        return;
+                    } else {
+                        document.getElementById("errorEmail" + user.id.toString()).innerHTML = "";
+                        document.getElementsByClassName("edit-save")[0].disabled = false;
+                    }
+                }
+            }
         }
 
         function confirmlogout() {
@@ -417,7 +441,6 @@
                     count++;
                 }
             });
-            console.log(count);
             if (count == users.length) {
                 document.getElementById("checkAll").checked = true;
             } else {
@@ -430,10 +453,17 @@
             }
         }
 
-        function deleteUserSelected() {
+        function deleteUserSelected(userIds_json) {
+            userIds_json.forEach(element => {
+                if (!document.getElementById("select_user" + element.toString()).checked) {
+                    document.getElementById("selectUser" + element.toString()).removeAttribute("name");
+                }
+            });
+
             if (confirm("Are you sure you want to delete users?")) {
                 document.querySelector('.delete-selected-form').submit();
             }
         }
+        
     </script>
 @endsection

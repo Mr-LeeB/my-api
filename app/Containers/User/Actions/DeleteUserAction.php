@@ -19,12 +19,14 @@ class DeleteUserAction extends Action
    */
   public function run(DataTransporter $data)
   {
+    // dd($data->id);
     $user = $data->id ?
       Apiato::call(
         'User@FindUserByIdTask',
         [$data->id]
       ) : Apiato::call('Authentication@GetAuthenticatedUserTask');
 
+    // dd($user);
     return Apiato::call('User@DeleteUserTask', [$user]);
   }
 }
