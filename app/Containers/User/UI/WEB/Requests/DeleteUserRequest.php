@@ -50,8 +50,6 @@ class DeleteUserRequests extends Request
   {
     return [
       'id' => 'required|exists:users,id',
-      // 'id' => 'array|required',
-      // 'id.*' => 'exists:users,id',
     ];
   }
 

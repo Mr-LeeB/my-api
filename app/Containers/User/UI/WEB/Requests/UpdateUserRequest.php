@@ -28,7 +28,7 @@ class UpdateUserRequests extends Request
    * @var  array
    */
   protected $decode = [
-    // 'id'
+    'id'
   ];
 
   /**

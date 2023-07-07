@@ -3,6 +3,7 @@
 namespace App\Containers\User\UI\WEB\Controllers;
 
 use Apiato\Core\Foundation\Facades\Apiato;
+use App\Containers\User\UI\WEB\Requests\CheckPasswordRequests;
 use App\Containers\User\UI\WEB\Requests\CreateNewUserRequests;
 use App\Containers\User\UI\WEB\Requests\DeleteMoreUsersRequests;
 use App\Containers\User\UI\WEB\Requests\DeleteUserRequests;
@@ -11,6 +12,7 @@ use App\Containers\User\UI\WEB\Requests\RegisterUserRequests;
 use App\Containers\User\UI\WEB\Requests\UpdateUserRequests;
 use App\Ship\Parents\Controllers\WebController;
 use App\Ship\Transporters\DataTransporter;
+use Auth;
 use Exception;
 use Log;
 
@@ -21,6 +23,7 @@ use Log;
  */
 class Controller extends WebController
 {
+
 
   /**
    * @return  \Illuminate\Contracts\View\Factory|\Illuminate\View\View
@@ -33,11 +36,9 @@ class Controller extends WebController
   /**
    * @return  \Illuminate\Contracts\View\Factory|\Illuminate\View\View
    */
-
   public function getAllUser(GetAllUserRequests $request)
   { // admin show all user
     $result = Apiato::call('User@GetAllUsersAction', [new DataTransporter($request)]);
-    // dd($result);
     return view('user::home', ['users' => $result]);
   }
 
@@ -46,9 +47,8 @@ class Controller extends WebController
    */
   public function updateUser(UpdateUserRequests $request)
   { // admin update user
-    // dd($request);
     $result = Apiato::call('User@UpdateUserAction', [new DataTransporter($request)]);
-    return redirect('listuser')->with('users', $result);
+    return redirect('listuser')->with('wasRecentlyCreated', $result->wasRecentlyCreated);
   }
 
   /**
@@ -58,8 +58,7 @@ class Controller extends WebController
   { // admin create user
     // Log::info($request);
     $result = Apiato::call('User@RegisterUserAction', [new DataTransporter($request)]);
-    // return redirect('listuser')->with(['users' => $result]);
-    return redirect('listuser')->with('user', $result);
+    return redirect('listuser')->with('wasRecentlyCreated', $result->wasRecentlyCreated);
   }
 
   /**
@@ -67,12 +66,15 @@ class Controller extends WebController
    */
   public function deleteUser(DeleteUserRequests $request)
   { // admin delete user
+    $authUser = $request->id;
     try {
-      // dd($request);
       $result = Apiato::call('User@DeleteUserAction', [new DataTransporter($request)]);
 
-      return redirect('listuser')->with(['users' => $result]);
-
+      if (Auth::user()->id == $authUser) {
+        Apiato::call('Authentication@WebLogoutAction');
+        return redirect('logout')->with($result);
+      }
+      return redirect('listuser')->with($result);
     } catch (Exception $e) {
       return redirect('listuser')->with('users', $e);
     }
@@ -84,13 +86,9 @@ class Controller extends WebController
   public function deleteMoreUsers(DeleteMoreUsersRequests $request)
   { // admin delete more users
     try {
-      // dd($request);
       $result = Apiato::call('User@DeleteMoreUsersAction', [new DataTransporter($request)]);
 
       return redirect('listuser')->with(['users' => $result]);
-
-      // return $result;
-
     } catch (Exception $e) {
       return redirect('listuser')->with('users', $e);
     }
@@ -100,11 +98,20 @@ class Controller extends WebController
   { // admin create user
     // Log::info($request);
     $result = Apiato::call('User@RegisterUserAction', [new DataTransporter($request)]);
-    // dd($result);
-    return redirect('test');
-    // return $result;
+
+    return ($result) != null ? redirect('login')->with($result) : redirect('register');
   }
 
+  /**
+   * @return boolean
+   */
+  public function checkPassword(CheckPasswordRequests $request)
+  { // user check password
+
+    if (password_verify($request->password, Auth::user()->password))
+      return true;
+    return Auth::user()->password;
+  }
   /**
    * @return  \Illuminate\Contracts\View\Factory|\Illuminate\View\View
    */

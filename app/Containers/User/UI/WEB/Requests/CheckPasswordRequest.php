@@ -9,7 +9,7 @@ use App\Ship\Parents\Requests\Request;
  *
  * @author Mahmoud Zalt <mahmoud@zalt.me>
  */
-class GetAllUserRequests extends Request
+class CheckPasswordRequests extends Request
 {
 
   /**
@@ -19,7 +19,7 @@ class GetAllUserRequests extends Request
    */
   protected $access = [
     'roles' => '',
-    'permissions' => 'list-users',
+    'permissions' => 'delete-users',
   ];
 
   /**
@@ -48,7 +48,10 @@ class GetAllUserRequests extends Request
    */
   public function rules()
   {
-    return [];
+    return [
+      'password' => 'required|min:6|max:30',
+      // 'authpassword' => 'required'
+    ];
   }
 
   /**

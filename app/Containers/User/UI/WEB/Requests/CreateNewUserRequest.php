@@ -18,7 +18,7 @@ class CreateNewUserRequests extends Request
    * @var  array
    */
   protected $access = [
-    'roles' => 'admin',
+    'roles' => ['admin', 'user-lv3'],
     'permissions' => '',
   ];
 
@@ -52,6 +52,7 @@ class CreateNewUserRequests extends Request
       'email' => 'required|email|max:40|unique:users,email',
       'password' => 'required|min:6|max:30',
       'name' => 'min:2|max:50',
+      "isEdited" => 'string',
     ];
   }
 

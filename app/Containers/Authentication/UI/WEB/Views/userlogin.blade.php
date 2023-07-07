@@ -129,6 +129,21 @@
             margin-bottom: 10px;
         }
     </style>
+    {{-- <script>
+        function confirmLogin() {
+            var email = document.getElementById("email").value;
+            var name = document.getElementById("password").value;
+
+            if (email == "" || password == "") {
+                document.getElementById("error").innerHTML = "Please fill out all fields";
+                return false;
+            } else {
+                document.getElementById("error").innerHTML = "";
+                document.querySelector('.login-form').submit();
+                return true;
+            }
+        }
+    </script> --}}
 </head>
 
 <body>
@@ -141,7 +156,8 @@
                 @if (session('status'))
                     <div class="text-red">{{ session('status') }}</div>
                 @endif
-                <input type="text" placeholder="email" id="email" name="email" />
+
+                <input type="text" placeholder="email" id="email" name="email" value="{{ old('email') }}" />
                 <span class="text-red">{{ $errors->first('email') }}</span>
                 <input type="password" placeholder="password" id="password" name="password" />
                 <span class="text-red">{{ $errors->first('password') }}</span>

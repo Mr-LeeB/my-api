@@ -8,7 +8,7 @@
             color: #636b6f;
             font-family: 'Roboto', sans-serif;
             font-weight: 100;
-            height: 100vh;
+            height: 100%;
             margin: 0;
         }
 
@@ -20,7 +20,7 @@
             align-items: center;
             width: 100%;
             height: 100%;
-            position: absolute;
+            /* position: absolute; */
 
         }
 
@@ -58,8 +58,6 @@
 
         .info {
             font-size: 24px;
-            /* margin-left: 20%;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              margin-right: 20%; */
             padding-bottom: 20px;
         }
 
@@ -91,8 +89,6 @@
             border-bottom: 1px solid #ddd;
             font-weight: 100;
             text-align: left;
-
-
         }
 
         .new-user {
@@ -189,6 +185,7 @@
         }
 
         .text-red {
+            display: none;
             color: red;
             margin-bottom: 10px;
         }
@@ -315,10 +312,80 @@
         .btn-delete-selected:active {
             background: #7f0c0c;
         }
+
+        #passwordRemoveAccount {
+            display: none;
+            width: 35%;
+            border: #000000 1px solid;
+        }
+
+        #removeAccount-form {
+            display: block;
+            padding-bottom: 24px;
+        }
+
+        .btn-remove-account {
+            background-color: #c50e0e;
+            border: none;
+            color: white;
+            padding: 5px 10px;
+            text-align: center;
+            text-decoration: none;
+            font-size: 16px;
+            border-radius: 5px;
+        }
+
+        .btn-remove-account:hover,
+        .btn-remove-account:active {
+            background: #7f0c0c;
+        }
+
+        .btn-remove-account:focus {
+            outline: none;
+        }
+
+        .btn-remove-account:active {
+            transform: translateY(2px);
+        }
+
+        .btn-remove-account:disabled {
+            background-color: #c50e0e;
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-remove-account:disabled:hover {
+            background-color: #c50e0e;
+        }
+
+        .btn-remove-account:disabled:focus {
+            outline: none;
+        }
+
+        #passwordRemoveAccount:focus {
+            outline: 1px solid #000000;
+        }
+
+        #passwordRemoveAccount:active {
+            transform: translateY(2px);
+        }
+
+        #passwordRemoveAccount:disabled {
+            background-color: #c50e0e;
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        #passwordRemoveAccount:disabled:hover {
+            background-color: #c50e0e;
+        }
     </style>
 @endsection
 
 @section('js')
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"
+        integrity="sha512-3gJwYpMe3QewGELv8k/BX9vcqhryRdzRMxVfq6ngyWXwo03GFEzjsUm8Q7RZcHPHksttq7/GFoxjCVUjkjvPdw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script>
         function confirmDelete(user) {
             if (confirm("Are you sure you want to delete this user?")) {
@@ -335,8 +402,6 @@
             var confirmEditEmail = document.getElementById('onEditEmail' + user.id.toString());
             var confirmEditName = document.getElementById('name' + user.id.toString());
 
-            console.log(confirmEditName, confirmEditEmail);
-
             if (confirmEditEmail.value.trim() == user.email.trim()) {
                 confirmEditEmail.removeAttribute("name");
             }
@@ -350,8 +415,12 @@
             }
         }
 
-        function cancleEdit(id) {
-            document.getElementById("myForm" + id).style.display = "none";
+        function cancleEdit(user) {
+            document.getElementById("onEditEmail" + user.id.toString()).value = user.email;
+            document.getElementById("name" + user.id.toString()).value = user.name;
+            document.getElementById("myForm" + user.id.toString()).style.display = "none";
+            document.getElementById("errorEmail" + user.id.toString()).style.display = "none";
+            document.getElementById("errorName" + user.id.toString()).style.display = "none";
         }
 
         function showCreateForm() {
@@ -364,6 +433,7 @@
             document.getElementById("email").value = "";
             document.getElementById("name").value = "";
             document.getElementById("password").value = "";
+            document.getElementById("confirm_password").value = "";
             document.querySelector('.create-form').style.display = 'none';
             document.getElementById("cancle").style.display = "none";
             document.getElementById("add").style.display = "block";
@@ -402,10 +472,12 @@
                 for (let i = 0; i < users.length; i++) {
                     if (users[i] == email.trim()) {
                         document.getElementById("errorEmail" + user.id.toString()).innerHTML = "Email already exists";
+                        document.getElementById("errorEmail" + user.id.toString()).style.display = "block";
                         document.getElementsByClassName("edit-save")[0].disabled = true;
                         return;
                     } else {
                         document.getElementById("errorEmail" + user.id.toString()).innerHTML = "";
+                        document.getElementById("errorEmail" + user.id.toString()).style.display = "none";
                         document.getElementsByClassName("edit-save")[0].disabled = false;
                     }
                 }
@@ -464,6 +536,64 @@
                 document.querySelector('.delete-selected-form').submit();
             }
         }
-        
+
+        function changeEmailRegister() {
+            document.getElementsByClassName("errorEmailCreate")[0].style.display = "none";
+        }
+
+        function changeNameRegister() {
+            document.getElementsByClassName("errorNameCreate")[0].style.display = "none";
+        }
+
+        function confirmRemoveAccount() {
+            var password = document.getElementById("passwordRemoveAccount").value;
+            console.log()
+            if (password == "") {
+                document.getElementById("passwordRemoveAccount").style.display = "inline-block";
+                return false;
+            } else {
+                document.getElementById("thispass").value = password;
+                if ({{ Auth::user()->id }} == '1') {
+                    alert("You're Super Admin, you shouldn't delete your account");
+                    document.getElementById("passwordRemoveAccount").style.display = "none";
+                    document.getElementById("passwordRemoveAccount").value = "";
+                    return false;
+                }
+                if (confirm("Are you sure you want to delete your account?")) {
+                    document.getElementById("passwordRemoveAccount").value = "";
+                    $('#checkpassword').submit();
+                }
+                return true;
+            }
+        }
+
+        $(document).ready(function() {
+            $('#checkpassword').on('submit', function(e) {
+                e.preventDefault();
+                jQuery.ajax({
+                    type: 'post',
+                    url: "{{ url('check-password') }}",
+                    data: $('#checkpassword').serialize(),
+                    success: function(data) {
+                        console.log(data);
+                        if (data == true)
+                            console.log(data + " true");
+                        // document.querySelector('#removeAccount-form').submit();
+                        else
+                            alert("Wrong password");
+                        document.getElementById("passwordRemoveAccount").style.display = "none";
+                    }
+                });
+            });
+        });
+
+        $(document).ready(function() {
+            $('#passwordRemoveAccount').keydown(function(event) {
+                if (event.keyCode == 13) {
+                    event.preventDefault();
+                    return false;
+                }
+            });
+        });
     </script>
 @endsection

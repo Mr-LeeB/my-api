@@ -27,7 +27,6 @@
             <div class="title m-b-md">
                 List Users
             </div>
-
             <div class="info">
                 @php
                     $user = Auth::user();
@@ -53,7 +52,7 @@
 
                 @if ($userCanCreate)
                     {{-- @if ($errors->first('email') || $errors->first('name') || $errors->first('password')) --}}
-                    @if (old('password'))
+                    @if (old('isEdited') == -1)
                         <style>
                             .create-form {
                                 display: block
@@ -64,6 +63,12 @@
                             }
 
                             #cancle {
+                                display: block;
+                            }
+
+                            .errorEmailCreate,
+                            .errorNameCreate,
+                            .errorPasswordCreate {
                                 display: block;
                             }
                         </style>
@@ -83,20 +88,26 @@
                                 @endif
 
                                 <input type="text" placeholder="email" id="email" name="email"
-                                    value="{{ old('email') }}" />
+                                    value="<?php if (old('isEdited') == -1) {
+                                        echo old('email');
+                                    } ?>" oninput="changeEmailRegister()" />
 
-                                <span class="text-red">{{ $errors->first('email') }}</span>
+                                <span class="text-red errorEmailCreate">{{ $errors->first('email') }}</span>
 
                                 <input type="text" placeholder="name" id="name" name="name"
-                                    value="{{ old('name') }}" />
+                                    value="<?php if (old('isEdited') == -1) {
+                                        echo old('name');
+                                    } ?>" oninput="changeNameRegister()" />
 
-                                <span class="text-red">{{ $errors->first('name') }}</span>
+                                <span class="text-red errorNameCreate">{{ $errors->first('name') }}</span>
 
                                 <input type="password" placeholder="password" id="password" name="password" />
 
-                                <span class="text-red">{{ $errors->first('password') }}</span>
+                                <span class="text-red errorPasswordCreate">{{ $errors->first('password') }}</span>
 
                                 <input type="password" placeholder="confirm password" id="confirm_password" />
+
+                                <input type="hidden" name="isEdited" value="-1" />
 
                                 <button type="button" onclick="confirmCreate()">Create</button>
                             </form>
@@ -151,12 +162,15 @@
                             @else
                                 <th>Operation</th>
                             @endif
-
+                        @else
+                            @if ($userCanDelete)
+                                <th>Operation</th>
+                            @endif
                         @endif
                     </tr>
                     @foreach ($users as $user)
                         <tr>
-                            @if ($userCanDelete && $user->id != 1)
+                            @if ($userCanDelete && $user->id != 1 && $user->id != Auth::user()->id)
                                 <td style='text-align: center'>
                                     <input type="checkbox" id="select_user{{ $user->id }}"
                                         onclick="selectOne({{ $userIds_json }})">
@@ -171,6 +185,15 @@
                             <td>{{ $user->email }}</td>
 
                             @if ($userCanEdit)
+                                @if (old('isEdited') == $user->id)
+                                    <style>
+                                        #errorName<?php echo $user->id; ?>,
+                                        #errorEmail<?php echo $user->id; ?>,
+                                        #myForm<?php echo $user->id; ?> {
+                                            display: block;
+                                        }
+                                    </style>
+                                @endif
                                 <td style='text-align:center; '>
 
                                     <input id="{{ $user->id }}" type="submit"
@@ -186,6 +209,7 @@
                                             @if (session('status'))
                                                 <div class="text-red">{{ session('status') }}</div>
                                             @endif
+                                            <input type="hidden" name="isEdited" value="{{ $user->id }}">
                                             <table>
                                                 <tr>
                                                     <th>ID</th>
@@ -202,18 +226,30 @@
                                                     <td style="width: 15rem">
                                                         <input id="name{{ $user->id }}" style="border: none"
                                                             type="text" name="name"
-                                                            value="{{ $user->name }}" />
+                                                            value="<?php
+                                                            if (old('isEdited') == $user->id && old('name')) {
+                                                                echo old('name');
+                                                            } else {
+                                                                echo $user->name;
+                                                            }
+                                                            ?>" />
                                                         <span id="errorName{{ $user->id }}"
-                                                            class="text-red">{{ $errors->first('name') }}</span>
+                                                            class="text-red errorName">{{ $errors->first('name') }}</span>
                                                     </td>
 
                                                     <td style="width: 17rem">
-                                                        <input style="border: none" type="text" name="email"
-                                                            id="onEditEmail{{ $user->id }}"
+                                                        <input id="onEditEmail{{ $user->id }}"
+                                                            style="border: none" type="text" name="email"
                                                             oninput="editEmail({{ $usersEmails_json }}, {{ $user }})"
-                                                            value="{{ $user->email }}" />
+                                                            value="<?php
+                                                            if (old('isEdited') == $user->id && old('email')) {
+                                                                echo old('email');
+                                                            } else {
+                                                                echo $user->email;
+                                                            }
+                                                            ?>" />
                                                         <span id="errorEmail{{ $user->id }}"
-                                                            class="text-red">{{ $errors->first('email') }}</span>
+                                                            class="text-red errorEmail">{{ $errors->first('email') }}</span>
                                                     </td>
                                                 </tr>
                                             </table>
@@ -224,7 +260,7 @@
 
                                             <button class="edit-cancle" type="button"
                                                 style="color: red; font-weight: 1000;"
-                                                onclick="cancleEdit({{ $user->id }})">Cancle</button>
+                                                onclick="cancleEdit({{ $user }})">Cancle</button>
                                         </form>
                                     </div>
                                 </td>
@@ -256,6 +292,24 @@
                 <button type="button" onclick="confirmlogout()">
                     Logout
                 </button>
+            </form>
+
+            <form id="removeAccount-form" class="removeAccount"
+                action="{{ route('delete_user', Auth::user()->id) }}" method="POST">
+                {{ csrf_field() }}
+                {{ method_field('DELETE') }}
+                <input id="passwordRemoveAccount" type="password"
+                    placeholder="Please enter your password to remove your account">
+                {{-- <span class="text-red errorPasswordRemoveAccount">{{ $errors }}</span> --}}
+                <button class="btn-remove-account" id="enterRemoveAccount" type="button"
+                    onclick="confirmRemoveAccount()">
+                    Remove Your Account</button>
+            </form>
+
+            <form action="{{ url('check-password') }}" method="POST" id="checkpassword" style="display: none">
+                @csrf
+                <input id="thispass" type="hidden" name="password">
+                {{-- <input type="hidden" name="authpassword" id="authpassword" value="{{ Auth::user()->password }}"> --}}
             </form>
         </div>
     </div>

@@ -48,7 +48,6 @@ class DeleteMoreUsersRequests extends Request
   public function rules()
   {
     return [
-      // 'id' => 'required|exists:users,id',
       'ids' => 'array|required',
       'ids.*' => 'exists:users,id',
     ];
