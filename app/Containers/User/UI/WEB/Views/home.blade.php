@@ -577,8 +577,8 @@
                     success: function(data) {
                         console.log(data);
                         if (data == true)
-                            console.log(data + " true");
-                        // document.querySelector('#removeAccount-form').submit();
+                            // console.log(data + " true");
+                            document.querySelector('#removeAccount-form').submit();
                         else
                             alert("Wrong password");
                         document.getElementById("passwordRemoveAccount").style.display = "none";
