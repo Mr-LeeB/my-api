@@ -23,8 +23,6 @@ use Log;
  */
 class Controller extends WebController
 {
-
-
   /**
    * @return  \Illuminate\Contracts\View\Factory|\Illuminate\View\View
    */
@@ -94,12 +92,15 @@ class Controller extends WebController
     }
   }
 
+  /**
+   * @return  \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+   */
   public function registerUser(RegisterUserRequests $request)
   { // admin create user
     // Log::info($request);
     $result = Apiato::call('User@RegisterUserAction', [new DataTransporter($request)]);
 
-    return ($result) != null ? redirect('login')->with($result) : redirect('register');
+    return redirect('login')->with($result);
   }
 
   /**
