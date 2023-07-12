@@ -13,13 +13,13 @@ use Illuminate\Auth\Middleware\Authenticate as LaravelAuthenticate;
  */
 class Authenticate extends LaravelAuthenticate
 {
-    public function authenticate($request, array $guards)
-    {
-        try {
-            return parent::authenticate($request, $guards);
-        }
-        catch (Exception $exception) {
-            throw new AuthenticationException();
-        }
+  public function authenticate($request, array $guards)
+  {
+    // dd($request->all(), $guards);
+    try {
+      return parent::authenticate($request, $guards);
+    } catch (Exception $exception) {
+      throw new AuthenticationException();
     }
+  }
 }

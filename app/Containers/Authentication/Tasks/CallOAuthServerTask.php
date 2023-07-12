@@ -40,7 +40,9 @@ class CallOAuthServerTask extends Task
     // Create and handle the oauth request
     $request = Request::create($authFullApiUrl, 'POST', $data, [], [], $headers);
 
+
     $response = App::handle($request);
+
 
     // response content as Array
     $content = \GuzzleHttp\json_decode($response->getContent(), true);

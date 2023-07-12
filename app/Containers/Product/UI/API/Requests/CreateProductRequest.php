@@ -33,7 +33,7 @@ class CreateProductRequest extends Request
    * @var  array
    */
   protected $decode = [
-    // 'id',
+    'id',
   ];
 
   /**
@@ -52,10 +52,8 @@ class CreateProductRequest extends Request
   public function rules()
   {
     return [
-      // 'id' => 'required',
-      // '{user-input}' => 'required|max:255',
-      'name' => 'required|max:255',
-      'description' => 'required|string|max:4096',
+      'name' => 'required|min:2|max:255',
+      'description' => 'string|required|min:2|max:4096',
       'image' => 'required',
     ];
   }

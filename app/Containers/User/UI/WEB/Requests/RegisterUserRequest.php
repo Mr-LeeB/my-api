@@ -55,6 +55,15 @@ class RegisterUserRequests extends Request
     ];
   }
 
+
+  public function messages()
+  {
+    return [
+      'password.required' => 'Password is required',
+      'name.min' => 'Name phai nhap it nhat 2 ky tu',
+    ];
+  }
+
   /**
    * Determine if the user is authorized to make this request.
    *

@@ -10,12 +10,8 @@ class Product extends Model
 
   protected $fillable = [
     'name',
-    'discription',
+    'description',
     'image'
-  ];
-
-  protected $attributes = [
-
   ];
 
   protected $hidden = [

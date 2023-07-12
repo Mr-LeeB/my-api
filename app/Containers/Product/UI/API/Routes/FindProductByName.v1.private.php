@@ -2,9 +2,9 @@
 
 /**
  * @apiGroup           Product
- * @apiName            updateProduct
+ * @apiName            findProductById
  *
- * @api                {PATCH} /vv1/products/:id Endpoint title here..
+ * @api                {GET} /vv1/products/:name Endpoint title here..
  * @apiDescription     Endpoint description here..
  *
  * @apiVersion         v1.0.0
@@ -20,10 +20,10 @@
  */
 
 /** @var Route $router */
-$router->patch('products/{id}', [
-    'as' => 'api_product_update_product',
-    'uses'  => 'Controller@updateProduct',
-    'middleware' => [
-      'auth:api',
-    ],
+$router->get('products/name/{name}', [
+  'as' => 'api_product_find_product_by_name',
+  'uses' => 'Controller@findProductByName',
+  'middleware' => [
+    'auth:api',
+  ],
 ]);

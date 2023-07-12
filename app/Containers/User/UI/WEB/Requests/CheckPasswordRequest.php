@@ -54,6 +54,13 @@ class CheckPasswordRequests extends Request
     ];
   }
 
+  public function messages()
+  {
+    return [
+      'password.required' => 'Password is required',
+    ];
+  }
+
   /**
    * Determine if the user is authorized to make this request.
    *

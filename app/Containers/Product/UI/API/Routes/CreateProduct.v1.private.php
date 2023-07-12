@@ -2,9 +2,9 @@
 
 /**
  * @apiGroup           Product
- * @apiName            getAllProducts
+ * @apiName            createProduct
  *
- * @api                {GET} /vv1/products Endpoint title here..
+ * @api                {POST} /v1/products Endpoint title here..
  * @apiDescription     Endpoint description here..
  *
  * @apiVersion         v1.0.0
@@ -20,9 +20,9 @@
  */
 
 /** @var Route $router */
-$router->get('products', [
-    'as' => 'api_product_get_all_products',
-    'uses'  => 'Controller@getAllProducts',
+$router->post('products', [
+    'as' => 'api_product_create_product',
+    'uses'  => 'Controller@createProduct',
     'middleware' => [
       'auth:api',
     ],

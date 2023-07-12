@@ -5,9 +5,9 @@ namespace App\Containers\Product\UI\API\Requests;
 use App\Ship\Parents\Requests\Request;
 
 /**
- * Class GetAllProductsRequest.
+ * Class FindProductByIdRequest.
  */
-class GetAllProductsRequest extends Request
+class FindProductByNameRequest extends Request
 {
 
   /**
@@ -15,7 +15,7 @@ class GetAllProductsRequest extends Request
    *
    * @var string
    */
-  protected $transporter = \App\Containers\Product\Data\Transporters\GetAllProductsTransporter::class;
+  protected $transporter = \App\Containers\Product\Data\Transporters\FindProductByIdTransporter::class;
 
   /**
    * Define which Roles and/or Permissions has access to this request.
@@ -43,7 +43,7 @@ class GetAllProductsRequest extends Request
    * @var  array
    */
   protected $urlParameters = [
-    // 'id',
+    'name',
   ];
 
   /**
@@ -52,6 +52,7 @@ class GetAllProductsRequest extends Request
   public function rules()
   {
     return [
+      'name' => 'required|exists:products,name'
     ];
   }
 

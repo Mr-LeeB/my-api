@@ -2,9 +2,9 @@
 
 /**
  * @apiGroup           Product
- * @apiName            deleteProduct
+ * @apiName            getAllProducts
  *
- * @api                {DELETE} /vv1/products/:id Endpoint title here..
+ * @api                {GET} /vv1/products Endpoint title here..
  * @apiDescription     Endpoint description here..
  *
  * @apiVersion         v1.0.0
@@ -20,9 +20,9 @@
  */
 
 /** @var Route $router */
-$router->delete('products/{id}', [
-    'as' => 'api_product_delete_product',
-    'uses'  => 'Controller@deleteProduct',
+$router->get('products', [
+    'as' => 'api_product_get_all_products',
+    'uses'  => 'Controller@getAllProducts',
     'middleware' => [
       'auth:api',
     ],
