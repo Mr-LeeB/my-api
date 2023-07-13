@@ -52,9 +52,9 @@ class CreateProductRequest extends Request
   public function rules()
   {
     return [
-      'name' => 'required|min:2|max:255',
-      'description' => 'string|required|min:2|max:4096',
-      'image' => 'required',
+      'name' => 'required|unique:products|max:255|min:3',
+      'description' => 'string|required|min:3|max:4096|',
+      'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
     ];
   }
 
