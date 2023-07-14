@@ -98,15 +98,16 @@
 <body>
     <div class="container">
         <div class="content">
-
-            {{-- <div class="title">Hello World</div> --}}
             <button class="list-users" onclick="window.location.href='{{ url('/listuser') }}'">List All Users</button>
+            <button class="list-users" onclick="window.location.href='{{ url('/products') }}'">List All Products</button>
+
             <form class="form" action="{{ route('post_user_logout_form') }}" method="post">
                 {{ csrf_field() }}
                 <button type="button" onclick="confirmLogout()">
                     logout
                 </button>
             </form>
+
         </div>
     </div>
 </body>

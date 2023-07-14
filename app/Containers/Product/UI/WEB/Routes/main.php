@@ -44,9 +44,25 @@ Route::prefix('products')->group(function () {
     ],
   ]);
 
+  Route::delete('/', [
+    'as' => 'web_product_bulk_delete',
+    'uses' => 'Controller@bulkDeleteProduct',
+    'middleware' => [
+      'auth:web',
+    ],
+  ]);
+
   Route::put('/{id}', [
     'as' => 'web_product_update',
     'uses' => 'Controller@updateProduct',
+    'middleware' => [
+      'auth:web',
+    ],
+  ]);
+
+  Route::get('/{id}/edit', [
+    'as' => 'web_get_product_detail_page',
+    'uses' => 'Controller@showDetailProductPage',
     'middleware' => [
       'auth:web',
     ],

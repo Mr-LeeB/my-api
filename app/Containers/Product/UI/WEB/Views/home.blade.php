@@ -26,9 +26,18 @@
             text-align: center;
             margin-top: 20px;
             padding: 20px;
-            width: 60%;
+            width: 70%;
             border-radius: 5px;
             height: 100%;
+        }
+
+        .links {
+            text-align: center;
+            justify-content: center;
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 5px;
+            border: #636b6f 1px solid;
         }
 
         table {
@@ -42,6 +51,7 @@
         table td {
             text-align: left;
             padding: 16px;
+            text-align: center;
         }
 
         tr:nth-child(even) {
@@ -79,6 +89,52 @@
         img {
             border-radius: 5px;
         }
+
+        .search-area {
+            width: 100%;
+            text-align: end;
+            margin-bottom: 20px;
+        }
+
+        .input-search {
+            width: 25%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+
+        .operation {
+            text-align: center;
+
+        }
+
+        td .btn-edit {
+            background-color: #1b529e;
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+
+        td .btn-edit:hover {
+            background-color: #0e2d5e;
+        }
+
+        td .btn-delete {
+            background-color: #7a1f1f;
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+
+        td .btn-delete:hover {
+            background-color: #4a0f0f;
+        }
     </style>
 @endsection
 
@@ -86,5 +142,61 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"
         integrity="sha512-3gJwYpMe3QewGELv8k/BX9vcqhryRdzRMxVfq6ngyWXwo03GFEzjsUm8Q7RZcHPHksttq7/GFoxjCVUjkjvPdw=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script></script>
+    <script>
+        function searchByNameProduct() {
+            var input, filter, table, tr, td, i, txtValue;
+            input = document.getElementsByClassName("input-search")[0];
+            filter = input.value.toUpperCase();
+            table = document.getElementsByTagName("table")[0];
+            tr = table.getElementsByTagName("tr");
+            for (i = 0; i < tr.length; i++) {
+                td = tr[i].getElementsByTagName("td")[2];
+
+                if (td) {
+                    txtValue = td.textContent || td.innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        tr[i].style.display = "";
+                    } else {
+                        tr[i].style.display = "none";
+                    }
+                }
+            }
+        }
+
+        function confirmDeleteProduct(id) {
+            var result = confirm("Are you sure you want to delete this product?");
+            if (result) {
+                $('#form-detele-product' + id.toString()).submit();
+            }
+        }
+
+        function checkAll(productID_json) {
+            var checkAll = document.getElementById('checkAll');
+            var select_product = document.getElementById('select_product');
+            if (checkAll.checked == true) {
+                for (var i = 0; i < productID_json.length; i++) {
+                    document.getElementById('select_product' + productID_json[i]).checked = true;
+                }
+            } else {
+                for (var i = 0; i < productID_json.length; i++) {
+                    document.getElementById('select_product' + productID_json[i]).checked = false;
+                }
+            }
+        }
+
+        function checkOne(productID_json) {
+            var checkAll = document.getElementById('checkAll');
+            var count = 0;
+            for (var i = 0; i < productID_json.length; i++) {
+                if (document.getElementById('select_product' + productID_json[i]).checked == true) {
+                    count++;
+                }
+            }
+            if (count == productID_json.length) {
+                checkAll.checked = true;
+            } else {
+                checkAll.checked = false;
+            }
+        }
+    </script>
 @endsection

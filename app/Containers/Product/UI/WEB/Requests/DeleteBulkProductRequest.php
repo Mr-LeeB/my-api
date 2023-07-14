@@ -5,18 +5,10 @@ namespace App\Containers\Product\UI\WEB\Requests;
 use App\Ship\Parents\Requests\Request;
 
 /**
- * Class DeleteProductRequest.
+ * Class DeleteBulkProductRequest.
  */
-class DeleteProductRequest extends Request
+class DeleteBulkProductRequest extends Request
 {
-
-  /**
-   * The assigned Transporter for this Request
-   *
-   * @var string
-   */
-  protected $transporter = \App\Containers\Product\Data\Transporters\DeleteProductTransporter::class;
-
   /**
    * Define which Roles and/or Permissions has access to this request.
    *
@@ -43,7 +35,7 @@ class DeleteProductRequest extends Request
    * @var  array
    */
   protected $urlParameters = [
-    'id',
+    'id*',
   ];
 
   /**
@@ -52,7 +44,8 @@ class DeleteProductRequest extends Request
   public function rules()
   {
     return [
-      'id' => 'required|exists:products,id',
+      'id' => 'array|required',
+      'id.*' => 'exists:users,id',
     ];
   }
 

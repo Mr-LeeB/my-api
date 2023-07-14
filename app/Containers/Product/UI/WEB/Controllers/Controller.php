@@ -3,6 +3,7 @@
 namespace App\Containers\Product\UI\WEB\Controllers;
 
 use App\Containers\Product\UI\WEB\Requests\CreateProductRequest;
+use App\Containers\Product\UI\WEB\Requests\DeleteBulkProductRequest;
 use App\Containers\Product\UI\WEB\Requests\DeleteProductRequest;
 use App\Containers\Product\UI\WEB\Requests\GetAllProductsRequest;
 use App\Containers\Product\UI\WEB\Requests\FindProductByIdRequest;
@@ -10,7 +11,6 @@ use App\Containers\Product\UI\WEB\Requests\UpdateProductRequest;
 use App\Ship\Parents\Controllers\WebController;
 use Apiato\Core\Foundation\Facades\Apiato;
 use App\Ship\Transporters\DataTransporter;
-use Image;
 
 /**
  * Class Controller
@@ -38,10 +38,10 @@ class Controller extends WebController
    */
   public function findProductById(FindProductByIdRequest $request)
   {
-    dd("findProductById");
     $product = Apiato::call('Product@FindProductByIdAction', [new DataTransporter($request)]);
 
-    // ..
+    return view('product::product-detail-page', compact('product'));
+
   }
 
   /**
@@ -55,9 +55,6 @@ class Controller extends WebController
 
     $fileName = time() . $request->file('image')->getClientOriginalName();
     $path = storage_path('app/public/images');
-
-    // $image = Image::make($request->file('image')->getRealPath());
-    // $image->resize(100, 100)->save($path . '/' . $fileName);
 
     $image = new \Imagick($request->file('image')->getRealPath());
     // resize image
@@ -80,11 +77,32 @@ class Controller extends WebController
    */
   public function updateProduct(UpdateProductRequest $request)
   {
+    $oldProduct = Apiato::call('Product@FindProductByIdAction', [new DataTransporter($request)]);
 
-    dd("updateProduct");
-    $product = Apiato::call('Product@UpdateProductAction', [new DataTransporter($request)]);
+    $requestData = $request->all();
+    $fileName = time() . $request->file('image')->getClientOriginalName();
+    $path = storage_path('app/public/images');
 
-    // ..
+    $image = new \Imagick($request->file('image')->getRealPath());
+
+    // resize image
+    $image->resizeImage(100, 100, \Imagick::FILTER_LANCZOS, 1);
+
+    // save image
+    $image->writeImage($path . '/' . $fileName);
+
+    $requestData['image'] = '/storage/images/' . $fileName;
+
+    $product = Apiato::call('Product@UpdateProductAction', [new DataTransporter($requestData)]);
+
+    // remove old image
+    $oldImage = substr($oldProduct->image, 15);
+    try {
+      unlink(storage_path('app/public/images') . $oldImage);
+    } catch (\Exception $e) {
+      return redirect()->back()->withErrors(['error' => $e->getMessage()]);
+    }
+    return view('product::product-detail-page', compact('product'));
   }
 
   /**
@@ -94,9 +112,42 @@ class Controller extends WebController
    */
   public function deleteProduct(DeleteProductRequest $request)
   {
-    $result = Apiato::call('Product@DeleteProductAction', [new DataTransporter($request)]);
+    try {
 
-    // ..
+      $result = Apiato::call('Product@FindProductByIdAction', [new DataTransporter($request)]);
+
+      if ($result) {
+        Apiato::call('Product@DeleteProductAction', [new DataTransporter($request)]);
+
+        $oldImage = substr($result->image, 15);
+        unlink(storage_path('app/public/images') . $oldImage);
+      }
+    } catch (\Exception $e) {
+      return redirect()->back()->withErrors(['error' => $e->getMessage()]);
+    }
+    return redirect()->route('web_product_get_all_products')->with('message', 'Product (' . $result->name . ') Deleted Successfully!');
+  }
+
+  /**
+   * @param $id
+   * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+   */
+  public function bulkDeleteProduct(DeleteBulkProductRequest $request)
+  {
+    try {
+
+      $result = Apiato::call('Product@FindProductByIdAction', [new DataTransporter($request)]);
+
+      if ($result) {
+        Apiato::call('Product@DeleteProductAction', [new DataTransporter($request)]);
+
+        $oldImage = substr($result->image, 15);
+        unlink(storage_path('app/public/images') . $oldImage);
+      }
+    } catch (\Exception $e) {
+      return redirect()->back()->withErrors(['error' => $e->getMessage()]);
+    }
+    return redirect()->route('web_product_get_all_products')->with('message', 'Product (' . $result->name . ') Deleted Successfully!');
   }
 
   /**
@@ -106,5 +157,16 @@ class Controller extends WebController
   {
     $product = null;
     return view('product::create-product-page', compact('product'));
+  }
+
+  /**
+   * @param $id
+   * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+   */
+  public function showDetailProductPage(FindProductByIdRequest $request)
+  {
+    $product = Apiato::call('Product@FindProductByIdAction', [new DataTransporter($request)]);
+
+    return view('product::product-detail-page', compact('product'));
   }
 }

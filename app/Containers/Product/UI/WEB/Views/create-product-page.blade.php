@@ -129,6 +129,20 @@
     }
 </style>
 
+<script>
+    function confirmCreateNewProduct() {
+        var name = document.getElementById('name').value;
+        var description = document.getElementById('description').value;
+        var image = document.getElementById('image').value;
+
+        if (name == '' || description == '' || image == '') {
+            alert('Please fill in all fields');
+        } else {
+            document.getElementById('create-product').submit();
+        }
+    }
+</script>
+
 <body>
     <div class="parent">
         <div class="content">
@@ -136,11 +150,11 @@
                 <a href="{{ route('web_product_get_all_products') }}"> Back to List products</a>
             </div>
             <div class="add-new-product">
-                <form class="create-product" action="{{ route('web_product_create') }}" method="POST"
+                <form id="create-product" action="{{ route('web_product_create') }}" method="POST"
                     enctype="multipart/form-data">
                     {{ csrf_field() }}
                     <h2>Add new product</h2>
-                    <input type="text" name="name" placeholder="Name"
+                    <input id="name" type="text" name="name" placeholder="Name"
                         @php if (old('name')) {
                             echo 'value="' . old('name') . '"';
                         } @endphp>
@@ -149,7 +163,7 @@
                             {{ $message }}
                         @enderror
                     </span>
-                    <input type="text" name="description" placeholder="Description"
+                    <input id="description" type="text" name="description" placeholder="Description"
                         @php if (old('name')) {
                       echo 'value="' . old('name') . '"';
                   } @endphp>
@@ -159,7 +173,7 @@
                             {{ $message }}
                         @enderror
                     </span>
-                    <input type="file" name="image" placeholder="Image"
+                    <input id="image" type="file" name="image" placeholder="Image"
                         @php if (old('image')) {
                       echo 'value="' . old('image') . '"';
                   } @endphp>
@@ -169,7 +183,7 @@
                         @enderror
                     </span>
 
-                    <button type="submit">Add new product</button>
+                    <button type="button" onclick="confirmCreateNewProduct()">Add new product</button>
                 </form>
             </div>
 

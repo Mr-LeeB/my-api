@@ -21,7 +21,10 @@
 </head>
 
 <body>
+    @include('product::menu')
+
     <div class="parent">
+
         <!--List all user-->
         <div class="content">
             <div class="title m-b-md">
