@@ -141,6 +141,7 @@
                     <form class="delete-selected-form" action="{{ route('delete_more_users') }}" method="POST">
                         {{ csrf_field() }}
                         {{ method_field('DELETE') }}
+
                         @foreach ($userIds as $item)
                             <input id="selectUser{{ $item }}" type="hidden" name="ids[]"
                                 value="{{ $item }}" />

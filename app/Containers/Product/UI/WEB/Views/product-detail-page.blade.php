@@ -39,6 +39,17 @@
             height: 100%;
         }
 
+        .custom-file-upload {
+            border: 1px solid #ccc;
+            display: inline-block;
+            padding: 6px 12px;
+            cursor: pointer;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
         .back-to-list {
             text-align: left;
         }
@@ -187,8 +198,14 @@
         #btn-delete-product:hover {
             background-color: #4e0505;
         }
-    </style>
 
+        .notiError {
+            color: #d21111;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"
+        integrity="sha512-3gJwYpMe3QewGELv8k/BX9vcqhryRdzRMxVfq6ngyWXwo03GFEzjsUm8Q7RZcHPHksttq7/GFoxjCVUjkjvPdw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script>
         function enableEdit() {
             document.getElementById("description").style.display = "inline-block";
@@ -213,15 +230,65 @@
             document.getElementsByClassName("info")[0].style.display = "inline-block";
             document.getElementsByClassName("info")[2].style.display = "inline-block";
 
+            document.getElementById("name").value = document.getElementsByClassName("info")[2].innerHTML;
+            document.getElementById("description").value = document.getElementsByClassName("info")[0].innerHTML;
 
+            document.getElementById("errorName").innerHTML = "";
+            document.getElementById("errorDescription").innerHTML = "";
+            document.getElementById("errorImage").innerHTML = "";
+
+            document.getElementById("preview").setAttribute("src", document.getElementById("srcImage").src);
         }
 
-        function confirmSave() {
+        function confirmSave(oldName) {
+            var name = document.getElementById('name').value;
+            var description = document.getElementById('description').value;
+            var image = document.getElementById('image').value;
+
+            if (name.trim() == "") {
+                alert("Name is required!");
+                return;
+            } else if (name.trim().length < 3) {
+                alert("The name must be at least 3 characters.");
+
+                return;
+            } else if (name.trim().length > 255) {
+                alert("The name may not be greater than 255 characters.");
+                return;
+            }
+
+            if (description.trim() == "") {
+                alert("Description is required!");
+                return;
+            } else if (description.trim().length < 3) {
+                alert("The description must be at least 3 characters.");
+                return;
+            } else if (description.trim().length > 4096) {
+                alert("The description may not be greater than 4096 characters.");
+                return;
+            }
+
+            if (image) {
+                var extension = image.split('.').pop().toLowerCase();
+                if (jQuery.inArray(extension, ['gif', 'png', 'jpg', 'jpeg', 'svg']) == -1) {
+                    alert('Invalid Image File!');
+                    return;
+                }
+                var imageSize = document.getElementById("image").files[0].size;
+                if (imageSize > 10000000) {
+                    alert("Image size is too large!");
+                    return;
+                }
+            }
+
             var r = confirm("Are you sure to save?");
             if (r == true) {
-                document.getElementById("btn-save-product").type = "submit";
-            } else {
-                document.getElementById("btn-save-product").type = "button";
+                if (name.trim() == oldName.trim()) {
+                    document.getElementById('name').removeAttribute("name");
+                }
+                if (image)
+                    document.getElementById('image').removeAttribute("image");
+                document.querySelector(".form-detail").submit();
             }
         }
 
@@ -231,6 +298,68 @@
                 document.getElementById("btn-delete-product").type = "submit";
             } else {
                 document.getElementById("btn-delete-product").type = "button";
+            }
+        }
+
+        function validateDescription() {
+            var description = document.getElementById('description').value;
+            if (description.trim() == "") {
+                document.getElementById("errorDescription").innerHTML = "Description is required!";
+                return;
+            } else if (description.trim().length < 3) {
+                document.getElementById("errorDescription").innerHTML = "The description must be at least 3 characters.";
+                return;
+            } else if (description.trim().length > 4096) {
+                document.getElementById("errorDescription").innerHTML =
+                    "The description may not be greater than 4096 characters.";
+                return;
+            } else {
+                document.getElementById("errorDescription").innerHTML = "";
+            }
+        }
+
+        function validateName() {
+            var name = document.getElementById('name').value;
+            if (name.trim() == "") {
+                document.getElementById("errorName").innerHTML = "Name is required!";
+                return;
+            } else if (name.trim().length < 3) {
+                document.getElementById("errorName").innerHTML = "The name must be at least 3 characters.";
+                return;
+            } else if (name.trim().length > 255) {
+                document.getElementById("errorName").innerHTML = "The name may not be greater than 255 characters.";
+                return;
+            } else {
+                document.getElementById("errorName").innerHTML = "";
+            }
+        }
+
+        function previewImage() {
+            var file = document.getElementById("image").files;
+            if (file.length > 0) {
+                var fileReader = new FileReader();
+                fileReader.onload = function(event) {
+                    document.getElementById("preview").setAttribute("src", event.target.result);
+                };
+                fileReader.readAsDataURL(file[0]);
+            }
+
+            var image = document.getElementById('image').value;
+            if (image) {
+                var extension = image.split('.').pop().toLowerCase();
+                if (jQuery.inArray(extension, ['gif', 'png', 'jpg', 'jpeg', 'svg']) == -1) {
+                    document.getElementById("errorImage").innerHTML = "Invalid Image File!";
+                    return;
+                } else {
+                    document.getElementById("errorImage").innerHTML = "";
+                }
+                var imageSize = document.getElementById("image").files[0].size;
+                if (imageSize > 10000000) {
+                    document.getElementById("errorImage").innerHTML = "Image size is too large!";
+                    return;
+                } else {
+                    document.getElementById("errorImage").innerHTML = "";
+                }
             }
         }
     </script>
@@ -265,25 +394,42 @@
                 @endif
             </span>
             <div class="image-product">
-                <img src="{{ $product->image }}" alt="image" width="600px" height="600px">
-                <span>
+                <img id="srcImage" src="{{ $product->image }}" alt="image" width="600px" height="600px">
+                <span class="notiError">
                     @if ($errors->has('image'))
                         {{ $errors->first('image') }}
                     @endif
                 </span>
             </div>
+
             <div class="product-detail">
                 <form class="form-detail" action="{{ route('web_product_update', $product->id) }}" method="POST"
                     enctype="multipart/form-data">
                     {{ csrf_field() }}
                     {{ method_field('PUT') }}
 
+                    @php
+                        $description = null;
+                        if (old('description')) {
+                            $description = old('description');
+                        } else {
+                            $description = $product->description;
+                        }
+                        
+                        $name = null;
+                        if (old('name')) {
+                            $name = old('name');
+                        } else {
+                            $name = $product->name;
+                        }
+                    @endphp
+
                     <div class="descripton">
                         <h2 class="description-product">Description: </h2>
-                        <textarea name="description" id="description">{{ $product->description }}</textarea>
+                        <textarea name="description" id="description" oninput="validateDescription()">{{ $description }}</textarea>
                         <p class="info">{{ $product->description }}</p>
                     </div>
-                    <span>
+                    <span id="errorDescription" class="notiError">
                         @if ($errors->has('description'))
                             {{ $errors->first('description') }}
                         @endif
@@ -292,41 +438,56 @@
                     <h2 class="description-product">Details: </h2>
                     <div class="id detail">
                         <p class="id-product" style="display: inline-block">ID: </p>
-                        <input type="text" id="id" value="{{ $product->id }}">
+                        <input type="hidden" id="id" value="{{ $product->id }}">
                         <p class="info" style="display: inline-block">{{ $product->id }}</p>
                     </div>
 
                     <div class="name detail">
-                        <p class="name-product" style="display: inline-block">Name: </p>
-                        <input type="text" name="name" id="name" value="{{ $product->name }}">
+                        <p class="name-product" style="display: inline-block">Name:
+                            <span id="errorName" class="notiError">
+                                @if ($errors->has('name'))
+                                    {{ $errors->first('name') }}
+                                @endif
+                            </span>
+                        </p>
+                        <input type="text" name="name" id="name" value="{{ $name }}"
+                            oninput="validateName()">
                         <p class="info" style="display: inline-block">{{ $product->name }}</p>
 
                     </div>
-                    <span>
-                        @if ($errors->has('name'))
-                            {{ $errors->first('name') }}
-                        @endif
-                    </span>
 
 
                     <div class="image detail" style="display: none;">
-                        <p>Image: </p>
-                        <input type="file" name="image" id="image">
+                        <p>Image: <span id="errorImage" class="notiError"> </span></p>
+                        <img id="preview" src="{{ $product->image }}" alt="image" width="100px" height="100px">
+                        <label class="custom-file-upload">
+                            <input type="file" name="image" id="image" oninput="previewImage()" />
+                            Upload Product's Image
+                        </label>
                     </div>
-
-
-
+                    @php
+                        $productName = json_encode($product->name);
+                    @endphp
                     <div class="handle">
                         <input type="button" id="btn-enable-edit-product" value="Edit" onclick="enableEdit()">
-                        <input type="button" id="btn-save-product" value="Save" onclick="confirmSave()">
+                        <input type="button" id="btn-save-product" value="Save"
+                            onclick="confirmSave({{ $productName }})">
                         <input type="button" id="btn-cancle-edit-product" value="Cancle" onclick="cancleEdit()">
                     </div>
                 </form>
-
             </div>
-
         </div>
     </div>
+
+
 </body>
+<script>
+    if ({{ $errors->any() }})
+        enableEdit();
+    if ({{ session('message') }})
+        enableEdit();
+    if ({{ session('error') }})
+        enableEdit();
+</script>
 
 </html>

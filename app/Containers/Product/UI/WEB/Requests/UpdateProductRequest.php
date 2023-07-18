@@ -53,9 +53,9 @@ class UpdateProductRequest extends Request
   {
     return [
       'id' => 'required|exists:products,id',
-      'name' => 'required|unique:products|max:255|min:3',
-      'description' => 'string|required|min:3|max:4096|',
-      'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+      'name' => 'unique:products|max:255|min:3',
+      'description' => 'string|min:3|max:4096|',
+      'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
     ];
   }
 

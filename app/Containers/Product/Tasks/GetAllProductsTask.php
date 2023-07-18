@@ -18,7 +18,7 @@ class GetAllProductsTask extends Task
 
   public function run()
   {
-    return $this->repository->paginate(20);
+    return $this->repository->paginate(10);
   }
   public function ordered()
   {

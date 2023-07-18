@@ -20,16 +20,16 @@
     {{-- php function --}}
     @php
         $product_description = [];
-        $productID_json = [];
+        $productID = [];
         foreach ($products as $key => $value) {
             if (strlen($value->description) > 20) {
                 $value->description = substr($value->description, 0, 20) . '...';
             }
             array_push($product_description, $value);
-            array_push($productID_json, $value->id);
+            array_push($productID, $value->id);
         }
-
-        $productID_json = json_encode($productID_json);
+        
+        $productID_json = json_encode($productID);
     @endphp
 
 </head>
@@ -68,28 +68,20 @@
             @endif
 
 
-            <script></script>
             <div class="links">
+                <div class="delete-more-product">
+                    <form action="{{ route('web_product_bulk_delete') }}" method="POST" id="form-delete-more-product">
+                        {{ csrf_field() }}
+                        {{ method_field('DELETE') }}
 
-              <script>
-                function confirmDeleteMoreProduct() {
-                    var id = document.getElementById('id').value;
-                    var form = document.getElementById('form-delete-more-product');
-                    var r = confirm("Are you sure you want to delete this product?");
-                    if (r == true) {
-                        form.submit();
-                    }
-                }
-              </script>
-
-              <div class="delete-more-product">
-                <form action="" method="POST" id="form-delete-more-product">
-                    {{ csrf_field() }}
-                    {{ method_field('DELETE') }}
-                    <input type="hidden" name="id" id="id">
-                    <input type="button" onclick="confirmDeleteMoreProduct()" class="btn-delete" value="Delete">
-                </form>
-              </div>
+                        @foreach ($productID as $id)
+                            <input type="hidden" name="id[]" id="selectedManyProductToDel{{ $id }}"
+                                value="{{ $id }}">
+                        @endforeach
+                        <input type="button" onclick="confirmDeleteMoreProduct({{ $productID_json }})"
+                            class="btn-delete" value="Delete Products">
+                    </form>
+                </div>
 
                 <table>
                     <thead>
@@ -104,37 +96,43 @@
                     </thead>
 
                     <tbody>
-                        @foreach ($product_description as $product)
-                            <tr id="{{ $product->id }}">
-                                <td>
-                                    <input type="checkbox" id="select_product{{ $product->id }}"
-                                        onclick="checkOne({{ $productID_json }})">
-                                </td>
-                                <td>{{ $product->id }}</td>
-                                <td>{{ $product->name }}</td>
-                                <td>{{ $product->description }}</td>
-                                <td><img src="{{ asset($product->image) }}" alt="" width=""></td>
-                                <td class="operation">
-                                    <form action="{{ route('web_product_find_by_id', $product->id) }}" method="GET">
-                                        <input type="hidden" name="id" value="{{ $product->id }}">
-                                        <input type="submit" class="btn-edit" value="More Detail">
-                                    </form>
-
-                                </td>
-                                <td class="operation">
-                                    <form class="form-detele-product" id="form-detele-product{{ $product->id }}"
-                                        action="{{ route('web_product_delete', $product->id) }}" method="POST">
-                                        {{ csrf_field() }}
-                                        {{ method_field('DELETE') }}
-                                        <input type="hidden" name="id" value="{{ $product->id }}">
-                                        <input type="button" onclick="confirmDeleteProduct({{ $product->id }})"
-                                            class="btn-delete" value="Delete">
-                                    </form>
-                                </td>
-                            </tr>
-                        @endforeach
+                        @if (isset($product_description) && count($product_description) > 0)
+                            @foreach ($product_description as $product)
+                                <tr id="{{ $product->id }}">
+                                    <td>
+                                        <input type="checkbox" id="select_product{{ $product->id }}"
+                                            onclick="checkOne({{ $productID_json }})">
+                                    </td>
+                                    <td>{{ $product->id }}</td>
+                                    <td>{{ $product->name }}</td>
+                                    <td>{{ $product->description }}</td>
+                                    <td><img src="{{ asset($product->image) }}" alt="" width=""></td>
+                                    <td class="operation">
+                                        <form action="{{ route('web_product_find_by_id', $product->id) }}"
+                                            method="GET">
+                                            <input type="submit" class="btn-edit" value="More Detail">
+                                        </form>
+                                    </td>
+                                    <td class="operation">
+                                        <form class="form-detele-product" id="form-detele-product{{ $product->id }}"
+                                            action="{{ route('web_product_delete', $product->id) }}" method="POST">
+                                            {{ csrf_field() }}
+                                            {{ method_field('DELETE') }}
+                                            <input type="hidden" name="id" value="{{ $product->id }}">
+                                            <input type="button" onclick="confirmDeleteProduct({{ $product->id }})"
+                                                class="btn-delete" value="Delete">
+                                        </form>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        @endif
                     </tbody>
                 </table>
+                <div class="paginationWrap">
+                    @if (isset($product_description) && count($product_description) > 0)
+                        {{ $products->links() }}
+                    @endif
+                </div>
             </div>
         </div>
     </div>

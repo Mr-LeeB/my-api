@@ -135,6 +135,68 @@
         td .btn-delete:hover {
             background-color: #4a0f0f;
         }
+
+        .delete-more-product {
+            display: none;
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            width: 20%;
+        }
+
+        .btn-delete {
+            background-color: #7a1f1f;
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            width: 100%;
+        }
+
+        .paginationWrap {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .paginationWrap ul li {
+            display: inline-block;
+            margin: 0 5px;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        .paginationWrap ul li a {
+            padding: 5px 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .paginationWrap ul li.active a {
+            background-color: #25458a;
+            color: white;
+        }
+
+        .paginationWrap ul li a:hover {
+            background-color: #3266ab;
+            color: white;
+        }
+
+        .paginationWrap ul li.disabled a {
+            background-color: #ddd;
+            color: #636b6f;
+        }
+
+        .paginationWrap ul li.disabled a:hover {
+            background-color: #ddd;
+            color: #636b6f;
+        }
     </style>
 @endsection
 
@@ -176,10 +238,14 @@
             if (checkAll.checked == true) {
                 for (var i = 0; i < productID_json.length; i++) {
                     document.getElementById('select_product' + productID_json[i]).checked = true;
+                    document.getElementsByClassName('delete-more-product')[0].style.display = "block";
+
                 }
             } else {
                 for (var i = 0; i < productID_json.length; i++) {
                     document.getElementById('select_product' + productID_json[i]).checked = false;
+                    document.getElementsByClassName('delete-more-product')[0].style.display = "none";
+
                 }
             }
         }
@@ -196,6 +262,23 @@
                 checkAll.checked = true;
             } else {
                 checkAll.checked = false;
+            }
+
+            if (count > 0) {
+                document.getElementsByClassName('delete-more-product')[0].style.display = "block";
+            } else {
+                document.getElementsByClassName('delete-more-product')[0].style.display = "none";
+            }
+        }
+
+        function confirmDeleteMoreProduct(listID) {
+            for (var i = 0; i < listID.length; i++) {
+                if (!document.getElementById('select_product' + listID[i]).checked) {
+                    document.getElementById('selectedManyProductToDel' + listID[i].toString()).removeAttribute("name");
+                }
+            }
+            if (confirm("Are you sure you want to delete this product?")) {
+                document.querySelector('#form-delete-more-product').submit();
             }
         }
     </script>

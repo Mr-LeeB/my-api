@@ -16,6 +16,9 @@ class UpdateProductAction extends Action
       'image'
     ]);
 
+    // remove null values and their keys
+    $data = array_filter($data);
+
     $product = Apiato::call('Product@UpdateProductTask', [$request->id, $data]);
 
     return $product;

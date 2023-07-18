@@ -25,7 +25,7 @@ class DeleteBulkProductRequest extends Request
    * @var  array
    */
   protected $decode = [
-    'id',
+    'id.*',
   ];
 
   /**
@@ -35,7 +35,6 @@ class DeleteBulkProductRequest extends Request
    * @var  array
    */
   protected $urlParameters = [
-    'id*',
   ];
 
   /**
@@ -45,7 +44,7 @@ class DeleteBulkProductRequest extends Request
   {
     return [
       'id' => 'array|required',
-      'id.*' => 'exists:users,id',
+      'id.*' => 'exists:products,id',
     ];
   }
 
