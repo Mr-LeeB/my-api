@@ -7,6 +7,7 @@ use App\Containers\User\UI\WEB\Requests\CheckPasswordRequests;
 use App\Containers\User\UI\WEB\Requests\CreateNewUserRequests;
 use App\Containers\User\UI\WEB\Requests\DeleteMoreUsersRequests;
 use App\Containers\User\UI\WEB\Requests\DeleteUserRequests;
+use App\Containers\User\UI\WEB\Requests\FindUserByIdRequests;
 use App\Containers\User\UI\WEB\Requests\GetAllUserRequests;
 use App\Containers\User\UI\WEB\Requests\RegisterUserRequests;
 use App\Containers\User\UI\WEB\Requests\UpdateUserRequests;
@@ -34,10 +35,23 @@ class Controller extends WebController
   /**
    * @return  \Illuminate\Contracts\View\Factory|\Illuminate\View\View
    */
-  public function getAllUser(GetAllUserRequests $request)
+  public function getAllUser(GetAllUserRequests $request, FindUserByIdRequests $findUserRequest)
   { // admin show all user
-    $result = Apiato::call('User@GetAllUsersAction', [new DataTransporter($request)]);
-    return view('user::home', ['users' => $result]);
+    $users = Apiato::call('User@GetAllUsersAction', [new DataTransporter($request)]);
+    // $user1 = route('find_user_by_id', ['id' => 17]);
+    $isEdited = -1;
+    $userEdited = null;
+    if ($findUserRequest->isEdited) {
+      $isEdited = $findUserRequest->isEdited;
+      $userEdited = self::findUserById($findUserRequest);
+    }
+    return view('user::home', compact('users', 'isEdited', 'userEdited'));
+  }
+
+  public function findUserById(FindUserByIdRequests $request)
+  {
+    $user = Apiato::call('User@FindUserByIdAction', [new DataTransporter($request)]);
+    return $user;
   }
 
   /**

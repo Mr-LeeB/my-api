@@ -197,6 +197,28 @@
             background-color: #ddd;
             color: #636b6f;
         }
+
+        .icon-sort-item {
+            width: 20px;
+            height: 20px;
+        }
+
+        .icon-sort-item:hover {
+            cursor: pointer;
+        }
+
+        .group-sort-icon {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .sort {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+        }
     </style>
 @endsection
 
@@ -216,7 +238,7 @@
 
                 if (td) {
                     txtValue = td.textContent || td.innerText;
-                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                    if (txtValue.toUpperCase().indexOf(filter.trim()) > -1) {
                         tr[i].style.display = "";
                     } else {
                         tr[i].style.display = "none";
@@ -280,6 +302,20 @@
             if (confirm("Are you sure you want to delete this product?")) {
                 document.querySelector('#form-delete-more-product').submit();
             }
+        }
+
+        function sortFunc(num, oldNum) {
+            console.log(oldNum);
+            $('#sort').val(num);
+
+            if (num == oldNum) {
+                $('#sort').val(num + 1);
+                console.log(document.getElementById('sort').value);
+                return;
+            }
+
+            $('#form-sort').submit();
+
         }
     </script>
 @endsection

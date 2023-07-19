@@ -79,6 +79,10 @@
             background-color: #f2f2f2
         }
 
+        tr:hover {
+            background-color: #ddd;
+        }
+
         th {
             background-color: #4CAF50;
             color: white;
@@ -146,6 +150,11 @@
             padding: 15px;
             box-sizing: border-box;
             font-size: 14px;
+        }
+
+        .form input:focus {
+            background: #FFFFFF;
+            border: 2px solid #4CAF50;
         }
 
         .form button {
@@ -379,6 +388,46 @@
         #passwordRemoveAccount:disabled:hover {
             background-color: #c50e0e;
         }
+
+        .paginationWrap {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .paginationWrap ul li {
+            display: inline-block;
+            margin: 0 5px;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        .paginationWrap ul li a {
+            padding: 5px 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .paginationWrap ul li.active a {
+            background-color: #25458a;
+            color: white;
+        }
+
+        .paginationWrap ul li a:hover {
+            background-color: #3266ab;
+            color: white;
+        }
+
+        .paginationWrap ul li.disabled a {
+            background-color: #ddd;
+            color: #636b6f;
+        }
+
+        .paginationWrap ul li.disabled a:hover {
+            background-color: #ddd;
+            color: #636b6f;
+        }
     </style>
 @endsection
 
@@ -387,6 +436,16 @@
         integrity="sha512-3gJwYpMe3QewGELv8k/BX9vcqhryRdzRMxVfq6ngyWXwo03GFEzjsUm8Q7RZcHPHksttq7/GFoxjCVUjkjvPdw=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script>
+        function validateEmail(email) {
+            if (!email.trim().toLowerCase().match(
+                    /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i
+                )) {
+                alert("You have entered an invalid email address!");
+                return false;
+            }
+            return true;
+        }
+
         function confirmDelete(user) {
             if (confirm("Are you sure you want to delete this user?")) {
                 // Nếu người dùng xác nhận xóa, gửi form
@@ -395,12 +454,25 @@
         }
 
         function enableEdit(user) {
+            // $("#findUser").val(user.id);
+            // $("#isEdited").val(user.id);
+            // $('#formfinduser').submit();
             document.getElementById("myForm" + user.id.toString()).style.display = "block";
         }
 
         function confirmSave(user) {
             var confirmEditEmail = document.getElementById('onEditEmail' + user.id.toString());
             var confirmEditName = document.getElementById('name' + user.id.toString());
+
+            if (!validateEmail(confirmEditEmail.value)) {
+                document.getElementById('onEditEmail' + user.id.toString()).focus();
+                return false;
+            }
+
+            if (confirmEditEmail.value == "" || confirmEditName.value == "") {
+                alert("Please fill out all fields");
+                return false;
+            }
 
             if (confirmEditEmail.value.trim() == user.email.trim()) {
                 confirmEditEmail.removeAttribute("name");
@@ -446,6 +518,11 @@
             var password = document.getElementById("password").value;
             var confirm_password = document.getElementById("confirm_password").value;
 
+            if (!validateEmail(email)) {
+                document.getElementById("email").focus();
+                return false;
+            }
+
             if (email == "" || name == "" || password == "") {
                 document.getElementById("error").innerHTML = "Please fill out all fields";
                 return false;
@@ -463,26 +540,26 @@
             }
         }
 
-        function editEmail(users, user) {
-            let email = document.getElementById("onEditEmail" + user.id.toString()).value;
+        // function editEmail(users, user) {
+        //     let email = document.getElementById("onEditEmail" + user.id.toString()).value;
 
-            if (email.trim() == user.email.trim()) {
-                document.getElementById("errorEmail" + user.id.toString()).innerHTML = "";
-            } else {
-                for (let i = 0; i < users.length; i++) {
-                    if (users[i] == email.trim()) {
-                        document.getElementById("errorEmail" + user.id.toString()).innerHTML = "Email already exists";
-                        document.getElementById("errorEmail" + user.id.toString()).style.display = "block";
-                        document.getElementsByClassName("edit-save")[0].disabled = true;
-                        return;
-                    } else {
-                        document.getElementById("errorEmail" + user.id.toString()).innerHTML = "";
-                        document.getElementById("errorEmail" + user.id.toString()).style.display = "none";
-                        document.getElementsByClassName("edit-save")[0].disabled = false;
-                    }
-                }
-            }
-        }
+        //     if (email.trim() == user.email.trim()) {
+        //         document.getElementById("errorEmail" + user.id.toString()).innerHTML = "";
+        //     } else {
+        //         for (let i = 0; i < users.length; i++) {
+        //             if (users[i] == email.trim()) {
+        //                 document.getElementById("errorEmail" + user.id.toString()).innerHTML = "Email already exists";
+        //                 document.getElementById("errorEmail" + user.id.toString()).style.display = "block";
+        //                 document.getElementsByClassName("edit-save")[0].disabled = true;
+        //                 return;
+        //             } else {
+        //                 document.getElementById("errorEmail" + user.id.toString()).innerHTML = "";
+        //                 document.getElementById("errorEmail" + user.id.toString()).style.display = "none";
+        //                 document.getElementsByClassName("edit-save")[0].disabled = false;
+        //             }
+        //         }
+        //     }
+        // }
 
         function confirmlogout() {
             if (confirm("Are you sure you want to logout?")) {

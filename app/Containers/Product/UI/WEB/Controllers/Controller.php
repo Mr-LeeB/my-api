@@ -7,6 +7,7 @@ use App\Containers\Product\UI\WEB\Requests\DeleteBulkProductRequest;
 use App\Containers\Product\UI\WEB\Requests\DeleteProductRequest;
 use App\Containers\Product\UI\WEB\Requests\GetAllProductsRequest;
 use App\Containers\Product\UI\WEB\Requests\FindProductByIdRequest;
+use App\Containers\Product\UI\WEB\Requests\SortRequest;
 use App\Containers\Product\UI\WEB\Requests\UpdateProductRequest;
 use App\Ship\Parents\Controllers\WebController;
 use Apiato\Core\Foundation\Facades\Apiato;
@@ -19,17 +20,63 @@ use App\Ship\Transporters\DataTransporter;
  */
 class Controller extends WebController
 {
+  private function sortFunc(int $num, $products)
+  {
+    $product_description = [];
+
+    $productID = [];
+    $created_at = [];
+    $productName = [];
+
+    foreach ($products as $key => $value) {
+      if (strlen($value->description) > 20) {
+        $value->description = substr($value->description, 0, 20) . '...';
+      }
+      array_push($product_description, $value);
+      array_push($productID, $value->id);
+      array_push($created_at, $value->created_at);
+      array_push($productName, strtoupper($value->name));
+    }
+    // sort by id
+    if ($num == 1) {
+      array_multisort($productID, SORT_ASC, $product_description);
+    } elseif ($num == 2) {
+      array_multisort($productID, SORT_DESC, $product_description);
+    }
+    // sort by name
+    elseif ($num == 3) {
+      array_multisort($productName, SORT_ASC, $product_description);
+    } elseif ($num == 4) {
+      array_multisort($productName, SORT_DESC, $product_description);
+    }
+    // sort by created_at
+    elseif ($num == 5) {
+      array_multisort($created_at, SORT_ASC, $product_description);
+    } elseif ($num == 6) {
+      array_multisort($created_at, SORT_DESC, $product_description);
+    }
+    return $product_description;
+  }
   /**
    * Show all entities
    *
    * @param GetAllProductsRequest $request
    */
-  public function getAllProducts(GetAllProductsRequest $request)
+  public function getAllProducts(GetAllProductsRequest $request, SortRequest $sortRequest)
   {
     $products = Apiato::call('Product@GetAllProductsAction', [new DataTransporter($request)]);
+    $product_description = [];
 
-    return view('product::home', compact('products'));
+    $num = 6;
+    if ($sortRequest->sort != null) {
+      $num = $sortRequest->sort;
+    }
+
+    $product_description = self::sortFunc($num, $products);
+
+    return view('product::home', compact('products', 'product_description', 'num'));
   }
+
 
   /**
    * Show one entity
@@ -181,4 +228,6 @@ class Controller extends WebController
 
     return view('product::product-detail-page', compact('product'));
   }
+
+
 }

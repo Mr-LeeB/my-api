@@ -5,15 +5,13 @@ $router->get('/user', [
   'uses' => 'Controller@sayWelcome',
 ]);
 
-// Route::prefix('user')->group(function () {
-//   Route::get('/', [
-//     'as' => 'get_user_home_page',
-//     'uses' => 'Controller@sayWelcome',
-//   ]);
+Route::prefix('user')->group(function () {
+  Route::post('/', [
+    'as' => 'find_user_by_id',
+    'uses' => 'Controller@findUserById',
+  ]);
+});
 
-//   /** @var Route $router */
-//   Route::get('/register', [
-//     'as' => 'get_user_register_page',
-//     'uses' => 'Controller@showUserRegisterPage',
-//   ]);
+// $router->post('/user', function() {
+//   return 'Hello World';
 // });

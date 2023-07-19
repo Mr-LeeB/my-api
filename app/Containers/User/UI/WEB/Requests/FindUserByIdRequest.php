@@ -1,21 +1,16 @@
 <?php
 
-namespace App\Containers\Product\UI\WEB\Requests;
+namespace App\Containers\User\UI\WEB\Requests;
 
 use App\Ship\Parents\Requests\Request;
 
 /**
- * Class GetAllProductsRequest.
+ * Class LoginRequest.
+ *
+ * @author Mahmoud Zalt <mahmoud@zalt.me>
  */
-class GetAllProductsRequest extends Request
+class FindUserByIdRequests extends Request
 {
-
-  /**
-   * The assigned Transporter for this Request
-   *
-   * @var string
-   */
-  protected $transporter = \App\Containers\Product\Data\Transporters\GetAllProductsTransporter::class;
 
   /**
    * Define which Roles and/or Permissions has access to this request.
@@ -23,8 +18,8 @@ class GetAllProductsRequest extends Request
    * @var  array
    */
   protected $access = [
-    'permissions' => '',
     'roles' => '',
+    'permissions' => 'list-users',
   ];
 
   /**
@@ -33,11 +28,11 @@ class GetAllProductsRequest extends Request
    * @var  array
    */
   protected $decode = [
-    'id',
+    'id'
   ];
 
   /**
-   * Defining the URL parameters (e.g, `/user/{id}`) allows applying
+   * Defining the URL parameters (`/stores/999/items`) allows applying
    * validation rules on them and allows accessing them like request data.
    *
    * @var  array
@@ -46,16 +41,22 @@ class GetAllProductsRequest extends Request
   ];
 
   /**
-   * @return  array
+   * Get the validation rules that apply to the request.
+   *
+   * @return array
    */
   public function rules()
   {
     return [
+      'id' => '',
+      'isEdited' => 'string'
     ];
   }
 
   /**
-   * @return  bool
+   * Determine if the user is authorized to make this request.
+   *
+   * @return bool
    */
   public function authorize()
   {
