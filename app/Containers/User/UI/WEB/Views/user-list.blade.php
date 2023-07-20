@@ -16,6 +16,22 @@
 
     <!-- Scripts -->
     @yield('js')
+
+    {{-- php function --}}
+    @php
+        $email = null;
+        $name = null;
+        if (old('email')) {
+            $email = old('email');
+        } elseif ($userEdited) {
+            $email = $userEdited->email;
+        }
+        if (old('name')) {
+            $name = old('name');
+        } elseif ($userEdited) {
+            $name = $userEdited->name;
+        }
+    @endphp
 </head>
 
 <body>
@@ -26,7 +42,7 @@
         <!--List all user-->
         <div class="content">
             <div class="title m-b-md">
-                List Users {{ $isEdited }}
+                List Users
             </div>
             {{-- <div class="paginationWrap">
                   @if (isset($users) && count($users) > 0)
@@ -37,29 +53,46 @@
             <div class="info">
                 @php
                     $user = Auth::user();
-                    $role = $user->roles->first();
+                    $rolesUser = $user->roles;
                     $userCanCreate = false;
                     $userCanEdit = false;
                     $userCanDelete = false;
-                    
-                    echo 'You are logged in as ' . $role->name . '!';
-                    foreach ($role->permissions as $permission) {
-                        if ($permission->name == 'create-admins') {
-                            $userCanCreate = true;
-                        }
-                        if ($permission->name == 'update-users') {
-                            $userCanEdit = true;
-                        }
-                        if ($permission->name == 'delete-users') {
-                            $userCanDelete = true;
+                    $userCanManageRole = false;
+
+                    echo 'You are logged in as ';
+                    foreach ($rolesUser as $role) {
+                        echo $role->name . ' ';
+                    }
+                    echo '!';
+                    foreach ($rolesUser as $role) {
+                        # code...
+                        foreach ($role->permissions as $permission) {
+                            if ($permission->name == 'create-admins') {
+                                $userCanCreate = true;
+                            }
+                            if ($permission->name == 'update-users') {
+                                $userCanEdit = true;
+                            }
+                            if ($permission->name == 'delete-users') {
+                                $userCanDelete = true;
+                            }
+                            if ($permission->name == 'manage-roles') {
+                                $userCanManageRole = true;
+                            }
                         }
                         // echo $permission->name . ', ';
                     }
+
+                    $roleIDs = [];
+                    foreach ($roles as $role) {
+                        array_push($roleIDs, $role->id);
+                    }
+                    $roleIDs_json = json_encode($roleIDs);
                 @endphp
 
-                @if ($userCanCreate)
+                @if ($userCanCreate || $userCanEdit)
                     {{-- @if ($errors->first('email') || $errors->first('name') || $errors->first('password')) --}}
-                    @if (old('isEdited') == -1)
+                    @if ($errors->any())
                         <style>
                             .create-form {
                                 display: block
@@ -82,17 +115,16 @@
                     @endif
 
                     <div class="new-user">
-                        {{-- <button id="add" class="btn-add" type="submit" name="createUser" method="post"
-                            onclick="showCreateForm()">Add New User</button>
-                        <button id="cancle" class="btn-cancle" type="submit"
-                            onclick="disableCreateForm()">Cancle</button>
-                        <div class="form">
-                            <div id="error"></div> --}}
                         @if ($isEdited != -1)
                             <div class="form">
                                 <div id="error"></div>
-                                <form class="create-form form" action="{{ route('update_user', $isEdited) }}"
+                                {{-- <form class="create-form form" action="{{ route('update_user', $isEdited) }}"
                                     method="post">
+                                    {{ csrf_field() }}
+                                    {{ method_field('PUT') }} --}}
+
+                                <form id="edit{{ $isEdited }}" class="create-form save-form{{ $isEdited }}"
+                                    action="{{ route('update_user', $isEdited) }}" method="POST">
                                     {{ csrf_field() }}
                                     {{ method_field('PUT') }}
                                 @else
@@ -107,41 +139,39 @@
                                             {{ csrf_field() }}
                         @endif
 
-
                         @if (session('status'))
                             <div class="text-red">{{ session('status') }}</div>
                         @endif
 
                         <input type="text" placeholder="email" id="email" name="email"
-                            value="<?php if (old('isEdited') == -1) {
-                                echo old('email');
-                            } ?>" oninput="changeEmailRegister()" />
+                            value="{{ $email }}" oninput="changeEmailRegister()" />
 
                         <span class="text-red errorEmailCreate">{{ $errors->first('email') }}</span>
 
                         <input type="text" placeholder="name" id="name" name="name"
-                            value="<?php if (old('isEdited') == -1) {
-                                echo old('name');
-                            } ?>" oninput="changeNameRegister()" />
+                            value="{{ $name }}" oninput="changeNameRegister()" />
 
                         <span class="text-red errorNameCreate">{{ $errors->first('name') }}</span>
 
-                        <input type="password" placeholder="password" id="password" name="password" />
-
-                        <span class="text-red errorPasswordCreate">{{ $errors->first('password') }}</span>
-
-                        <input type="password" placeholder="confirm password" id="confirm_password" />
-
-                        <input type="hidden" name="isEdited" value="-1" />
-
-
                         @if ($isEdited != -1)
-                            <button class="edit-save" type="button" style="color: blue; font-weight: 1000;"
-                                onclick="confirmSave({{ $user }})">Save</button>
+                            {{-- <input type="hidden" name="isEdited" value="{{ $user->id }}"> --}}
+                            <div class="controll-edit-btn">
+                                <button class="btn-save-edit" type="button"
+                                    style="color: blue; font-weight: 500; margin: 0 10px;"
+                                    onclick="confirmSave({{ $userEdited }})">Save</button>
 
-                            <button class="edit-cancle" type="button" style="color: red; font-weight: 1000;"
-                                onclick="cancleEdit({{ $user }})">Cancle</button>
+                                <button class="btn-cancle-edit" type="button"
+                                    style="color: red; font-weight: 500; margin: 0 10px;"
+                                    onclick="cancleEdit()">Cancle</button>
+                            </div>
                         @else
+                            <input type="password" placeholder="password" id="password" name="password" />
+
+                            <span class="text-red errorPasswordCreate">{{ $errors->first('password') }}</span>
+
+                            <input type="password" placeholder="confirm password" id="confirm_password" />
+
+                            {{-- <input type="hidden" name="isEdited" value="-1" /> --}}
                             <button type="button" onclick="confirmCreate()">Create</button>
                         @endif
                         </form>
@@ -163,7 +193,7 @@
                 }
                 $userIds_json = json_encode($userIds);
                 $usersEmails_json = json_encode($userEmails);
-                
+
             @endphp
 
 
@@ -191,6 +221,9 @@
                     <th>ID</th>
                     <th>Name</th>
                     <th>Email</th>
+                    @if ($userCanManageRole)
+                        <th>Role</th>
+                    @endif
                     @if ($userCanEdit)
                         @if ($userCanDelete)
                             <th colspan="2">Operation</th>
@@ -219,13 +252,99 @@
                         <td>{{ $user->name }}</td>
                         <td>{{ $user->email }}</td>
 
+                        @if ($userCanManageRole)
+                            <td style='text-align:center; '>
+                                {{-- <form action="" method="GET">
+                                    <input type="hidden" name="id" value="{{ $user->id }}">
+                                    <button type="submit" style="color: #43A047; font-weight: 1000;">Role</button>
+                                </form> --}}
+                                <div class="btn-assign-revoke-role">
+                                    @foreach ($user->roles as $rolesUser)
+                                        {{ $rolesUser->name }}
+                                    @endforeach
+
+                                    <button class="btn-assign-role" type="button"
+                                        style="color: #43A047; font-weight: 1000;"
+                                        onclick="assignRole({{ $user->id }})">Assign Role</button>
+
+                                    <script>
+                                        function cancleAssignRole(id) {
+                                            document.getElementById('assign_user_to_role' + id).style.display = 'none';
+                                        }
+
+                                        function checkRole(roleId) {
+                                            // var role = document.getElementById('role-id-' + roleId);
+                                            // if (role.checked == true) {
+                                            //     role.checked = false;
+                                            // } else {
+                                            //     role.checked = true;
+                                            // }
+                                        }
+
+                                        function saveAssignRole(user, roleIDs) {
+                                            console.log(user);
+
+                                            var roles = [];
+                                            for (var i = 0; i < roleIDs.length; i++) {
+                                                var role = document.getElementById('role-id-' + roleIDs[i]);
+                                                if (role.checked == true) {
+                                                    roles.push(roleIDs[i]);
+                                                }
+                                            }
+                                            if (roles.length == 0) {
+                                                alert('Please choose at least one role!');
+                                            } else {
+                                                alert('dejnaf!');
+                                                // document.getElementById('assign_user_to_role' + userId).submit();
+                                            }
+
+
+
+
+
+
+
+                                            // document.getElementById('assign_user_to_role' + userId).submit();
+                                        }
+                                    </script>
+
+                                    <form class="form_assign_user_to_role" id="assign_user_to_role{{ $user->id }}"
+                                        action="{{ route('assign_user_to_role') }}" method="POST">
+                                        <input type="hidden" name="user_id" value="{{ $user->id }}">
+                                        @foreach ($roles as $role)
+                                            <div class="role-id-item">
+                                                <input id="{{ rand() }}" type="checkbox" name="roles_ids[]"
+                                                    value="{{ $role->id }}"
+                                                    onclick="checkRole({{ $role->id }})"
+                                                    @foreach ($user->roles as $rolesUser)@if ($role->id == $rolesUser->id) checked @endif @endforeach>
+                                                {{ $role->name }}
+                                            </div>  
+                                        @endforeach
+                                        <div class="btn-save-cancle">
+                                            <button class="btn-save-assign-role" type="button"
+                                                style="color: #43A047; font-weight: 1000;"
+                                                onclick="saveAssignRole({{ json_encode($user) }}, {{ $roleIDs_json }})">Assign</button>
+                                            <button class="btn-cancle-assign-role" type="button"
+                                                style="color: #43A047; font-weight: 1000;"
+                                                onclick="cancleAssignRole({{ $user->id }})">Cancle</button>
+                                        </div>
+                                    </form>
+
+                                    @if ($user->roles->count() > 0)
+                                        <button class="btn-revoke-role" type="button"
+                                            style="color: #9b2b2b; font-weight: 1000;"
+                                            onclick="revokeRole({{ $user->id }})">Revoke Role</button>
+                                    @endif
+                                </div>
+                            </td>
+                        @endif
                         @if ($userCanEdit)
-                            @if (old('isEdited') == $user->id)
+                            @if ($isEdited == $user->id)
                                 <style>
                                     #errorName<?php echo $user->id; ?>,
                                     #errorEmail<?php echo $user->id; ?>,
                                     #myForm<?php echo $user->id; ?> {
-                                        display: block;
+                                        display: none;
                                     }
                                 </style>
                             @endif
@@ -301,6 +420,7 @@
                             </td>
                         @endif
 
+
                         @if ($userCanDelete)
                             <td style='text-align:center; '>
                                 @if ($user->id == 1 || $user->id == Auth::user()->id)
@@ -317,6 +437,7 @@
                                 @endif
                             </td>
                         @endif
+
                     </tr>
                 @endforeach
             </table>
@@ -355,7 +476,7 @@
 
         <form id="formfinduser" action="{{ route('get_all_user') }}" method="GET">
             <input type="hidden" name="id" id="findUser">
-            <input type="hidden" name="isEdited" id="isEdited">
+            {{-- <input type="hidden" name="isEdited" id="isEdited"> --}}
         </form>
     </div>
     </div>

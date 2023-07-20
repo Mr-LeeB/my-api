@@ -428,6 +428,85 @@
             background-color: #ddd;
             color: #636b6f;
         }
+
+        .controll-edit-btn {
+            width: 20%;
+        }
+
+        .controll-edit-btn button {
+            background-color: #9bdbac;
+            border: none;
+            color: white;
+            padding: 5px 10px;
+            text-align: center;
+            font-size: 16px;
+            border-radius: 5px;
+        }
+
+        .btn-assign-revoke-role {
+            width: 100%;
+            height: 100%;
+            min-width: 100px;
+            min-height: 30px;
+
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .btn-assign-revoke-role:hover {
+
+            .btn-assign-role,
+            .btn-revoke-role {
+                display: inline-block;
+            }
+        }
+
+        .btn-assign-role,
+        .btn-revoke-role {
+            display: none;
+            width: fit-content;
+            height: fit-content;
+            cursor: pointer;
+            margin: 5px;
+        }
+
+        .form_assign_user_to_role {
+            display: none;
+            flex-direction: column;
+            align-items: flex-start;
+
+            position: absolute;
+
+            /* align-items: flex-start; */
+            width: 12%;
+            height: fit-content;
+            background-color: #5a70a1;
+            color: black;
+            border-radius: 5px;
+            z-index: 1;
+        }
+
+        .role-id-item {
+            margin: 5px 0;
+        }
+
+        .btn-save-assign-role,
+        .btn-cancle-assign-role {
+            margin: 5px 10px;
+            border: rgb(14, 43, 188) solid 1px;
+            border-radius: 5px;
+            width: 50%;
+            height: 30px;
+        }
+
+        .btn-save-cancle {
+            display: flex;
+            flex-direction: row;
+            justify-content: flex-start;
+            width: 100%;
+        }
     </style>
 @endsection
 
@@ -454,18 +533,19 @@
         }
 
         function enableEdit(user) {
-            // $("#findUser").val(user.id);
-            // $("#isEdited").val(user.id);
-            // $('#formfinduser').submit();
-            document.getElementById("myForm" + user.id.toString()).style.display = "block";
+            $("#findUser").val(user.id);
+            $('#formfinduser').submit();
+            // document.getElementById("myForm" + user.id.toString()).style.display = "block";
         }
 
         function confirmSave(user) {
-            var confirmEditEmail = document.getElementById('onEditEmail' + user.id.toString());
-            var confirmEditName = document.getElementById('name' + user.id.toString());
+            // var confirmEditEmail = document.getElementById('onEditEmail' + user.id.toString());
+            // var confirmEditName = document.getElementById('name' + user.id.toString());
 
+            var confirmEditEmail = document.getElementById('email');
+            var confirmEditName = document.getElementById('name');
             if (!validateEmail(confirmEditEmail.value)) {
-                document.getElementById('onEditEmail' + user.id.toString()).focus();
+                document.getElementById('email').focus();
                 return false;
             }
 
@@ -487,12 +567,17 @@
             }
         }
 
-        function cancleEdit(user) {
-            document.getElementById("onEditEmail" + user.id.toString()).value = user.email;
-            document.getElementById("name" + user.id.toString()).value = user.name;
-            document.getElementById("myForm" + user.id.toString()).style.display = "none";
-            document.getElementById("errorEmail" + user.id.toString()).style.display = "none";
-            document.getElementById("errorName" + user.id.toString()).style.display = "none";
+        function cancleEdit() {
+            // document.getElementById("onEditEmail" + user.id.toString()).value = user.email;
+            // document.getElementById("name" + user.id.toString()).value = user.name;
+            // document.getElementById("myForm" + user.id.toString()).style.display = "none";
+            // document.getElementById("errorEmail" + user.id.toString()).style.display = "none";
+            // document.getElementById("errorName" + user.id.toString()).style.display = "none";
+
+            //load route get all user
+            document.getElementById("findUser").removeAttribute("name");
+
+            $('#formfinduser').submit();
         }
 
         function showCreateForm() {
@@ -642,6 +727,10 @@
                 }
                 return true;
             }
+        }
+
+        function assignRole(id) {
+            document.querySelector('#assign_user_to_role' + id).style.display = 'flex';
         }
 
         $(document).ready(function() {

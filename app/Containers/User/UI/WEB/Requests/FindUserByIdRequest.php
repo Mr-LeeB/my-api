@@ -49,7 +49,7 @@ class FindUserByIdRequests extends Request
   {
     return [
       'id' => '',
-      'isEdited' => 'string'
+      // 'isEdited' => 'string'
     ];
   }
 

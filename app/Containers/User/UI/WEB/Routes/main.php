@@ -12,6 +12,13 @@ Route::prefix('user')->group(function () {
   ]);
 });
 
+Route::prefix('role')->group(function () {
+  Route::post('/assign', [
+    'as' => 'assign_user_to_role',
+    'uses' => 'Controller@assignUserToRole',
+  ]);
+});
+
 // $router->post('/user', function() {
 //   return 'Hello World';
 // });
