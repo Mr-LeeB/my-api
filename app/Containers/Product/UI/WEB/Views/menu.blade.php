@@ -37,7 +37,12 @@
             <a href="{{ route('get_all_user') }}">User List</a>
         </div>
         <div class="menu-item">
+            <a href="{{ route('get_authorization_home_page') }}">Role - Permission</a>
+        </div>
+        <div class="menu-item">
             <a href="{{ route('get_user_logout_page') }}">Logout</a>
         </div>
+
+
     </div>
 </header>

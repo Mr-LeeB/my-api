@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Containers\Authorization\UI\API\Requests;
+namespace App\Containers\Authorization\UI\WEB\Requests;
 
 use App\Ship\Parents\Requests\Request;
 
 /**
- * Class RevokeUserFromRoleRequest.
+ * Class AttachPermissionToRoleRequest.
  *
  * @author Mahmoud Zalt <mahmoud@zalt.me>
  */
-class RevokeUserFromRoleRequest extends Request
+class AttachPermissionToRoleRequest extends Request
 {
 
   /**
@@ -19,7 +19,7 @@ class RevokeUserFromRoleRequest extends Request
    */
   protected $access = [
     'roles' => '',
-    'permissions' => 'manage-admins-access',
+    'permissions' => 'manage-roles',
   ];
 
   /**
@@ -28,8 +28,8 @@ class RevokeUserFromRoleRequest extends Request
    * @var  array
    */
   protected $decode = [
-    'roles_ids.*',
-    'user_id',
+    'permissions_ids.*',
+    'role_id',
   ];
 
   /**
@@ -48,9 +48,9 @@ class RevokeUserFromRoleRequest extends Request
   public function rules()
   {
     return [
-      'roles_ids' => 'required',
-      'roles_ids.*' => 'exists:roles,id',
-      'user_id' => 'required|exists:users,id',
+      'permissions_ids' => 'required',
+      'permissions_ids.*' => 'exists:permissions,id',
+      'role_id' => 'required|exists:roles,id',
     ];
   }
 

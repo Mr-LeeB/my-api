@@ -3,7 +3,7 @@
 namespace App\Containers\User\UI\WEB\Controllers;
 
 use Apiato\Core\Foundation\Facades\Apiato;
-use App\Containers\Authorization\UI\API\Requests\GetAllRolesRequest;
+
 use App\Containers\User\UI\WEB\Requests\CheckPasswordRequests;
 use App\Containers\User\UI\WEB\Requests\CreateNewUserRequests;
 use App\Containers\User\UI\WEB\Requests\DeleteMoreUsersRequests;
@@ -14,7 +14,8 @@ use App\Containers\User\UI\WEB\Requests\RegisterUserRequests;
 use App\Containers\User\UI\WEB\Requests\UpdateUserRequests;
 
 use App\Containers\Authorization\UI\API\Requests\AssignUserToRoleRequest;
-
+use App\Containers\Authorization\UI\API\Requests\GetAllRolesRequest;
+use App\Containers\Authorization\UI\API\Requests\RevokeUserFromRoleRequest;
 
 use App\Ship\Parents\Controllers\WebController;
 use App\Ship\Transporters\DataTransporter;
@@ -40,16 +41,15 @@ class Controller extends WebController
   /**
    * @return  \Illuminate\Contracts\View\Factory|\Illuminate\View\View
    */
-  public function getAllUser(GetAllUserRequests $request, FindUserByIdRequests $findUserRequest, GetAllRolesRequest $getAllRolesRequest)
+  public function getAllUser(GetAllUserRequests $request, FindUserByIdRequests $findUserRequest)
   { // admin show all user
-    //SyncUserRolesAction
     $users = Apiato::call('User@GetAllUsersAction', [new DataTransporter($request)]);
 
-    $roles = Apiato::call('Authorization@GetAllRolesAction', [new DataTransporter($getAllRolesRequest)]);
-    // dd($roles);
+    $roles = self::getAllRole(new GetAllRolesRequest());
 
     $isEdited = -1;
     $userEdited = null;
+
     if ($findUserRequest->id) {
       $findUserRequest->validate(
         [
@@ -62,7 +62,13 @@ class Controller extends WebController
     return view('user::home', compact('users', 'isEdited', 'userEdited', 'roles'));
   }
 
-  public function findUserById(FindUserByIdRequests $request)
+  private function getAllRole(GetAllRolesRequest $request)
+  {
+    $roles = Apiato::call('Authorization@GetAllRolesAction', [new DataTransporter($request)]);
+    return $roles;
+  }
+
+  private function findUserById(FindUserByIdRequests $request)
   {
     $user = Apiato::call('User@FindUserByIdAction', [new DataTransporter($request)]);
     return $user;
@@ -131,10 +137,19 @@ class Controller extends WebController
     return redirect('login')->with($result);
   }
 
+  /**
+   * @return  \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+   */
   public function assignUserToRole(AssignUserToRoleRequest $request)
   { // admin assign role to user
-    $result = Apiato::call('Authorization@AssignRoleToUserAction', [new DataTransporter($request)]);
-    return redirect('listuser')->with($result);
+    $result = Apiato::call('Authorization@AssignUserToRoleAction', [new DataTransporter($request)]);
+    return redirect('listuser')->with('success', true);
+  }
+
+  public function revokeUserFromRole(RevokeUserFromRoleRequest $request)
+  { // admin revoke role from user
+    $result = Apiato::call('Authorization@RevokeUserFromRoleAction', [new DataTransporter($request)]);
+    return ($result);
   }
 
   /**

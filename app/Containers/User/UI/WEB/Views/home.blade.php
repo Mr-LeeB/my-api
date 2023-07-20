@@ -733,6 +733,66 @@
             document.querySelector('#assign_user_to_role' + id).style.display = 'flex';
         }
 
+        function cancleAssignRole(id) {
+            document.getElementById('assign_user_to_role' + id).style.display = 'none';
+        }
+
+        function checkRole(roleId) {
+            // var role = document.getElementById('role-id-' + roleId);
+            // if (role.checked == true) {
+            //     role.checked = false;
+            // } else {
+            //     role.checked = true;
+            // }
+        }
+
+        function saveAssignRole(user, roleIDs, rolesUser) {
+            var haveRoleRevoke = false;
+            roleIDs.forEach(roleId => {
+                var role = document.getElementById('role-' + roleId + user.id);
+                if (role.checked == false) {
+                    rolesUser.forEach(role => {
+                        var remove = document.getElementById('remove-role-' + roleId + user.id)
+                        if (roleId == role.id) {
+                            remove.setAttribute('name', 'roles_ids[]');
+                            haveRoleRevoke = true;
+                            console.log("removed role " + remove.name + " " + remove.value);
+                        }
+                    });
+                } else {
+                    var count = 0;
+                    var assign = document.getElementById('role-' + roleId + user.id)
+                    rolesUser.forEach(role => {
+                        if (roleId == role.id) {
+                            count++;
+                        }
+                    });
+                    if (count == 0) {
+                        assign.setAttribute('name', "roles_ids[]");
+                        console.log("added role " + assign.name + " " + assign.value);
+                    }
+                }
+            });
+
+            if (confirm("Are you sure you want to save?")) {
+                if (haveRoleRevoke) {
+
+                    jQuery.ajax({
+                        type: 'post',
+                        url: "{{ url('role/revoke') }}",
+                        data: $('#revoke_user_to_role' + user.id).serialize(),
+                        success: function(data) {
+                            console.log(data);
+                        },
+                        error: function(data) {
+                            console.log(data);
+                        }
+                    });
+                }
+                document.querySelector('#assign_user_to_role' + user.id).submit();
+            }
+        }
+
         $(document).ready(function() {
             $('#checkpassword').on('submit', function(e) {
                 e.preventDefault();

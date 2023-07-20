@@ -4,6 +4,7 @@ namespace App\Containers\Authorization\Actions;
 
 use Apiato\Core\Foundation\Facades\Apiato;
 use App\Ship\Parents\Actions\Action;
+use App\Ship\Transporters\DataTransporter;
 
 /**
  * Class GetAllRolesAction.
@@ -13,14 +14,15 @@ use App\Ship\Parents\Actions\Action;
 class GetAllRolesAction extends Action
 {
 
-    /**
-     * @return mixed
-     */
-    public function run()
-    {
-        $roles = Apiato::call('Authorization@GetAllRolesTask', [], ['addRequestCriteria']);
+  /**
+   * @return mixed
+   */
+  public function run(DataTransporter $data)
+  {
+    $skipPagination = true;
+    $roles = Apiato::call('Authorization@GetAllRolesTask', [$skipPagination], ['addRequestCriteria']);
 
-        return $roles;
-    }
+    return $roles;
+  }
 
 }

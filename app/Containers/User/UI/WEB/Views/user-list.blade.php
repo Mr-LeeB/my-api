@@ -58,7 +58,7 @@
                     $userCanEdit = false;
                     $userCanDelete = false;
                     $userCanManageRole = false;
-
+                    
                     echo 'You are logged in as ';
                     foreach ($rolesUser as $role) {
                         echo $role->name . ' ';
@@ -82,7 +82,7 @@
                         }
                         // echo $permission->name . ', ';
                     }
-
+                    
                     $roleIDs = [];
                     foreach ($roles as $role) {
                         array_push($roleIDs, $role->id);
@@ -193,7 +193,7 @@
                 }
                 $userIds_json = json_encode($userIds);
                 $usersEmails_json = json_encode($userEmails);
-
+                
             @endphp
 
 
@@ -267,74 +267,44 @@
                                         style="color: #43A047; font-weight: 1000;"
                                         onclick="assignRole({{ $user->id }})">Assign Role</button>
 
-                                    <script>
-                                        function cancleAssignRole(id) {
-                                            document.getElementById('assign_user_to_role' + id).style.display = 'none';
-                                        }
-
-                                        function checkRole(roleId) {
-                                            // var role = document.getElementById('role-id-' + roleId);
-                                            // if (role.checked == true) {
-                                            //     role.checked = false;
-                                            // } else {
-                                            //     role.checked = true;
-                                            // }
-                                        }
-
-                                        function saveAssignRole(user, roleIDs) {
-                                            console.log(user);
-
-                                            var roles = [];
-                                            for (var i = 0; i < roleIDs.length; i++) {
-                                                var role = document.getElementById('role-id-' + roleIDs[i]);
-                                                if (role.checked == true) {
-                                                    roles.push(roleIDs[i]);
-                                                }
-                                            }
-                                            if (roles.length == 0) {
-                                                alert('Please choose at least one role!');
-                                            } else {
-                                                alert('dejnaf!');
-                                                // document.getElementById('assign_user_to_role' + userId).submit();
-                                            }
-
-
-
-
-
-
-
-                                            // document.getElementById('assign_user_to_role' + userId).submit();
-                                        }
-                                    </script>
-
                                     <form class="form_assign_user_to_role" id="assign_user_to_role{{ $user->id }}"
                                         action="{{ route('assign_user_to_role') }}" method="POST">
+                                        {{ csrf_field() }}
                                         <input type="hidden" name="user_id" value="{{ $user->id }}">
                                         @foreach ($roles as $role)
                                             <div class="role-id-item">
-                                                <input id="{{ rand() }}" type="checkbox" name="roles_ids[]"
-                                                    value="{{ $role->id }}"
+                                                <input id="role-{{ $role->id }}{{ $user->id }}"
+                                                    type="checkbox" value="{{ $role->id }}"
                                                     onclick="checkRole({{ $role->id }})"
                                                     @foreach ($user->roles as $rolesUser)@if ($role->id == $rolesUser->id) checked @endif @endforeach>
                                                 {{ $role->name }}
-                                            </div>  
+                                            </div>
                                         @endforeach
                                         <div class="btn-save-cancle">
                                             <button class="btn-save-assign-role" type="button"
                                                 style="color: #43A047; font-weight: 1000;"
-                                                onclick="saveAssignRole({{ json_encode($user) }}, {{ $roleIDs_json }})">Assign</button>
+                                                onclick="saveAssignRole({{ json_encode($user) }}, {{ $roleIDs_json }},{{ json_encode($user->roles) }})">Save</button>
                                             <button class="btn-cancle-assign-role" type="button"
                                                 style="color: #43A047; font-weight: 1000;"
                                                 onclick="cancleAssignRole({{ $user->id }})">Cancle</button>
                                         </div>
                                     </form>
 
-                                    @if ($user->roles->count() > 0)
+                                    <form id="revoke_user_to_role{{ $user->id }}"
+                                        action="{{ route('revoke_user_from_role') }}" method="POST">
+                                        {{ csrf_field() }}
+                                        <input type="hidden" name="user_id" value="{{ $user->id }}">
+                                        @foreach ($roles as $role)
+                                            <input id="remove-role-{{ $role->id }}{{ $user->id }}"
+                                                type="hidden" value="{{ $role->id }}">
+                                        @endforeach
+                                    </form>
+
+                                    {{-- @if ($user->roles->count() > 0)
                                         <button class="btn-revoke-role" type="button"
                                             style="color: #9b2b2b; font-weight: 1000;"
                                             onclick="revokeRole({{ $user->id }})">Revoke Role</button>
-                                    @endif
+                                    @endif --}}
                                 </div>
                             </td>
                         @endif
