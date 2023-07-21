@@ -31,14 +31,22 @@
 <header>
     <div class="menu">
         <div class="menu-item">
+            <a href="{{ route('get_user_dashboard_page') }}">Home</a>
+        </div>
+
+        <div class="menu-item">
             <a href="{{ route('web_product_get_all_products') }}">Product List</a>
         </div>
-        <div class="menu-item">
-            <a href="{{ route('get_all_user') }}">User List</a>
-        </div>
-        <div class="menu-item">
-            <a href="{{ route('get_authorization_home_page') }}">Role - Permission</a>
-        </div>
+        @can('list-users')
+            <div class="menu-item">
+                <a href="{{ route('get_all_user') }}">User List</a>
+            </div>
+        @endcan
+        @can('manage-roles')
+            <div class="menu-item">
+                <a href="{{ route('get_authorization_home_page') }}">Role - Permission</a>
+            </div>
+        @endcan
         <div class="menu-item">
             <a href="{{ route('get_user_logout_page') }}">Logout</a>
         </div>

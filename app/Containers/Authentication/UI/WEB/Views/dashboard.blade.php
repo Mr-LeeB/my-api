@@ -6,108 +6,64 @@
 
     <link href="https://fonts.googleapis.com/css?family=Lato:100" rel="stylesheet" type="text/css">
 
+
     <style>
         html,
         body {
+            background: url("https://www.google.com/url?sa=i&url=https%3A%2F%2Fpixabay.com%2Fimages%2Fsearch%2Fnature%2F&psig=AOvVaw16KG-R20lsPH_X8QyE7uAf&ust=1689992305532000&source=images&cd=vfe&opi=89978449&ved=0CA4QjRxqFwoTCKDC9onenoADFQAAAAAdAAAAABAD");
             height: 100%;
+            /* background: #000; */
         }
 
         body {
             margin: 0;
             padding: 0;
             width: 100%;
-            display: table;
             font-weight: 100;
             font-family: 'Lato';
+            background-size: cover;
+            color: #000;
+
         }
 
         .container {
             text-align: center;
-            display: table-cell;
             vertical-align: middle;
         }
 
         .content {
+
             text-align: center;
             display: inline-block;
         }
 
         .title {
-            font-size: 100px;
-            color: #00bdf4;
+            font-size: 96px;
+            margin-bottom: 40px;
+            color: #000;
         }
 
-        .list-users {
-            font-size: 30px;
-            color: #00bdf4;
-            background-color: #fff;
-            border: 1px solid #00bdf4;
-            border-radius: 5px;
-            padding: 10px;
-            margin-top: 20px;
-            cursor: pointer;
-        }
-
-        .list-users:hover {
-            background-color: #00bdf4;
-            color: #fff;
-        }
-
-        .form {
-            position: relative;
-            z-index: 1;
-            background: #FFFFFF;
-            max-width: 360px;
-            margin: 0 auto 100px;
-            padding: 45px;
-            text-align: center;
-        }
-
-        .form button {
-            font-family: "Roboto", sans-serif;
-            text-transform: uppercase;
-            outline: 0;
-            background: #a52424;
-            width: 100%;
-            border: 0;
-            padding: 15px;
-            color: #FFFFFF;
-            font-size: 14px;
-            -webkit-transition: all 0.3 ease;
-            transition: all 0.3 ease;
-            cursor: pointer;
-            border-radius: 5px;
-        }
-
-        .form button:hover,
-        .form button:active,
-        .form button:focus {
-            background: #43A047;
+        .name {
+            font-size: 96px;
+            margin-bottom: 40px;
+            color: #000;
+            font-weight: bold;
         }
     </style>
-    <script>
-        function confirmLogout() {
 
-            if (confirm("Are you sure you want to logout?")) {
-                document.querySelector('.form').submit();
-            }
-        }
-    </script>
 </head>
 
+@php
+    $user = Auth::user();
+@endphp
+
 <body>
+    @include('product::menu')
     <div class="container">
         <div class="content">
-            <button class="list-users" onclick="window.location.href='{{ url('/listuser') }}'">List All Users</button>
-            <button class="list-users" onclick="window.location.href='{{ url('/products') }}'">List All Products</button>
-
-            <form class="form" action="{{ route('post_user_logout_form') }}" method="post">
-                {{ csrf_field() }}
-                <button type="button" onclick="confirmLogout()">
-                    logout
-                </button>
-            </form>
-
+            <div class="title"> Hi
+                <div class="name"> {{ $user->name }}</div>
+            </div>
         </div>
     </div>
 </body>

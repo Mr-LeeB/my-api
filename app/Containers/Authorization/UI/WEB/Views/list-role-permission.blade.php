@@ -272,7 +272,7 @@
             cursor: pointer;
             border-radius: 4px;
 
-            
+
         }
 
         .btn-enable-edit:hover {

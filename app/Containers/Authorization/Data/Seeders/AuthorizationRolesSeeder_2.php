@@ -13,17 +13,16 @@ use App\Ship\Parents\Seeders\Seeder;
 class AuthorizationRolesSeeder_2 extends Seeder
 {
 
-    /**
-     * Run the database seeds.
-     *
-     * @return void
-     */
-    public function run()
-    {
-        // Default Roles ----------------------------------------------------------------
-        Apiato::call('Authorization@CreateRoleTask', ['admin', 'Administrator', 'Administrator Role', 999]);
+  /**
+   * Run the database seeds.
+   *
+   * @return void
+   */
+  public function run()
+  {
+    // Default Roles ----------------------------------------------------------------
+    Apiato::call('Authorization@CreateRoleTask', ['admin', 'Administrator', 'Administrator Role', 999]);
 
-        // ...
-
-    }
+    // ...
+  }
 }
