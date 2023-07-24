@@ -10,9 +10,9 @@
     <style>
         html,
         body {
-            background: url("https://www.google.com/url?sa=i&url=https%3A%2F%2Fpixabay.com%2Fimages%2Fsearch%2Fnature%2F&psig=AOvVaw16KG-R20lsPH_X8QyE7uAf&ust=1689992305532000&source=images&cd=vfe&opi=89978449&ved=0CA4QjRxqFwoTCKDC9onenoADFQAAAAAdAAAAABAD");
             height: 100%;
-            /* background: #000; */
+            background: #6471a7;
+            background-image: url('/app/public/images/1689586982Cat03.jpg');
         }
 
         body {
@@ -23,7 +23,6 @@
             font-family: 'Lato';
             background-size: cover;
             color: #000;
-
         }
 
         .container {

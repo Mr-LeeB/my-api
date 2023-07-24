@@ -80,7 +80,7 @@ class Controller extends WebController
   public function updateUser(UpdateUserRequests $request)
   { // admin update user
     $result = Apiato::call('User@UpdateUserAction', [new DataTransporter($request)]);
-    return redirect('listuser')->with('wasRecentlyCreated', $result->wasRecentlyCreated);
+    return redirect('listuser')->with('message', "Update user successfully");
   }
 
   /**
@@ -90,11 +90,11 @@ class Controller extends WebController
   { // admin create user
     // Log::info($request);
     $result = Apiato::call('User@RegisterUserAction', [new DataTransporter($request)]);
-    return redirect('listuser')->with('wasRecentlyCreated', $result->wasRecentlyCreated);
+    return redirect('listuser')->with('createSuccess', "Create user successfully");
   }
 
   /**
-   * @return  \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+   * @return
    */
   public function deleteUser(DeleteUserRequests $request)
   { // admin delete user
@@ -106,7 +106,7 @@ class Controller extends WebController
         Apiato::call('Authentication@WebLogoutAction');
         return redirect('logout')->with($result);
       }
-      return redirect('listuser')->with($result);
+      return redirect()->route('get_all_user')->with('message', "Delete user successfully");
     } catch (Exception $e) {
       return redirect('listuser')->with('users', $e);
     }

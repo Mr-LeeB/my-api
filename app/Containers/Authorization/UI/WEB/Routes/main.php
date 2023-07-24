@@ -16,6 +16,15 @@ Route::prefix('/authorization')->group(
         'auth:web',
       ],
     ]);
+
+    Route::put('/roles/{id}', [
+      'as' => 'update_role',
+      'uses' => 'Controller@updateRole',
+      'middleware' => [
+        'auth:web',
+      ],
+    ]);
+
     Route::delete('/roles/{id}', [
       'as' => 'delete_role',
       'uses' => 'Controller@deleteRole',

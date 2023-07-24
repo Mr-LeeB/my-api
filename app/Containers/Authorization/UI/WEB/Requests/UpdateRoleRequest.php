@@ -9,7 +9,7 @@ use App\Ship\Parents\Requests\Request;
  *
  * @author Mahmoud Zalt <mahmoud@zalt.me>
  */
-class CreateRoleRequest extends Request
+class UpdateRoleRequest extends Request
 {
 
   /**
@@ -38,7 +38,7 @@ class CreateRoleRequest extends Request
    * @var  array
    */
   protected $urlParameters = [
-
+    'id'
   ];
 
   /**
@@ -47,7 +47,8 @@ class CreateRoleRequest extends Request
   public function rules()
   {
     return [
-      'name' => 'required|unique:roles,name|min:2|max:20|no_spaces',
+      'id' => 'required|exists:roles,id',
+      'name' => 'unique:roles,name|min:2|max:20|no_spaces',
       'description' => 'max:255',
       'display_name' => 'max:100',
       'level' => 'integer|min:0|max:999'

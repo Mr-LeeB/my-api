@@ -5,7 +5,7 @@
         html,
         body {
             background-color: #fff;
-            color: #636b6f;
+            color: #000000;
             font-family: 'Roboto', sans-serif;
             font-weight: 100;
             height: 100%;
@@ -70,7 +70,7 @@
         th,
         td {
             padding: 8px;
-            color: #636b6f;
+            color: #000000;
             font-size: 16px;
             border-right: 1px solid #ddd;
         }
@@ -516,13 +516,15 @@
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script>
         function validateEmail(email) {
-            if (!email.trim().toLowerCase().match(
-                    /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i
-                )) {
-                alert("You have entered an invalid email address!");
-                return false;
-            }
-            return true;
+            // if (!email.trim().toLowerCase().match(
+            //         /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+            //     )) {
+            //     alert("You have entered an invalid email address!");
+            //     return false;
+            // }
+            // return true;
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
         }
 
         function confirmDelete(user) {
@@ -545,6 +547,7 @@
             var confirmEditEmail = document.getElementById('email');
             var confirmEditName = document.getElementById('name');
             if (!validateEmail(confirmEditEmail.value)) {
+                alert("You have entered an invalid email address!");
                 document.getElementById('email').focus();
                 return false;
             }
@@ -604,12 +607,18 @@
             var confirm_password = document.getElementById("confirm_password").value;
 
             if (!validateEmail(email)) {
+                alert("You have entered an invalid email address!");
                 document.getElementById("email").focus();
                 return false;
             }
 
             if (email == "" || name == "" || password == "") {
                 document.getElementById("error").innerHTML = "Please fill out all fields";
+                return false;
+            } else if (password.length < 6) {
+                document.getElementById("error").innerHTML = "Password must be at least 6 characters";
+                document.getElementById("password").value = "";
+                document.getElementById("confirm_password").value = "";
                 return false;
             } else if (confirm_password == "") {
                 document.getElementById("error").innerHTML = "Please confirm password";

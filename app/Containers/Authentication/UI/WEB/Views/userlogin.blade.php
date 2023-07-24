@@ -157,7 +157,7 @@
                     <div class="text-red">{{ session('status') }}</div>
                 @endif
 
-                <input type="text" placeholder="email" id="email" name="email" value="{{ old('email') }}" />
+                <input type="email" placeholder="email" id="email" name="email" value="{{ old('email') }}" />
                 <span class="text-red">{{ $errors->first('email') }}</span>
                 <input type="password" placeholder="password" id="password" name="password" />
                 <span class="text-red">{{ $errors->first('password') }}</span>

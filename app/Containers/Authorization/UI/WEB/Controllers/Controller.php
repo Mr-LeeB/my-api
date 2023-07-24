@@ -6,6 +6,7 @@ namespace App\Containers\Authorization\UI\WEB\Controllers;
 use App\Containers\Authorization\UI\WEB\Requests\AttachPermissionToRoleRequest;
 use App\Containers\Authorization\UI\WEB\Requests\CreateRoleRequest;
 use App\Containers\Authorization\UI\WEB\Requests\DeleteRoleRequest;
+use App\Containers\Authorization\UI\WEB\Requests\UpdateRoleRequest;
 use App\Ship\Parents\Controllers\WebController;
 
 use App\Containers\Authorization\UI\WEB\Requests\GetAllRolePermissionRequest;
@@ -34,6 +35,12 @@ class Controller extends WebController
   {
     $role = Apiato::call('Authorization@CreateRoleAction', [new DataTransporter($request)]);
     return redirect()->route('get_authorization_home_page')->with(['success' => 'Role Created Successfully.']);
+  }
+
+  public function updateRole(UpdateRoleRequest $request)
+  {
+    $role = Apiato::call('Authorization@UpdateRoleAction', [new DataTransporter($request)]);
+    return redirect()->route('get_authorization_home_page')->with(['success' => 'Role Updated Successfully.']);
   }
 
   public function deleteRole(DeleteRoleRequest $request)

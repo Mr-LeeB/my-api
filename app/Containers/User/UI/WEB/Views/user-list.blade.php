@@ -51,6 +51,7 @@
               </div> --}}
 
             <div class="info">
+
                 @php
                     $user = Auth::user();
                     $rolesUser = $user->roles;
@@ -89,6 +90,7 @@
                     }
                     $roleIDs_json = json_encode($roleIDs);
                 @endphp
+
 
                 @if ($userCanCreate || $userCanEdit)
                     {{-- @if ($errors->first('email') || $errors->first('name') || $errors->first('password')) --}}
@@ -143,7 +145,7 @@
                             <div class="text-red">{{ session('status') }}</div>
                         @endif
 
-                        <input type="text" placeholder="email" id="email" name="email"
+                        <input type="email" placeholder="email" id="email" name="email"
                             value="{{ $email }}" oninput="changeEmailRegister()" />
 
                         <span class="text-red errorEmailCreate">{{ $errors->first('email') }}</span>
@@ -178,6 +180,9 @@
                     </div>
             </div>
             @endif
+            @if (session('createSuccess'))
+                <span style="color:#43A047">{{ session('createSuccess') }}</span>
+            @endif
 
             <hr>
 
@@ -193,9 +198,7 @@
                 }
                 $userIds_json = json_encode($userIds);
                 $usersEmails_json = json_encode($userEmails);
-                
             @endphp
-
 
             {{-- create button delete all users --}}
             @if ($userCanDelete)
@@ -214,6 +217,9 @@
             @endif
 
             <table class="table table-hover">
+                @if (session('message'))
+                    <span style="color:#43A047">{{ session('message') }}</span>
+                @endif
                 <tr>
                     @if ($userCanDelete)
                         <th><input type="checkbox" id="checkAll" onclick="checkAll({{ $userIds_json }})" /></th>
@@ -299,94 +305,14 @@
                                                 type="hidden" value="{{ $role->id }}">
                                         @endforeach
                                     </form>
-
-                                    {{-- @if ($user->roles->count() > 0)
-                                        <button class="btn-revoke-role" type="button"
-                                            style="color: #9b2b2b; font-weight: 1000;"
-                                            onclick="revokeRole({{ $user->id }})">Revoke Role</button>
-                                    @endif --}}
                                 </div>
                             </td>
                         @endif
                         @if ($userCanEdit)
-                            @if ($isEdited == $user->id)
-                                <style>
-                                    #errorName<?php echo $user->id; ?>,
-                                    #errorEmail<?php echo $user->id; ?>,
-                                    #myForm<?php echo $user->id; ?> {
-                                        display: none;
-                                    }
-                                </style>
-                            @endif
                             <td style='text-align:center; '>
-
                                 <input id="{{ $user->id }}" type="submit"
                                     onclick="enableEdit({{ $user }})" value="Edit"
                                     style="color: #43A047; font-weight: 1000;" />
-
-
-
-                                <div id="myForm{{ $user->id }}" class="form-popup">
-                                    <form id="edit{{ $user->id }}"
-                                        class="save-form save-form{{ $user->id }}"
-                                        action="{{ route('update_user', $user->id) }}" method="POST">
-                                        {{ csrf_field() }}
-                                        {{ method_field('PUT') }}
-                                        @if (session('status'))
-                                            <div class="text-red">{{ session('status') }}</div>
-                                        @endif
-                                        <input type="hidden" name="isEdited" value="{{ $user->id }}">
-                                        <table>
-                                            <tr>
-                                                <th>ID</th>
-                                                <th>Name</th>
-                                                <th>Email</th>
-                                            </tr>
-                                            <tr>
-                                                <td>
-                                                    <input style="border: none; width:15px; height:100%;"
-                                                        type="text" name="id" value="{{ $user->id }}"
-                                                        disabled />
-                                                </td>
-
-                                                <td style="width: 15rem">
-                                                    <input id="name{{ $user->id }}" style="border: none"
-                                                        type="text" name="name" value="<?php
-                                                        if (old('isEdited') == $user->id && old('name')) {
-                                                            echo old('name');
-                                                        } else {
-                                                            echo $user->name;
-                                                        }
-                                                        ?>" />
-                                                    <span id="errorName{{ $user->id }}"
-                                                        class="text-red errorName">{{ $errors->first('name') }}</span>
-                                                </td>
-
-                                                <td style="width: 17rem">
-                                                    {{-- oninput="editEmail({{ $usersEmails_json }}, {{ $user }})" --}}
-                                                    <input id="onEditEmail{{ $user->id }}" style="border: none"
-                                                        type="text" name="email" value="<?php
-                                                        if (old('isEdited') == $user->id && old('email')) {
-                                                            echo old('email');
-                                                        } else {
-                                                            echo $user->email;
-                                                        }
-                                                        ?>" />
-                                                    <span id="errorEmail{{ $user->id }}"
-                                                        class="text-red errorEmail">{{ $errors->first('email') }}</span>
-                                                </td>
-                                            </tr>
-                                        </table>
-
-                                        <button class="edit-save" type="button"
-                                            style="color: blue; font-weight: 1000;"
-                                            onclick="confirmSave({{ $user }})">Save</button>
-
-                                        <button class="edit-cancle" type="button"
-                                            style="color: red; font-weight: 1000;"
-                                            onclick="cancleEdit({{ $user }})">Cancle</button>
-                                    </form>
-                                </div>
                             </td>
                         @endif
 
