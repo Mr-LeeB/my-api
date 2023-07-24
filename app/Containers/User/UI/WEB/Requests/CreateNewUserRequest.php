@@ -52,6 +52,8 @@ class CreateNewUserRequests extends Request
       'email' => 'required|email|max:40|unique:users,email',
       'password' => 'required|min:6|max:30',
       'name' => 'min:2|max:50',
+      'gender' => 'max:50',
+      'birth' => 'max:50',
       "isEdited" => 'string',
     ];
   }

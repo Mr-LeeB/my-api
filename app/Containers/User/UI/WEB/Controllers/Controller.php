@@ -17,6 +17,7 @@ use App\Containers\Authorization\UI\API\Requests\AssignUserToRoleRequest;
 use App\Containers\Authorization\UI\API\Requests\GetAllRolesRequest;
 use App\Containers\Authorization\UI\API\Requests\RevokeUserFromRoleRequest;
 
+use App\Containers\User\UI\WEB\Requests\UserRemoveAccountRequests;
 use App\Ship\Parents\Controllers\WebController;
 use App\Ship\Transporters\DataTransporter;
 use Auth;
@@ -98,14 +99,14 @@ class Controller extends WebController
    */
   public function deleteUser(DeleteUserRequests $request)
   { // admin delete user
-    $authUser = $request->id;
+    // $authUser = $request->id;
     try {
       $result = Apiato::call('User@DeleteUserAction', [new DataTransporter($request)]);
 
-      if (Auth::user()->id == $authUser) {
-        Apiato::call('Authentication@WebLogoutAction');
-        return redirect('logout')->with($result);
-      }
+      // if (Auth::user()->id == $authUser) {
+      //   Apiato::call('Authentication@WebLogoutAction');
+      //   return redirect('logout')->with($result);
+      // }
       return redirect()->route('get_all_user')->with('message', "Delete user successfully");
     } catch (Exception $e) {
       return redirect('listuser')->with('users', $e);
@@ -121,6 +122,22 @@ class Controller extends WebController
       $result = Apiato::call('User@DeleteMoreUsersAction', [new DataTransporter($request)]);
 
       return redirect('listuser')->with(['users' => $result]);
+    } catch (Exception $e) {
+      return redirect('listuser')->with('users', $e);
+    }
+  }
+
+  public function removeUserAccount(UserRemoveAccountRequests $request)
+  { // user remove account
+    $authUser = $request->id;
+    try {
+      $result = Apiato::call('User@DeleteUserAction', [new DataTransporter($request)]);
+
+      if (Auth::user()->id == $authUser) {
+        Apiato::call('Authentication@WebLogoutAction');
+        return redirect('logout')->with($result);
+      }
+      return redirect()->route('get_all_user')->with('message', "Delete user successfully");
     } catch (Exception $e) {
       return redirect('listuser')->with('users', $e);
     }

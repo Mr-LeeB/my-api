@@ -28,7 +28,7 @@ class Controller extends WebController
     $roles = Apiato::call('Authorization@GetAllRolesAction', [new DataTransporter(new GetAllRolesRequest())]);
     $permissions = Apiato::call('Authorization@GetAllPermissionsAction');
 
-    return view('authorization::list-role-permission', compact('roles', 'permissions'));
+    return view('authorization::home', compact('roles', 'permissions'));
   }
 
   public function createRole(CreateRoleRequest $request)

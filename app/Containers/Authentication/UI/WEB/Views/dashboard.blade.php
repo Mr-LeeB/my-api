@@ -48,6 +48,10 @@
             color: #000;
             font-weight: bold;
         }
+
+        a {
+            text-decoration: none;
+        }
     </style>
 
 </head>

@@ -30,7 +30,7 @@
             position: relative;
             z-index: 20;
             background: #FFFFFF;
-            text-align: center;
+            /* text-align: center; */
             justify-content: center;
             align-items: top;
         }
@@ -39,7 +39,7 @@
             text-align: center;
             margin-top: 20px;
             padding: 20px;
-            width: 60%;
+            width: 80%;
             border-radius: 5px;
             height: 100%;
         }
@@ -96,6 +96,7 @@
         }
 
         .new-user {
+            width: 40%;
             text-align: left;
             margin-bottom: 10px;
             padding: 10px 0 10px;
@@ -137,7 +138,7 @@
             z-index: 1;
             background: #FFFFFF;
             margin: 0 auto 30px;
-            text-align: center;
+            /* text-align: center; */
         }
 
         .form input {
@@ -507,6 +508,45 @@
             justify-content: flex-start;
             width: 100%;
         }
+
+        .gender-radio {
+            display: flex;
+            flex-direction: row;
+            justify-content: flex-start;
+            align-content: flex-start
+        }
+
+        .gender-male,
+        .gender-female,
+        .gender-none {
+            display: flex;
+            flex-direction: row;
+            justify-content: flex-start;
+            align-content: center;
+            text-align: center;
+            align-items: center;
+            margin-right: 15px;
+            margin-bottom: 10px;
+        }
+
+        .gender-male input,
+        .gender-female input,
+        .gender-none input {
+            padding: 0;
+            margin: 0;
+            margin-right: 5px;
+        }
+
+        /* .gender-male label,
+                                                        .gender-female label,
+                                                        .gender-none label {
+                                                            font-size: 16px
+                                                        } */
+
+        label {
+            margin: 0;
+            font-size: 16px;
+        }
     </style>
 @endsection
 
@@ -546,6 +586,13 @@
 
             var confirmEditEmail = document.getElementById('email');
             var confirmEditName = document.getElementById('name');
+            // var confirmEditGenderFemale = document.getElementById('gender-female');
+            // var confirmEditGenderMale = document.getElementById('gender-male');
+            // var confirmEditGenderNone = document.getElementById('gender-none');
+            // var confirmEditBirth = document.getElementById('birth');
+
+
+
             if (!validateEmail(confirmEditEmail.value)) {
                 alert("You have entered an invalid email address!");
                 document.getElementById('email').focus();
@@ -553,7 +600,7 @@
             }
 
             if (confirmEditEmail.value == "" || confirmEditName.value == "") {
-                alert("Please fill out all fields");
+                alert("Please fill out all Email and Name fields");
                 return false;
             }
 
@@ -561,13 +608,13 @@
                 confirmEditEmail.removeAttribute("name");
             }
 
-            if (confirmEditName.value.trim() != user.name.trim() || confirmEditEmail.value.trim() != user.email.trim()) {
+            // if (confirmEditName.value.trim() != user.name.trim() || confirmEditEmail.value.trim() != user.email.trim() ) {
 
-                if (confirm("Are you sure you want to save?")) {
-                    // Nếu người dùng xác nhận xóa, gửi form
-                    document.querySelector('.save-form' + user.id.toString()).submit();
-                }
+            if (confirm("Are you sure you want to save?")) {
+                // Nếu người dùng xác nhận xóa, gửi form
+                document.querySelector('.save-form' + user.id.toString()).submit();
             }
+            // }
         }
 
         function cancleEdit() {
@@ -598,6 +645,8 @@
             document.getElementById("cancle").style.display = "none";
             document.getElementById("add").style.display = "block";
             document.getElementById("error").innerHTML = "";
+            document.getElementById('gender-none').checked = true;
+            document.getElementById('birth').value = "";
         }
 
         function confirmCreate() {
@@ -718,7 +767,7 @@
 
         function confirmRemoveAccount() {
             var password = document.getElementById("passwordRemoveAccount").value;
-            console.log()
+            console.log(password)
             if (password == "") {
                 document.getElementById("passwordRemoveAccount").style.display = "inline-block";
                 return false;
@@ -732,7 +781,25 @@
                 }
                 if (confirm("Are you sure you want to delete your account?")) {
                     document.getElementById("passwordRemoveAccount").value = "";
-                    $('#checkpassword').submit();
+                    // $('#checkpassword').submit();
+                    console.log($('#checkpassword').serialize());
+                    jQuery.ajax({
+                        type: 'post',
+                        url: "{{ url('check-password') }}",
+                        data: $('#checkpassword').serialize(),
+                        success: function(data) {
+                            console.log(data);
+                            if (data == true) {
+                                document.querySelector('#removeAccount-form').submit();
+                            } else
+                                alert("Wrong password");
+                            document.getElementById("passwordRemoveAccount").style.display = "none";
+                        },
+                        error: function(data) {
+                            console.log(data);
+                            alert("Have some error when delete account");
+                        }
+                    });
                 }
                 return true;
             }
@@ -757,6 +824,7 @@
 
         function saveAssignRole(user, roleIDs, rolesUser) {
             var haveRoleRevoke = false;
+            var haveRoleAssign = false;
             roleIDs.forEach(roleId => {
                 var role = document.getElementById('role-' + roleId + user.id);
                 if (role.checked == false) {
@@ -778,6 +846,7 @@
                     });
                     if (count == 0) {
                         assign.setAttribute('name', "roles_ids[]");
+                        haveRoleAssign = true;
                         console.log("added role " + assign.name + " " + assign.value);
                     }
                 }
@@ -785,7 +854,6 @@
 
             if (confirm("Are you sure you want to save?")) {
                 if (haveRoleRevoke) {
-
                     jQuery.ajax({
                         type: 'post',
                         url: "{{ url('role/revoke') }}",
@@ -797,30 +865,15 @@
                             console.log(data);
                         }
                     });
+                    //
                 }
-                document.querySelector('#assign_user_to_role' + user.id).submit();
+                if (haveRoleAssign) {
+                    document.querySelector('#assign_user_to_role' + user.id).submit();
+                } else {
+                    document.querySelector('#formfinduser').submit();
+                }
             }
         }
-
-        $(document).ready(function() {
-            $('#checkpassword').on('submit', function(e) {
-                e.preventDefault();
-                jQuery.ajax({
-                    type: 'post',
-                    url: "{{ url('check-password') }}",
-                    data: $('#checkpassword').serialize(),
-                    success: function(data) {
-                        console.log(data);
-                        if (data == true)
-                            // console.log(data + " true");
-                            document.querySelector('#removeAccount-form').submit();
-                        else
-                            alert("Wrong password");
-                        document.getElementById("passwordRemoveAccount").style.display = "none";
-                    }
-                });
-            });
-        });
 
         $(document).ready(function() {
             $('#passwordRemoveAccount').keydown(function(event) {

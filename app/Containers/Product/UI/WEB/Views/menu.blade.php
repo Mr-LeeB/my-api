@@ -17,9 +17,9 @@
         border-radius: 5px;
     }
 
-    .menu-item a {
-        width: 100%;
-        height: 100%;
+    a .menu-item {
+        width: 80%;
+        height: 50%;
         color: #000;
         text-decoration: none;
     }
@@ -30,26 +30,35 @@
 </style>
 <header>
     <div class="menu">
-        <div class="menu-item">
-            <a href="{{ route('get_user_dashboard_page') }}">Home</a>
-        </div>
-
-        <div class="menu-item">
-            <a href="{{ route('web_product_get_all_products') }}">Product List</a>
-        </div>
-        @can('list-users')
+        <a href="{{ route('get_user_dashboard_page') }}">
             <div class="menu-item">
-                <a href="{{ route('get_all_user') }}">User List</a>
+                Home
             </div>
+        </a>
+        <a href="{{ route('web_product_get_all_products') }}">
+            <div class="menu-item">
+                Product List
+            </div>
+        </a>
+        @can('list-users')
+            <a href="{{ route('get_all_user') }}">
+                <div class="menu-item">
+                    User List
+                </div>
+            </a>
         @endcan
         @can('manage-roles')
-            <div class="menu-item">
-                <a href="{{ route('get_authorization_home_page') }}">Role - Permission</a>
-            </div>
+            <a href="{{ route('get_authorization_home_page') }}">
+                <div class="menu-item">
+                    Role - Permission
+                </div>
+            </a>
         @endcan
-        <div class="menu-item">
-            <a href="{{ route('get_user_logout_page') }}">Logout</a>
-        </div>
+        <a href="{{ route('get_user_logout_page') }}">
+            <div class="menu-item">
+                Logout
+            </div>
+        </a>
 
 
     </div>

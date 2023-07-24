@@ -52,6 +52,9 @@ class UpdateUserRequests extends Request
       'email' => 'email|unique:users,email|max:40|min:6',
       'id' => 'required|exists:users,id',
       'name' => 'min:2|max:50',
+      'gender' => 'max:50',
+      'birth' => 'max:50',
+      "isEdited" => 'string',
     ];
   }
 

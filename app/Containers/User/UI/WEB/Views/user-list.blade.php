@@ -6,7 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Apiato</title>
+    <title>List Users</title>
 
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css?family=Raleway:100,600" rel="stylesheet" type="text/css">
@@ -21,6 +21,8 @@
     @php
         $email = null;
         $name = null;
+        $gender = null;
+        $birth = null;
         if (old('email')) {
             $email = old('email');
         } elseif ($userEdited) {
@@ -30,6 +32,16 @@
             $name = old('name');
         } elseif ($userEdited) {
             $name = $userEdited->name;
+        }
+        if (old('gender')) {
+            $gender = old('gender');
+        } elseif ($userEdited) {
+            $gender = $userEdited->gender;
+        }
+        if (old('birth')) {
+            $birth = old('birth');
+        } elseif ($userEdited) {
+            $birth = $userEdited->birth;
         }
     @endphp
 </head>
@@ -59,7 +71,7 @@
                     $userCanEdit = false;
                     $userCanDelete = false;
                     $userCanManageRole = false;
-                    
+
                     echo 'You are logged in as ';
                     foreach ($rolesUser as $role) {
                         echo $role->name . ' ';
@@ -83,7 +95,7 @@
                         }
                         // echo $permission->name . ', ';
                     }
-                    
+
                     $roleIDs = [];
                     foreach ($roles as $role) {
                         array_push($roleIDs, $role->id);
@@ -91,8 +103,7 @@
                     $roleIDs_json = json_encode($roleIDs);
                 @endphp
 
-
-                @if ($userCanCreate || $userCanEdit)
+                @if ($userCanCreate)
                     {{-- @if ($errors->first('email') || $errors->first('name') || $errors->first('password')) --}}
                     @if ($errors->any())
                         <style>
@@ -110,7 +121,9 @@
 
                             .errorEmailCreate,
                             .errorNameCreate,
-                            .errorPasswordCreate {
+                            .errorPasswordCreate,
+                            .errorGender,
+                            .errorBirth {
                                 display: block;
                             }
                         </style>
@@ -145,15 +158,39 @@
                             <div class="text-red">{{ session('status') }}</div>
                         @endif
 
+                        <label for="email">Email: </label>
                         <input type="email" placeholder="email" id="email" name="email"
                             value="{{ $email }}" oninput="changeEmailRegister()" />
 
                         <span class="text-red errorEmailCreate">{{ $errors->first('email') }}</span>
 
+                        <label for="name">Name:</label>
                         <input type="text" placeholder="name" id="name" name="name"
                             value="{{ $name }}" oninput="changeNameRegister()" />
 
                         <span class="text-red errorNameCreate">{{ $errors->first('name') }}</span>
+
+                        <div class="gender-radio">
+                            <div class="gender-female">
+                                <input type="radio" name="gender" id="gender-female" value="female">
+                                <label for="gender-female">Female</label>
+                            </div>
+                            <div class="gender-male">
+                                <input type="radio" name="gender" id="gender-male" value="male">
+                                <label for="gender-male">Male</label>
+                            </div>
+                            <div class="gender-none">
+                                <input type="radio" name="gender" id="gender-none" value="other" checked>
+                                <label for="gender-none">Other</label>
+                            </div>
+                        </div>
+
+                        <span class="text-red errorGender">{{ $errors->first('gender') }}</span>
+
+                        <label for="birth">Birthday:</label>
+                        <input type="date" name="birth" id="birth">
+
+                        <span class="text-red errorBirth">{{ $errors->first('birth') }}</span>
 
                         @if ($isEdited != -1)
                             {{-- <input type="hidden" name="isEdited" value="{{ $user->id }}"> --}}
@@ -167,10 +204,12 @@
                                     onclick="cancleEdit()">Cancle</button>
                             </div>
                         @else
+                            <label for="password">Password:</label>
                             <input type="password" placeholder="password" id="password" name="password" />
 
                             <span class="text-red errorPasswordCreate">{{ $errors->first('password') }}</span>
 
+                            <label for="confirm_password">Confirm Password:</label>
                             <input type="password" placeholder="confirm password" id="confirm_password" />
 
                             {{-- <input type="hidden" name="isEdited" value="-1" /> --}}
@@ -227,8 +266,13 @@
                     <th>ID</th>
                     <th>Name</th>
                     <th>Email</th>
+                    <th>Gender</th>
+                    <th>Birthday</th>
+                    <th>Created</th>
                     @if ($userCanManageRole)
-                        <th>Role</th>
+                        @can('manage-admins-access')
+                            <th>Role</th>
+                        @endcan
                     @endif
                     @if ($userCanEdit)
                         @if ($userCanDelete)
@@ -257,56 +301,61 @@
                         <td style='text-align:center;'>{{ $user->id }}</td>
                         <td>{{ $user->name }}</td>
                         <td>{{ $user->email }}</td>
-
+                        <td style='text-align:center;'>{{ $user->gender }}</td>
+                        <td style='text-align:center;'>{{ $user->birth }}</td>
+                        <td style='text-align:center;'>{{ substr($user->created_at, 0, 10) }}</td>
                         @if ($userCanManageRole)
-                            <td style='text-align:center; '>
-                                {{-- <form action="" method="GET">
+                            @can('manage-admins-access')
+                                <td style='text-align:center; '>
+                                    {{-- <form action="" method="GET">
                                     <input type="hidden" name="id" value="{{ $user->id }}">
                                     <button type="submit" style="color: #43A047; font-weight: 1000;">Role</button>
                                 </form> --}}
-                                <div class="btn-assign-revoke-role">
-                                    @foreach ($user->roles as $rolesUser)
-                                        {{ $rolesUser->name }}
-                                    @endforeach
+                                    <div class="btn-assign-revoke-role">
+                                        @foreach ($user->roles as $rolesUser)
+                                            {{ $rolesUser->name }} <br>
+                                        @endforeach
 
-                                    <button class="btn-assign-role" type="button"
-                                        style="color: #43A047; font-weight: 1000;"
-                                        onclick="assignRole({{ $user->id }})">Assign Role</button>
+                                        <button class="btn-assign-role" type="button"
+                                            style="color: #43A047; font-weight: 1000;"
+                                            onclick="assignRole({{ $user->id }})">Assign Role</button>
 
-                                    <form class="form_assign_user_to_role" id="assign_user_to_role{{ $user->id }}"
-                                        action="{{ route('assign_user_to_role') }}" method="POST">
-                                        {{ csrf_field() }}
-                                        <input type="hidden" name="user_id" value="{{ $user->id }}">
-                                        @foreach ($roles as $role)
-                                            <div class="role-id-item">
-                                                <input id="role-{{ $role->id }}{{ $user->id }}"
-                                                    type="checkbox" value="{{ $role->id }}"
-                                                    onclick="checkRole({{ $role->id }})"
-                                                    @foreach ($user->roles as $rolesUser)@if ($role->id == $rolesUser->id) checked @endif @endforeach>
-                                                {{ $role->name }}
+                                        <form class="form_assign_user_to_role"
+                                            id="assign_user_to_role{{ $user->id }}"
+                                            action="{{ route('assign_user_to_role') }}" method="POST">
+                                            {{ csrf_field() }}
+                                            <input type="hidden" name="user_id" value="{{ $user->id }}">
+                                            @foreach ($roles as $role)
+                                                <div class="role-id-item">
+                                                    <input id="role-{{ $role->id }}{{ $user->id }}"
+                                                        type="checkbox" value="{{ $role->id }}"
+                                                        onclick="checkRole({{ $role->id }})"
+                                                        @foreach ($user->roles as $rolesUser)@if ($role->id == $rolesUser->id) checked @endif @endforeach>
+                                                    {{ $role->name }}
+                                                </div>
+                                            @endforeach
+                                            <div class="btn-save-cancle">
+                                                <button class="btn-save-assign-role" type="button"
+                                                    style="color: #43A047; font-weight: 1000;"
+                                                    onclick="saveAssignRole({{ json_encode($user) }}, {{ $roleIDs_json }},{{ json_encode($user->roles) }})">Save</button>
+                                                <button class="btn-cancle-assign-role" type="button"
+                                                    style="color: #43A047; font-weight: 1000;"
+                                                    onclick="cancleAssignRole({{ $user->id }})">Cancle</button>
                                             </div>
-                                        @endforeach
-                                        <div class="btn-save-cancle">
-                                            <button class="btn-save-assign-role" type="button"
-                                                style="color: #43A047; font-weight: 1000;"
-                                                onclick="saveAssignRole({{ json_encode($user) }}, {{ $roleIDs_json }},{{ json_encode($user->roles) }})">Save</button>
-                                            <button class="btn-cancle-assign-role" type="button"
-                                                style="color: #43A047; font-weight: 1000;"
-                                                onclick="cancleAssignRole({{ $user->id }})">Cancle</button>
-                                        </div>
-                                    </form>
+                                        </form>
 
-                                    <form id="revoke_user_to_role{{ $user->id }}"
-                                        action="{{ route('revoke_user_from_role') }}" method="POST">
-                                        {{ csrf_field() }}
-                                        <input type="hidden" name="user_id" value="{{ $user->id }}">
-                                        @foreach ($roles as $role)
-                                            <input id="remove-role-{{ $role->id }}{{ $user->id }}"
-                                                type="hidden" value="{{ $role->id }}">
-                                        @endforeach
-                                    </form>
-                                </div>
-                            </td>
+                                        <form id="revoke_user_to_role{{ $user->id }}"
+                                            action="{{ route('revoke_user_from_role') }}" method="POST">
+                                            {{ csrf_field() }}
+                                            <input type="hidden" name="user_id" value="{{ $user->id }}">
+                                            @foreach ($roles as $role)
+                                                <input id="remove-role-{{ $role->id }}{{ $user->id }}"
+                                                    type="hidden" value="{{ $role->id }}">
+                                            @endforeach
+                                        </form>
+                                    </div>
+                                </td>
+                            @endcan
                         @endif
                         @if ($userCanEdit)
                             <td style='text-align:center; '>
@@ -352,8 +401,8 @@
             </button>
         </form>
 
-        <form id="removeAccount-form" class="removeAccount" action="{{ route('delete_user', Auth::user()->id) }}"
-            method="POST">
+        <form id="removeAccount-form" class="removeAccount"
+            action="{{ route('remove_user_account', Auth::user()->id) }}" method="POST">
             {{ csrf_field() }}
             {{ method_field('DELETE') }}
             <input id="passwordRemoveAccount" type="password"
@@ -364,7 +413,7 @@
                 Remove Your Account</button>
         </form>
 
-        <form action="{{ url('check-password') }}" method="POST" id="checkpassword" style="display: none">
+        <form action="{{ route('check_password') }}" method="POST" id="checkpassword" style="display: none">
             @csrf
             <input id="thispass" type="hidden" name="password">
             {{-- <input type="hidden" name="authpassword" id="authpassword" value="{{ Auth::user()->password }}"> --}}
@@ -380,6 +429,15 @@
         if ({{ $isEdited }} != -1) {
             document.querySelector('.create-form').style.display = 'block';
         }
+        if ('{{ $gender }}' == 'male') {
+            document.getElementById('gender-male').checked = true;
+        } else if ('{{ $gender }}' == 'female') {
+            document.getElementById('gender-female').checked = true;
+        } else
+            document.getElementById('gender-none').checked = true;
+
+        if ('{{ $birth }}' != null)
+            document.getElementById('birth').value = '{{ $birth }}';
     </script>
 </body>
 

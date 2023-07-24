@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Containers\Authorization\UI\WEB\Requests;
+namespace App\Containers\User\UI\WEB\Requests;
 
 use App\Ship\Parents\Requests\Request;
 
 /**
- * Class CreateRoleRequest.
+ * Class LoginRequest.
  *
  * @author Mahmoud Zalt <mahmoud@zalt.me>
  */
-class UpdateRoleRequest extends Request
+class UserRemoveAccountRequests extends Request
 {
 
   /**
@@ -18,8 +18,8 @@ class UpdateRoleRequest extends Request
    * @var  array
    */
   protected $access = [
-    'roles' => 'admin',
-    'permissions' => 'manage-roles',
+    'permissions' => 'list-users',
+    'roles' => '',
   ];
 
   /**
@@ -28,7 +28,7 @@ class UpdateRoleRequest extends Request
    * @var  array
    */
   protected $decode = [
-
+    'id'
   ];
 
   /**
@@ -42,26 +42,26 @@ class UpdateRoleRequest extends Request
   ];
 
   /**
-   * @return  array
+   * Get the validation rules that apply to the request.
+   *
+   * @return array
    */
   public function rules()
   {
     return [
-      'id' => 'required|exists:roles,id',
-      'name' => 'unique:roles,name|min:2|max:20|no_spaces',
-      'description' => 'max:255',
-      'display_name' => 'max:100',
-      'level' => 'integer|min:0|max:999'
+      'id' => 'required|exists:users,id',
     ];
   }
 
   /**
-   * @return  bool
+   * Determine if the user is authorized to make this request.
+   *
+   * @return bool
    */
   public function authorize()
   {
     return $this->check([
-      'hasAccess',
+      'hasAccess|isOwner',
     ]);
   }
 }

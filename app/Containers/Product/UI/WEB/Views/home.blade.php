@@ -5,7 +5,7 @@
         html,
         body {
             background-color: #fff;
-            color: #636b6f;
+            color: #000000;
             font-family: 'Roboto', sans-serif;
             font-weight: 100;
             height: 100%;
@@ -200,7 +200,7 @@
 
         .icon-sort-item {
             width: 20px;
-            height: 20px;
+            height: 12px;
         }
 
         .icon-sort-item:hover {

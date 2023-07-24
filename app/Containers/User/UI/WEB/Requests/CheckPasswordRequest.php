@@ -19,7 +19,7 @@ class CheckPasswordRequests extends Request
    */
   protected $access = [
     'roles' => '',
-    'permissions' => 'delete-users',
+    'permissions' => '',
   ];
 
   /**
