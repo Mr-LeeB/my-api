@@ -71,7 +71,7 @@
                     $userCanEdit = false;
                     $userCanDelete = false;
                     $userCanManageRole = false;
-
+                    
                     echo 'You are logged in as ';
                     foreach ($rolesUser as $role) {
                         echo $role->name . ' ';
@@ -95,7 +95,7 @@
                         }
                         // echo $permission->name . ', ';
                     }
-
+                    
                     $roleIDs = [];
                     foreach ($roles as $role) {
                         array_push($roleIDs, $role->id);
@@ -423,7 +423,6 @@
             <input type="hidden" name="id" id="findUser">
             {{-- <input type="hidden" name="isEdited" id="isEdited"> --}}
         </form>
-    </div>
     </div>
     <script>
         if ({{ $isEdited }} != -1) {

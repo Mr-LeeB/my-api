@@ -1,0 +1,6 @@
+{
+  "name": "apiato/release",
+  "description": "Release Container for apiato.",
+  "require": {
+  }
+}

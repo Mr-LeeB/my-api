@@ -79,7 +79,7 @@
     <div class="info">
         <h2> @yield('message')</h2>
         <p>We're fairly sure that page used to be here, but seems to have gone missing. We do apologise on it's
-            behalf.</p><a href="{{ url('/') }}" target="_blank" rel="noreferrer noopener">Home</a>
+            behalf.</p><a href="{{ url('/') }}" rel="noreferrer noopener">Home</a>
     </div>
 </body>
 
