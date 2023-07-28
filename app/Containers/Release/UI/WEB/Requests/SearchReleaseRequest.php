@@ -5,17 +5,10 @@ namespace App\Containers\Release\UI\WEB\Requests;
 use App\Ship\Parents\Requests\Request;
 
 /**
- * Class StoreReleaseRequest.
+ * Class SearchReleaseRequest.
  */
-class StoreReleaseRequest extends Request
+class SearchReleaseRequest extends Request
 {
-
-  /**
-   * The assigned Transporter for this Request
-   *
-   * @var string
-   */
-  protected $transporter = \App\Containers\Release\Data\Transporters\CreateReleaseTransporter::class;
 
   /**
    * Define which Roles and/or Permissions has access to this request.
@@ -52,10 +45,6 @@ class StoreReleaseRequest extends Request
   public function rules()
   {
     return [
-      'name' => 'required|unique:releases,name|max:255',
-      'date_created' => 'required|max:255',
-      'title_description' => 'required|max:255',
-      'detail_description' => 'required|max:255',
     ];
   }
 

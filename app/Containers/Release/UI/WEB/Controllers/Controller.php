@@ -6,6 +6,7 @@ use App\Containers\Release\UI\WEB\Requests\CreateReleaseRequest;
 use App\Containers\Release\UI\WEB\Requests\DeleteReleaseRequest;
 use App\Containers\Release\UI\WEB\Requests\GetAllReleasesRequest;
 use App\Containers\Release\UI\WEB\Requests\FindReleaseByIdRequest;
+use App\Containers\Release\UI\WEB\Requests\SearchReleaseRequest;
 use App\Containers\Release\UI\WEB\Requests\UpdateReleaseRequest;
 use App\Containers\Release\UI\WEB\Requests\StoreReleaseRequest;
 use App\Containers\Release\UI\WEB\Requests\EditReleaseRequest;
@@ -65,7 +66,8 @@ class Controller extends WebController
   public function store(StoreReleaseRequest $request)
   {
     $release = Apiato::call('Release@CreateReleaseAction', [new DataTransporter($request)]);
-    // ..
+
+    return redirect()->route('web_release_get_all_release');
   }
 
   /**
@@ -99,5 +101,24 @@ class Controller extends WebController
   {
     $result = Apiato::call('Release@DeleteReleaseAction', [new DataTransporter($request)]);
     // ..
+  }
+
+
+  public function search(SearchReleaseRequest $request)
+  {
+    $releases = Apiato::call('Release@SearchReleaseAction', [new DataTransporter($request)]);
+    return $releases;
+  }
+
+  public function searchById(SearchReleaseRequest $request)
+  {
+    $releases = Apiato::call('Release@FindReleaseByIdAction', [new DataTransporter($request)]);
+    return [$releases];
+  }
+
+  public function searchByDate(SearchReleaseRequest $request)
+  {
+    $releases = Apiato::call('Release@SearchReleaseByDateAction', [new DataTransporter($request)]);
+    return $releases;
   }
 }

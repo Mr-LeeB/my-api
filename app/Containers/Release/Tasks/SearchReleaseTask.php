@@ -7,7 +7,7 @@ use App\Ship\Exceptions\NotFoundException;
 use App\Ship\Parents\Tasks\Task;
 use Exception;
 
-class FindReleaseByIdTask extends Task
+class SearchReleaseTask extends Task
 {
 
   protected $repository;
@@ -17,10 +17,10 @@ class FindReleaseByIdTask extends Task
     $this->repository = $repository;
   }
 
-  public function run($id)
+  public function run($name)
   {
     try {
-      return $this->repository->find($id);
+      return $this->repository->where('name', 'like', '%' . $name . '%')->get();
     } catch (Exception $exception) {
       throw new NotFoundException();
     }
