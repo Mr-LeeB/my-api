@@ -24,7 +24,7 @@ class CreateReleaseRequest extends Request
    */
   protected $access = [
     'permissions' => '',
-    'roles' => '',
+    'roles' => 'admin',
   ];
 
   /**
@@ -52,11 +52,6 @@ class CreateReleaseRequest extends Request
   public function rules()
   {
     return [
-      'name' => 'required|max:255',
-      'date_created' => 'required|max:255',
-      'title_description' => 'required|max:255',
-      'detail_description' => 'required|max:255',
-      'is_publish' => 'required|max:255',
     ];
   }
 

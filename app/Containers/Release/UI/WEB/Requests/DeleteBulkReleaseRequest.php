@@ -5,11 +5,10 @@ namespace App\Containers\Release\UI\WEB\Requests;
 use App\Ship\Parents\Requests\Request;
 
 /**
- * Class SearchReleaseRequest.
+ * Class DeleteBulkProductRequest.
  */
-class SearchReleaseRequest extends Request
+class DeleteBulkReleaseRequest extends Request
 {
-
   /**
    * Define which Roles and/or Permissions has access to this request.
    *
@@ -26,7 +25,7 @@ class SearchReleaseRequest extends Request
    * @var  array
    */
   protected $decode = [
-    // 'id',
+    'id.*',
   ];
 
   /**
@@ -36,7 +35,6 @@ class SearchReleaseRequest extends Request
    * @var  array
    */
   protected $urlParameters = [
-    // 'id',
   ];
 
   /**
@@ -45,6 +43,8 @@ class SearchReleaseRequest extends Request
   public function rules()
   {
     return [
+      'id' => 'array|required',
+      'id.*' => 'exists:releases,id',
     ];
   }
 

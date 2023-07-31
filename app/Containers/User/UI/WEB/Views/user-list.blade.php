@@ -130,6 +130,7 @@
                     @endif
 
                     <div class="new-user">
+
                         @if ($isEdited != -1)
                             <div class="form">
                                 <div id="error"></div>
@@ -143,10 +144,10 @@
                                     {{ csrf_field() }}
                                     {{ method_field('PUT') }}
                                 @else
-                                    <button id="add" class="btn-add" type="submit" name="createUser"
-                                        method="post" onclick="showCreateForm()">Add New User</button>
-                                    <button id="cancle" class="btn-cancle" type="submit"
-                                        onclick="disableCreateForm()">Cancle</button>
+                                    <input type="button" id="add" class="btn-add" name="createUser"
+                                        onclick="showCreateForm()" value="Add New User">
+                                    <input type="button" id="cancle" class="btn-cancle"
+                                        onclick="disableCreateForm()" value="Cancle">
                                     <div class="form">
                                         <div id="error"></div>
                                         <form class="create-form form" action="{{ route('create_new_user') }}"

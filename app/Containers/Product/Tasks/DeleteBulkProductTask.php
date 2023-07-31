@@ -21,7 +21,8 @@ class DeleteBulkProductTask extends Task
   public function run($product_Ids)
   {
     try {
-      return Product::whereIn('id', $product_Ids)->delete();
+      // return Product::whereIn('id', $product_Ids)->delete();
+      return $this->repository->whereIn('id', $product_Ids)->delete();
 
     } catch (Exception $exception) {
       throw new DeleteResourceFailedException();

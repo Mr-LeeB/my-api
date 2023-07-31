@@ -22,7 +22,6 @@ use App\Ship\Parents\Controllers\WebController;
 use App\Ship\Transporters\DataTransporter;
 use Auth;
 use Exception;
-use Log;
 
 /**
  * Class Controller
@@ -151,7 +150,7 @@ class Controller extends WebController
     // Log::info($request);
     $result = Apiato::call('User@RegisterUserAction', [new DataTransporter($request)]);
 
-    return redirect('login')->with($result);
+    return redirect('login');
   }
 
   /**

@@ -47,15 +47,21 @@
         line-height: 40px;
         border-radius: 50%;
         background-color: #333;
-        color: #000000;
+        color: #ecdada;
         font-size: 16px;
         transition: all 0.3s ease-in-out;
     }
 
     .footer-social ul li a:hover {
-        background-color: #333;
-        color: #000000;
+        background-color: #c2b4b4;
+        color: #4704ff;
     }
+
+    .footer-social ul li a i {
+        line-height: inherit;
+        padding-right: 12px;
+    }
+
 
     .footer-logo {
         text-align: center;
@@ -82,96 +88,6 @@
     .footer-text p span {
         color: #f82249;
     }
-
-    @media (max-width: 767px) {
-        .footer-menu ul li {
-            display: block;
-            margin-bottom: 10px;
-        }
-
-        .footer-menu ul li:last-child {
-            margin-bottom: 0;
-        }
-
-        .footer-social {
-            text-align: center;
-        }
-
-        .footer-social ul li {
-            display: block;
-            margin-bottom: 10px;
-        }
-
-        .footer-social ul li:last-child {
-            margin-bottom: 0;
-        }
-    }
-
-    @media (max-width: 575px) {
-        .footer-logo {
-            margin-bottom: 20px;
-        }
-    }
-
-    @media (max-width: 400px) {
-        .footer-text {
-            font-size: 12px;
-        }
-    }
-
-    @media (max-width: 300px) {
-        .footer-menu ul li {
-            margin-right: 10px;
-        }
-
-        .footer-social ul li {
-            margin-left: 10px;
-        }
-    }
-
-    @media (max-width: 250px) {
-        .footer-menu ul li {
-            margin-right: 5px;
-        }
-
-        .footer-social ul li {
-            margin-left: 5px;
-        }
-    }
-
-    @media (max-width: 200px) {
-        .footer-menu ul li {
-            margin-right: 0;
-        }
-
-        .footer-social ul li {
-            margin-left: 0;
-        }
-    }
-
-    @media (max-width: 767px) {
-        .footer-menu ul li {
-            display: block;
-            margin-bottom: 10px;
-        }
-
-        .footer-menu ul li:last-child {
-            margin-bottom: 0;
-        }
-
-        .footer-social {
-            text-align: center;
-        }
-
-        .footer-social ul li {
-            display: block;
-            margin-bottom: 10px;
-        }
-
-        .footer-social ul li:last-child {
-            margin-bottom: 0;
-        }
-    }
 </style>
 <footer>
     <div class="container">
@@ -196,11 +112,12 @@
                     </ul>
                 </div>
                 <div class="footer-logo">
-                    <a href=""><img src="{{ asset('img/logo.png') }}" alt="logo"></a>
+                    <a href=""><img src="/img/logo.png" alt="logo"></a>
+                    {{-- <a href=""><img src="{{ asset('img/logo.png') }}" alt="logo"></a> --}}
                 </div>
                 <div class="footer-text">
                     <p>© 2021 All Rights Reserved. Design by <a
-                            href="https://www.facebook.com/"><span>Mr-LeeB</span></a>
+                            href=""><span>Mr-LeeB</span></a>
                     </p>
                 </div>
             </div>

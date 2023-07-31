@@ -59,7 +59,7 @@ class RegisterUserRequests extends Request
   public function messages()
   {
     return [
-      'password.required' => 'Password is required',
+      // 'password.required' => 'Password is required',
       'name.min' => 'Name phai nhap it nhat 2 ky tu',
     ];
   }

@@ -13,7 +13,7 @@ class CreateReleaseAction extends Action
   public function run(DataTransporter $data): Release
   {
 
-    $release = Apiato::call('Release@CreateReleaseTask', [
+  $release = Apiato::call('Release@CreateReleaseTask', [
       $data->name,
       $data->date_created,
       $data->title_description,

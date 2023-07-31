@@ -22,8 +22,6 @@ class DeleteUserTest extends WebTestCase
     'permissions' => 'delete-users',
   ];
 
-  // protected $auth = false;
-
   public function testWebDeleteExistingUser_()
   {
     // get the user to be deleted
@@ -36,3 +34,5 @@ class DeleteUserTest extends WebTestCase
     $response->assertStatus(204);
   }
 }
+
+?>

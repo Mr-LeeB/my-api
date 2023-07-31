@@ -3,12 +3,12 @@
 namespace App\Containers\Release\Actions;
 
 use App\Ship\Parents\Actions\Action;
-use App\Ship\Parents\Requests\Request;
 use Apiato\Core\Foundation\Facades\Apiato;
+use App\Ship\Transporters\DataTransporter;
 
 class UpdateReleaseAction extends Action
 {
-  public function run(Request $request)
+  public function run(DataTransporter $request)
   {
     $data = $request->sanitizeInput([
       'name',

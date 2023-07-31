@@ -6,12 +6,16 @@ use App\Ship\Parents\Actions\Action;
 use Apiato\Core\Foundation\Facades\Apiato;
 use App\Ship\Transporters\DataTransporter;
 
-class FindReleaseByIdAction extends Action
+class DeleteBulkReleaseAction extends Action
 {
   public function run(DataTransporter $request)
   {
+    $release_Ids = [];
     $release = Apiato::call('Release@FindReleaseByIdTask', [$request->id]);
 
-    return $release;
+    foreach ($release as $Rid) {
+      array_push($release_Ids, $Rid->id);
+    }
+    return Apiato::call('Release@DeleteBulkReleaseTask', [$release_Ids]);
   }
 }

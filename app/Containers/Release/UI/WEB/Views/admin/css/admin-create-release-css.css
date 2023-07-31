@@ -1,0 +1,97 @@
+/* css form create */
+.create-release {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 40%;
+  border-radius: 5px;
+  padding: 20px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  background-color: #e2ecf3;
+  border: #000000 1px solid;
+}
+
+.create-release form {
+  width: 100%;
+  padding-right: 20px;
+}
+
+.create-release form textarea {
+  width: 100%;
+  max-width: 100%;
+  min-width: 100%;
+  max-height: 205px;
+  min-height: 30px;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+}
+
+.create-release form input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+}
+
+.create-release form input[type="submit"] {
+  background-color: #22698c;
+  color: white;
+  border: none;
+  margin-left: 10px;
+}
+
+.create-release form input[type="submit"]:hover {
+  background-color: #3266ab;
+  color: white;
+}
+
+.is-publish-checkbox {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.is-publish-checkbox input {
+  width: 20px !important;
+  height: 20px;
+  margin-right: 10px;
+}
+
+.is-publish-checkbox label {
+  margin: 0;
+  padding: 0;
+  font-size: 16px;
+}
+
+/* css create-content */
+.create-content {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: flex-start;
+  border-radius: 5px;
+  padding: 20px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+
+/* css info-release-created-recently */
+.info-release-created-recently {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  width: 50%;
+  border-radius: 5px;
+  padding: 20px;
+  margin: 20px;
+  background-color: #e2ecf3;
+  border: #000000 1px solid;
+}

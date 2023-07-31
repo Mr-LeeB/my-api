@@ -3,6 +3,7 @@
 namespace App\Containers\Release\UI\WEB\Controllers;
 
 use App\Containers\Release\UI\WEB\Requests\CreateReleaseRequest;
+use App\Containers\Release\UI\WEB\Requests\DeleteBulkReleaseRequest;
 use App\Containers\Release\UI\WEB\Requests\DeleteReleaseRequest;
 use App\Containers\Release\UI\WEB\Requests\GetAllReleasesRequest;
 use App\Containers\Release\UI\WEB\Requests\FindReleaseByIdRequest;
@@ -31,7 +32,7 @@ class Controller extends WebController
     $releases = Apiato::call('Release@GetAllReleasesAction', [new DataTransporter($request)]);
 
     if (auth()->user()->hasAdminRole()) {
-      return view('release::admin.admin-home', compact('releases'));
+      return view('release::admin.admin-show-release-page', compact('releases'));
     }
     return view('release::home', compact('releases'));
   }
@@ -55,7 +56,7 @@ class Controller extends WebController
    */
   public function create(CreateReleaseRequest $request)
   {
-    // ..
+    return view('release::admin.admin-create-release-page');
   }
 
   /**
@@ -67,7 +68,7 @@ class Controller extends WebController
   {
     $release = Apiato::call('Release@CreateReleaseAction', [new DataTransporter($request)]);
 
-    return redirect()->route('web_release_get_all_release');
+    return redirect()->route('web_release_create')->with('success', '<p>Release <strong>' . $release->name . '</strong> Created Successfully</p>');
   }
 
   /**
@@ -99,10 +100,37 @@ class Controller extends WebController
    */
   public function delete(DeleteReleaseRequest $request)
   {
-    $result = Apiato::call('Release@DeleteReleaseAction', [new DataTransporter($request)]);
-    // ..
+    $result = Apiato::call('Release@FindReleaseByIdAction', [new DataTransporter($request)]);
+    if ($result == null) {
+      return redirect()->route('web_release_get_all_release')->with('error', 'Release Not Found');
+    }
+    try {
+      Apiato::call('Release@DeleteReleaseAction', [new DataTransporter($request)]);
+    } catch (\Exception $e) {
+      return redirect()->route('web_release_get_all_release')->with('error', 'Release Not Found');
+    }
+    return redirect()->route('web_release_get_all_release')->with('success', '<p>Release <strong>' . $result->name . '</strong> Deleted Successfully</p>');
   }
 
+  public function deleteBulk(DeleteBulkReleaseRequest $request)
+  {
+    $result = Apiato::call('Release@FindReleaseByIdAction', [new DataTransporter($request)]);
+    if ($result == null) {
+      return redirect()->route('web_release_get_all_release')->with('error', 'Release(s) Not Found');
+    } else {
+      $releaseName = '';
+      foreach ($result as $value) {
+        $releaseName .= $value->name . ', ';
+      }
+      $releaseName = substr($releaseName, 0, -2);
+    }
+    try {
+      Apiato::call('Release@DeleteBulkReleaseAction', [new DataTransporter($request)]);
+    } catch (\Exception $e) {
+      return redirect()->route('web_release_get_all_release')->with('error', 'Release(s) Not Found');
+    }
+    return redirect()->route('web_release_get_all_release')->with('success', '<p> Release <strong>' . $releaseName . '</strong> Deleted Successfully </p>');
+  }
 
   public function search(SearchReleaseRequest $request)
   {
