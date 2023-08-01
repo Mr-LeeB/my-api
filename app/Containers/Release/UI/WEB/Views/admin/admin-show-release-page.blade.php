@@ -46,8 +46,9 @@
 
         function searchRelease() {
             var search = $('#search-by-name').val();
+            var url = '';
             if ($('#field-name').is(':checked')) {
-                var url = "{{ route('web_release_search') }}";
+                url = "{{ route('web_release_search') }}";
                 $('#search-by-name').attr('type', 'text');
                 $('#search-by-name').attr('name', 'name');
                 $('#search-by-name').attr('placeholder', 'Search by Name');
@@ -78,27 +79,28 @@
                         `<p>Result: ${data.length} release(s)</p>
                         <div class="release-note-list">
                           ${data.map((release) => {
-                            return`<div class="release-note-item">
-                                                        <div class="release-note-item-header" onclick="activeBody(${release.id})">
-                                                          <div class="release-note-item-header-title">
-                                                            ${release.name}
-                                                          </div>
-                                                          <div class="release-note-item-header-date">
-                                                            ${release.date_created}
-                                                          </div>
-                                                        </div>
-                                                        <div class="release-note-item-body unactive" id="body${release.id}">
-                                                          <div class="release-note-item-body-title ">
-                                                            Title: ${release.title_description}
-                                                          </div>
-                                                          <div class="release-note-item-body-description">
-                                                            Description: ${release.detail_description}
-                                                          </div>
-                                                          <div class="more-detail">
-                                                            <a href="/releases/${release.id}">More detail</a>
-                                                          </div>
-                                                        </div>
-                                                      </div>`}).join('')}
+                              release.detail_description = release.detail_description.length > 42 ? release.detail_description.substring(0, 42).concat('...'):release.detail_description;
+                              return`<div class="release-note-item">
+       <div class="release-note-item-header" onclick="activeBody(${release.id})">
+         <div class="release-note-item-header-title">
+           ${release.name}
+         </div>
+         <div class="release-note-item-header-date">
+           ${release.date_created}
+         </div>
+       </div>
+       <div class="release-note-item-body unactive" id="body${release.id}">
+         <div class="release-note-item-body-title ">
+           Title: ${release.title_description}
+         </div>
+         <div class="release-note-item-body-description">
+           Description: ${release.detail_description}
+         </div>
+         <div class="more-detail">
+           <a href="/releases/${release.id}" target="blank">More detail</a>
+         </div>
+       </div>
+     </div>`}).join('')}
                         </div>`
                     );
                 },
@@ -170,6 +172,10 @@
             $('#sortedBy').val(sortedBy.trim());
             $('#form-sort-release').submit();
         }
+
+        function showReleaseDetailPage(id) {
+            window.location.href = '/releases/' + id;
+        }
     </script>
 @endsection
 
@@ -180,6 +186,23 @@
             array_push($releaseID, $value->id);
         }
         $releaseID_json = json_encode($releaseID);
+
+        function detail_description($description)
+        {
+            if (strlen($description) > 50) {
+                return substr($description, 0, 37) . '...';
+            }
+            return $description;
+        }
+
+        function tooltip_description($description)
+        {
+            $seeMore = '<a style="color:blue" href="#" >See more</a>';
+            if (strlen($description) > 100) {
+                return substr($description, 0, 100) . '...' . $seeMore;
+            }
+            return $description . '</br>' . $seeMore;
+        }
     @endphp
 @endsection
 
@@ -231,7 +254,6 @@
         <div class="table-list-all-release">
             @if (session('success'))
                 @php
-                    // Convert HTML-encoded string to actual HTML code
                     echo html_entity_decode(session('success'));
                 @endphp
             @endif
@@ -241,6 +263,14 @@
                     <input type="hidden" id="sortedBy" name="sortedBy">
                 </form>
             </div>
+            {{-- <div class="dropdown">
+                <span>awdawd</span>
+                <div class="dropdown-content">
+                    <a href="#">Link 1</a>
+                    <a href="#">Link 2</a>
+                    <a href="#">Link 3</a>
+                </div>
+            </div> --}}
             <table>
                 <thead>
                     <th><input type="checkbox" id="checkAll" onclick="checkAll({{ $releaseID_json }})"></th>
@@ -313,20 +343,21 @@
                             <td style="text-align: center;">{{ $release->id }}</td>
                             <td>{{ $release->name }}</td>
                             <td>{{ $release->title_description }}</td>
-                            @if (strlen($release->detail_description) > 40)
-                                <td>{{ substr($release->detail_description, 0, 40) }}...</td>
-                            @else
-                                <td>{{ $release->detail_description }}</td>
-                            @endif
+                            <td>
+                                <div class="tooltip">{{ detail_description($release->detail_description) }}
+                                    <span class="tooltiptext">@php echo html_entity_decode(tooltip_description($release->detail_description)) @endphp</span>
+                                </div>
+
+                            </td>
+
                             <td style="text-align: center;">{{ $release->date_created }}</td>
                             <td style="text-align: center;">{{ $release->is_publish }}</td>
                             <td
-                                style="
-                                text-align: center;
-                                display: flex;
-                                flex-direction: column;
-                                justify-content: center;
-                                align-items: center">
+                                style="display: flex;
+                                      text-align: center;
+                                      flex-direction: column;
+                                      justify-content: center;
+                                      align-items: center;">
                                 @if (isset($release->images) && count($release->images) > 0 && $release->images[0] != '')
                                     <img src="{{ asset($release->images[0]) }}" alt="Image"
                                         style="width: 50px; height: 50px; border-radius: 10px">
@@ -339,7 +370,7 @@
                                 @endif
                             <td style="text-align: center;">
                                 <input class="btn-edit" type="button" id="edit-release-{{ $release->id }}"
-                                    onclick="enableEdit({{ $release->id }})" value="More Detail">
+                                    onclick="showReleaseDetailPage({{ $release->id }})" value="More Detail">
                             </td>
                             <td style="text-align: center;">
                                 <form id="form-delete-release-id-{{ $release->id }}" method="POST"

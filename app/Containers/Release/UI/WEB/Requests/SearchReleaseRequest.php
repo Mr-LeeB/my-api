@@ -45,6 +45,9 @@ class SearchReleaseRequest extends Request
   public function rules()
   {
     return [
+      'id' => 'integer',
+      'name' => 'string|max:255',
+      'date_created' => 'date',
     ];
   }
 

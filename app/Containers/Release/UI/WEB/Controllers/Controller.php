@@ -31,17 +31,10 @@ class Controller extends WebController
   {
     $releases = Apiato::call('Release@GetAllReleasesAction', [new DataTransporter($request)]);
 
-    // $images = [];
-    // foreach ($releases as $key => $value) {
-    //   $images[$key] = explode('***', $value->images);
-    //   $value->images = ($images[$key]);
-    // }
-
-
     if (auth()->user()->hasAdminRole()) {
       return view('release::admin.admin-show-release-page', compact('releases'));
     }
-    return view('release::home', compact('releases'));
+    return view('release::client.home', compact('releases'));
   }
 
   /**
@@ -49,11 +42,11 @@ class Controller extends WebController
    *
    * @param FindReleaseByIdRequest $request
    */
-  public function show(FindReleaseByIdRequest $request)
+  public function showDetailRelease(FindReleaseByIdRequest $request)
   {
     $release = Apiato::call('Release@FindReleaseByIdAction', [new DataTransporter($request)]);
 
-    // ..
+    return view('release::admin.admin-show-detail-page', compact('release'));
   }
 
   /**
@@ -78,7 +71,6 @@ class Controller extends WebController
     if ($request->hasfile('images')) {
       foreach ($request->file('images') as $key => $file) {
         $name = time() . rand(1, 100) . '.' . $file->getClientOriginalName();
-        $name = trim($name, '*');
         $path = storage_path('app/public/images-release');
 
         $image = new \Imagick($file->getRealPath());
@@ -89,11 +81,7 @@ class Controller extends WebController
         $image->writeImage($path . '/' . $name);
 
         $requestData['images'][$key] = '/storage/images-release/' . $name;
-        // $requestData['imagesName'] .= '/storage/images-release/' . $name . '***';
-
       }
-
-      // $requestData['imagesName'] = substr($requestData['imagesName'], 0, -3);
     }
 
 
@@ -133,21 +121,26 @@ class Controller extends WebController
   {
     $result = Apiato::call('Release@FindReleaseByIdAction', [new DataTransporter($request)]);
     if ($result == null) {
-      return redirect()->route('web_release_get_all_release')->with('error', 'Release Not Found');
+      return redirect()->route('web_release_get_all_release')->with('error', '<p style="color:red"> Release Not Found </p>');
     }
     try {
       Apiato::call('Release@DeleteReleaseAction', [new DataTransporter($request)]);
+      if ($result->images != null) {
+        foreach ($result->images as $value) {
+          $path = storage_path('app/public/images-release');
+          unlink($path . substr($value, 23));
+        }
+      }
     } catch (\Exception $e) {
-      return redirect()->route('web_release_get_all_release')->with('error', 'Release Not Found');
+      return redirect()->route('web_release_get_all_release')->with('error', '<p style="color:red"> Release Not Found </p>');
     }
-    return redirect()->route('web_release_get_all_release')->with('success', '<p>Release <strong>' . $result->name . '</strong> Deleted Successfully</p>');
+    return redirect()->route('web_release_get_all_release')->with('success', '<p style="color:blue">Release <strong>' . $result->name . '</strong> Deleted Successfully</p>');
   }
-
   public function deleteBulk(DeleteBulkReleaseRequest $request)
   {
     $result = Apiato::call('Release@FindReleaseByIdAction', [new DataTransporter($request)]);
     if ($result == null) {
-      return redirect()->route('web_release_get_all_release')->with('error', 'Release(s) Not Found');
+      return redirect()->route('web_release_get_all_release')->with('error', '<p style="color:red"> Release(s) Not Found </p>');
     } else {
       $releaseName = '';
       foreach ($result as $value) {
@@ -157,10 +150,18 @@ class Controller extends WebController
     }
     try {
       Apiato::call('Release@DeleteBulkReleaseAction', [new DataTransporter($request)]);
+      foreach ($result as $item) {
+        if ($item->images != null) {
+          foreach ($item->images as $image) {
+            $path = storage_path('app/public/images-release');
+            unlink($path . substr($image, 23));
+          }
+        }
+      }
     } catch (\Exception $e) {
-      return redirect()->route('web_release_get_all_release')->with('error', 'Release(s) Not Found');
+      return redirect()->route('web_release_get_all_release')->with('error', '<p style="color:red"> Release(s) Not Found </p>');
     }
-    return redirect()->route('web_release_get_all_release')->with('success', '<p> Release <strong>' . $releaseName . '</strong> Deleted Successfully </p>');
+    return redirect()->route('web_release_get_all_release')->with('success', '<p style="color:blue"> Release <strong>' . $releaseName . '</strong> Deleted Successfully </p>');
   }
 
   public function search(SearchReleaseRequest $request)

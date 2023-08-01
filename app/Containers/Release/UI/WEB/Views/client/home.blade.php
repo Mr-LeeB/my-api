@@ -1,8 +1,8 @@
-@extends('release::list-all-release')
+@extends('release::client.list-all-release')
 
 @section('css')
     <style>
-        @include('release::main-css');
+        @include('release::client.main-css');
     </style>
 @endsection
 

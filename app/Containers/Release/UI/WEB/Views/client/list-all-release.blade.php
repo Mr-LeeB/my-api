@@ -59,7 +59,7 @@
                                 Description: {{ $release->detail_description }}
                             </div>
                             <div class="more-detail">
-                                <a href="{{ route('web_release_show', $release->id) }}">More detail</a>
+                                <a href="{{ route('web_release_search_by_id', $release->id) }}">More detail</a>
                             </div>
                         </div>
                     </div>

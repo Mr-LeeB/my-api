@@ -72,28 +72,42 @@
             });
 
             $('.list-input-hidden-upload').on('change', '#file_upload', function(event) {
+                $(this).attr('id', 'files')
+                let files = $('#files').prop('files');
+
+                let input_type_file =
+                    '<input type="file" name="images[]" id="file_upload" class="hidden" multiple>';
+                $('.list-input-hidden-upload').append(input_type_file);
+
                 for (let i = 0; i < event.target.files.length; i++) {
                     let today = new Date();
                     let time = today.getTime();
+                    let random = Math.floor(Math.random() * 1000);
                     let image = event.target.files[i];
                     let file_name = event.target.files[i].name;
                     let box_image = $('<div class="box-image"></div>');
                     box_image.append('<img src="' + URL.createObjectURL(image) + '" class="picture-box">');
-                    box_image.append('<div class="wrap-btn-delete"><span data-id=' + time +
+                    box_image.append('<div class="wrap-btn-delete"><span data-id=' + time + "_" + random +
                         ' class="btn-delete-image">x</span></div>');
                     $(".list-images").append(box_image);
 
-                    let input_type_file =
-                        '<input type="file" name="images[]" id="file_upload" class="hidden" multiple>';
-                    $('.list-input-hidden-upload').append(input_type_file);
+                    const fileInput = document.querySelector('#file_upload');
 
-                    $('#file_upload').attr('id', time);
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(files[i]);
+
+                    fileInput.files = dataTransfer.files;
+
+                    $('#file_upload').attr('id', time + "_" + random);
+                    $('.list-input-hidden-upload').append(input_type_file);
                 }
+                $('#files').remove();
             });
 
 
             $(".list-images").on('click', '.btn-delete-image', function() {
                 let id = $(this).data('id');
+                console.log($('#' + id).val());
                 $('#' + id).remove();
                 $(this).parents('.box-image').remove();
             });
@@ -102,12 +116,57 @@
 @endsection
 
 @section('php')
+    @php
+        function convertDate($date)
+        {
+            $date = date_create($date);
+            return date_format($date, 'd/m/Y');
+        }
 
+        function name($name)
+        {
+            if (old('name')) {
+                return old('name');
+            }
+            return $name;
+        }
+
+        function title_description($title_description)
+        {
+            if (old('title_description')) {
+                return old('title_description');
+            }
+            return $title_description;
+        }
+
+        function detail_description($detail_description)
+        {
+            if (old('detail_description')) {
+                return old('detail_description');
+            }
+            return $detail_description;
+        }
+
+        function date_created($date_created)
+        {
+            if (old('date_created')) {
+                return old('date_created');
+            }
+            return $date_created;
+        }
+
+        function is_publish()
+        {
+            if (old('is_publish') == true) {
+                return 'checked';
+            }
+            return null;
+        }
+    @endphp
 @endsection
 
 
 @section('content')
-    {{ $errors }}
     <div class="content">
         <div class="create-content">
             <div class="create-release">
@@ -115,40 +174,42 @@
                 <form id="form-create-release" class="form-create" action="{{ route('web_release_store') }}" method="POST"
                     enctype="multipart/form-data">
                     {{ csrf_field() }}
-                    <input type="text" id="name" name="name" placeholder="Name">
+                    <input type="text" id="name" name="name" placeholder="Name" value="{{ old('name') }}">
                     @if ($errors->has('name'))
                         <span style="color:red">{{ $errors->first('name') }} </span>
                     @endif
 
-                    <input type="text" id="title_description" name="title_description" placeholder="Title">
+                    <input type="text" id="title_description" name="title_description" placeholder="Title"
+                        value="{{ old('title_description') }}">
                     @if ($errors->has('title_description'))
                         <span style="color:red">{{ $errors->first('title_description') }} </span>
                     @endif
 
-                    <textarea type="text" id="detail_description" name="detail_description" placeholder="Description"></textarea>
+                    <textarea type="text" id="detail_description" name="detail_description" placeholder="Description">{{ detail_description(null) }}</textarea>
                     @if ($errors->has('detail_description'))
                         <span style="color:red">{{ $errors->first('detail_description') }} </span>
                     @endif
 
                     <input type="date" id="date_created" name="date_created" placeholder="Date Created"
-                        value="{{ date('Y-m-d') }}">
+                        value="{{ date_created(date('Y-m-d')) }}">
                     @if ($errors->has('date_created'))
                         <span style="color:red">{{ $errors->first('date_created') }} </span>
                     @endif
 
                     <div class="is-publish-checkbox">
-                        <input type="checkbox" name="is_publish" id="is_publish">
+                        <input type="checkbox" name="is_publish" id="is_publish" {{ is_publish() }}>
                         <label for="is_publish"> Is Publish</label>
                     </div>
                     <div>
                         <div class="list-input-hidden-upload">
-                            <input type="file" name="images[]" id="file_upload" class="hidden" multiple>
+                            <input type="file" id="file_upload" class="hidden" multiple>
                         </div>
                         <button class="btn-add-image" type="button">
                             <i class="fa fa-plus" style="margin-right: 4px"> </i> Add images</button>
-                        @if ($errors->has('images'))
+                        @if ($errors->has('images.*'))
                             <span style="color:red">{{ $errors->first('images') }} </span>
                         @endif
+
                     </div>
                     <div class="list-images"></div>
                     <input type="button" onclick="confirmCreateRelease()" value="Create new release">
