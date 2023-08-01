@@ -100,7 +100,7 @@ class Controller extends WebController
   {
     $requestData = $request->all();
 
-    $fileName = time() . $request->file('image')->getClientOriginalName();
+    $fileName = time() . rand(1, 100) . $request->file('image')->getClientOriginalName();
     $path = storage_path('app/public/images');
 
     $image = new \Imagick($request->file('image')->getRealPath());

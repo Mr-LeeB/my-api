@@ -24,6 +24,7 @@ class CreateReleaseTask extends Task
    * @param string|null $title_description
    * @param string|null $detail_description
    * @param bool|false $is_publish
+   * @param array|null $images
    * @return  mixed
    * @throws  CreateResourceFailedException
    */
@@ -32,7 +33,8 @@ class CreateReleaseTask extends Task
     string $date_created = null,
     string $title_description = null,
     string $detail_description = null,
-    bool $is_publish = false
+    bool $is_publish = false,
+    array $images = null
   ): Release {
 
     try {
@@ -42,7 +44,8 @@ class CreateReleaseTask extends Task
         'date_created' => $date_created,
         'title_description' => $title_description,
         'detail_description' => $detail_description,
-        'is_publish' => $is_publish
+        'is_publish' => $is_publish,
+        'images' => $images ?? null,
       ]);
 
     } catch (Exception $e) {

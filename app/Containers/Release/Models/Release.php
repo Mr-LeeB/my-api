@@ -12,8 +12,8 @@ class Release extends Model
     'date_created',
     'title_description',
     'detail_description',
-    'is_publish'
-
+    'is_publish',
+    'images',
   ];
 
   protected $attributes = [
@@ -25,7 +25,7 @@ class Release extends Model
   ];
 
   protected $casts = [
-
+    'images' => 'array',
   ];
 
   protected $dates = [

@@ -20,6 +20,7 @@ class CreateReleaseTables extends Migration
       $table->string('title_description', 255)->nullable();
       $table->string('detail_description', 8192)->nullable();
       $table->boolean('is_publish')->default(false);
+      $table->jsonb('images')->nullable();
 
       $table->timestamps();
       //$table->softDeletes();

@@ -38,10 +38,13 @@
   border: 1px solid #ddd;
 }
 
-.create-release form input[type="submit"] {
+.create-release form input[type="button"] {
   background-color: #22698c;
   color: white;
   border: none;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: large;
   margin-left: 10px;
 }
 
@@ -67,6 +70,65 @@
   margin: 0;
   padding: 0;
   font-size: 16px;
+}
+
+/* css add image */
+.list-images {
+  width: 90%;
+  margin-top: 20px;
+  display: inline-block;
+}
+
+.hidden {
+  display: none;
+}
+
+.box-image {
+  width: 100px;
+  height: 108px;
+  position: relative;
+  float: left;
+  margin-left: 5px;
+}
+
+.box-image img {
+  width: 100px;
+  height: 100px;
+}
+
+.wrap-btn-delete {
+  position: absolute;
+  top: -8px;
+  right: 0;
+  height: 2px;
+  font-size: 20px;
+  font-weight: bold;
+  color: red;
+}
+
+.btn-delete-image {
+  cursor: pointer;
+}
+
+.table {
+  width: 15%;
+}
+
+.btn-add-image {
+  display: flex;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 120px;
+  height: 30px;
+  justify-content: center;
+  align-items: center;
+  margin-left: 5px;
+  font-size: 14px;
+  font-weight: bold;
+  float: left;
+  background-color: #6274bd;
+
 }
 
 /* css create-content */

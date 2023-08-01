@@ -52,10 +52,12 @@ class StoreReleaseRequest extends Request
   public function rules()
   {
     return [
-      'name' => 'required|unique:releases,name|max:255',
-      'date_created' => 'required|max:255',
-      'title_description' => 'required|max:255',
-      'detail_description' => 'required|max:255',
+      'name' => 'required|unique:releases,name|max:40|min:3',
+      'date_created' => 'required|date',
+      'title_description' => 'required|max:255|min:3',
+      'detail_description' => 'required|string|max:4096|min:3',
+      'images' => 'array',
+      'images.*' => 'image|mimes:jpeg,png,jpg,gif,svg,webp|max:6144',
     ];
   }
 

@@ -31,6 +31,13 @@ class Controller extends WebController
   {
     $releases = Apiato::call('Release@GetAllReleasesAction', [new DataTransporter($request)]);
 
+    // $images = [];
+    // foreach ($releases as $key => $value) {
+    //   $images[$key] = explode('***', $value->images);
+    //   $value->images = ($images[$key]);
+    // }
+
+
     if (auth()->user()->hasAdminRole()) {
       return view('release::admin.admin-show-release-page', compact('releases'));
     }
@@ -66,7 +73,31 @@ class Controller extends WebController
    */
   public function store(StoreReleaseRequest $request)
   {
-    $release = Apiato::call('Release@CreateReleaseAction', [new DataTransporter($request)]);
+    $requestData = $request->all();
+    $requestData['imagesName'] = '';
+    if ($request->hasfile('images')) {
+      foreach ($request->file('images') as $key => $file) {
+        $name = time() . rand(1, 100) . '.' . $file->getClientOriginalName();
+        $name = trim($name, '*');
+        $path = storage_path('app/public/images-release');
+
+        $image = new \Imagick($file->getRealPath());
+        // resize image
+        $image->resizeImage(100, 100, \Imagick::FILTER_LANCZOS, 1);
+
+        // save image
+        $image->writeImage($path . '/' . $name);
+
+        $requestData['images'][$key] = '/storage/images-release/' . $name;
+        // $requestData['imagesName'] .= '/storage/images-release/' . $name . '***';
+
+      }
+
+      // $requestData['imagesName'] = substr($requestData['imagesName'], 0, -3);
+    }
+
+
+    $release = Apiato::call('Release@CreateReleaseAction', [new DataTransporter($requestData)]);
 
     return redirect()->route('web_release_create')->with('success', '<p>Release <strong>' . $release->name . '</strong> Created Successfully</p>');
   }
@@ -79,7 +110,7 @@ class Controller extends WebController
   public function edit(EditReleaseRequest $request)
   {
     $release = Apiato::call('Release@GetReleaseByIdAction', [new DataTransporter($request)]);
-    // ..
+    return view('release::admin.admin-edit-release-page', compact('release'));
   }
 
   /**

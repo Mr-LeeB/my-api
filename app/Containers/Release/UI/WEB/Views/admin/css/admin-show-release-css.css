@@ -290,6 +290,20 @@ a {
   width: 20%;
 }
 
+.delete-more-release:hover {
+  background-color: #a71f1f;
+  cursor: pointer;
+}
+
+.delete-more-release span {
+  padding: 10px;
+}
+
+input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+}
+
 /* css th */
 .th-sort {
   display: flex;

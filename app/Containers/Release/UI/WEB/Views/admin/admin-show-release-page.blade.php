@@ -79,26 +79,26 @@
                         <div class="release-note-list">
                           ${data.map((release) => {
                             return`<div class="release-note-item">
-                                                                                                                                                                                                                                                                                                                                   <div class="release-note-item-header" onclick="activeBody(${release.id})">
-                                                                                                                                                                                                                                                                                                                                     <div class="release-note-item-header-title">
-                                                                                                                                                                                                                                                                                                                                       ${release.name}
-                                                                                                                                                                                                                                                                                                                                     </div>
-                                                                                                                                                                                                                                                                                                                                     <div class="release-note-item-header-date">
-                                                                                                                                                                                                                                                                                                                                       ${release.date_created}
-                                                                                                                                                                                                                                                                                                                                     </div>
-                                                                                                                                                                                                                                                                                                                                   </div>
-                                                                                                                                                                                                                                                                                                                                   <div class="release-note-item-body unactive" id="body${release.id}">
-                                                                                                                                                                                                                                                                                                                                     <div class="release-note-item-body-title ">
-                                                                                                                                                                                                                                                                                                                                       Title: ${release.title_description}
-                                                                                                                                                                                                                                                                                                                                     </div>
-                                                                                                                                                                                                                                                                                                                                     <div class="release-note-item-body-description">
-                                                                                                                                                                                                                                                                                                                                       Description: ${release.detail_description}
-                                                                                                                                                                                                                                                                                                                                     </div>
-                                                                                                                                                                                                                                                                                                                                     <div class="more-detail">
-                                                                                                                                                                                                                                                                                                                                       <a href="/releases/${release.id}">More detail</a>
-                                                                                                                                                                                                                                                                                                                                     </div>
-                                                                                                                                                                                                                                                                                                                                   </div>
-                                                                                                                                                                                                                                                                                                                                 </div>`}).join('')}
+                                                        <div class="release-note-item-header" onclick="activeBody(${release.id})">
+                                                          <div class="release-note-item-header-title">
+                                                            ${release.name}
+                                                          </div>
+                                                          <div class="release-note-item-header-date">
+                                                            ${release.date_created}
+                                                          </div>
+                                                        </div>
+                                                        <div class="release-note-item-body unactive" id="body${release.id}">
+                                                          <div class="release-note-item-body-title ">
+                                                            Title: ${release.title_description}
+                                                          </div>
+                                                          <div class="release-note-item-body-description">
+                                                            Description: ${release.detail_description}
+                                                          </div>
+                                                          <div class="more-detail">
+                                                            <a href="/releases/${release.id}">More detail</a>
+                                                          </div>
+                                                        </div>
+                                                      </div>`}).join('')}
                         </div>`
                     );
                 },
@@ -300,6 +300,7 @@
                         </div>
                     </th>
                     <th>Is Publish</th>
+                    <th>Images</th>
                     <th colspan="2">Actions</th>
                 </thead>
                 <tbody>
@@ -319,6 +320,23 @@
                             @endif
                             <td style="text-align: center;">{{ $release->date_created }}</td>
                             <td style="text-align: center;">{{ $release->is_publish }}</td>
+                            <td
+                                style="
+                                text-align: center;
+                                display: flex;
+                                flex-direction: column;
+                                justify-content: center;
+                                align-items: center">
+                                @if (isset($release->images) && count($release->images) > 0 && $release->images[0] != '')
+                                    <img src="{{ asset($release->images[0]) }}" alt="Image"
+                                        style="width: 50px; height: 50px; border-radius: 10px">
+                                    @if (count($release->images) > 1)
+                                        <span style="font-size: 12px"> More {{ count($release->images) - 1 }}
+                                            image(s)</span>
+                                    @endif
+                                @else
+                                    <p> No Image </p>
+                                @endif
                             <td style="text-align: center;">
                                 <input class="btn-edit" type="button" id="edit-release-{{ $release->id }}"
                                     onclick="enableEdit({{ $release->id }})" value="More Detail">

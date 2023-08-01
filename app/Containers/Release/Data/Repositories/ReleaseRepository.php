@@ -19,7 +19,8 @@ class ReleaseRepository extends Repository
     'date_created' => '=',
     'title_description' => 'like',
     'detail_description' => 'like',
-    'is_publish' => 'like'
+    'is_publish' => 'like',
+    'images' => '',
     // ...
   ];
 }

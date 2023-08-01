@@ -19,6 +19,7 @@ class CreateReleaseAction extends Action
       $data->title_description,
       $data->detail_description,
       $data->is_publish ?? false,
+      $data->images ?? null,
     ]);
 
     return $release;
