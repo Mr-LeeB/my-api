@@ -16,7 +16,7 @@ td {
   padding: 8px;
   color: #000000;
   font-size: 16px;
-  /* border-right: 1px solid #ddd; */
+  border-right: 1px solid #ddd;
 }
 
 tr:nth-child(even) {
@@ -35,7 +35,7 @@ th {
 
 td {
   text-align: left;
-  /* border-bottom: 1px solid #ddd; */
+  border-bottom: 1px solid #ddd;
 }
 
 td .btn-edit {
@@ -52,14 +52,17 @@ td .btn-edit:hover {
   color: white;
 }
 
-td .btn-delete {
+td .btn-delete-one {
+  background-color: #de1c1c;
   color: white;
   border: none;
   border-radius: 5px;
-  padding: 5px;
+  padding: 5px 10px;
+  font-weight: bold !important;
 }
 
-td .btn-delete:hover {
+td .btn-delete-one:hover {
+  background-color: #880505;
   color: white;
 }
 
@@ -393,4 +396,3 @@ input[type="checkbox"] {
 .dropdown:hover .dropdown-content {
   display: block;
 }
-

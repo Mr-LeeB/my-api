@@ -10,60 +10,65 @@ use App\Ship\Parents\Requests\Request;
 class UpdateReleaseRequest extends Request
 {
 
-    /**
-     * The assigned Transporter for this Request
-     *
-     * @var string
-     */
-    protected $transporter = \App\Containers\Release\Data\Transporters\UpdateReleaseTransporter::class;
+  /**
+   * The assigned Transporter for this Request
+   *
+   * @var string
+   */
+  protected $transporter = \App\Containers\Release\Data\Transporters\UpdateReleaseTransporter::class;
 
-    /**
-     * Define which Roles and/or Permissions has access to this request.
-     *
-     * @var  array
-     */
-    protected $access = [
-        'permissions' => '',
-        'roles'       => '',
+  /**
+   * Define which Roles and/or Permissions has access to this request.
+   *
+   * @var  array
+   */
+  protected $access = [
+    'permissions' => '',
+    'roles' => '',
+  ];
+
+  /**
+   * Id's that needs decoding before applying the validation rules.
+   *
+   * @var  array
+   */
+  protected $decode = [
+    // 'id',
+  ];
+
+  /**
+   * Defining the URL parameters (e.g, `/user/{id}`) allows applying
+   * validation rules on them and allows accessing them like request data.
+   *
+   * @var  array
+   */
+  protected $urlParameters = [
+    'id',
+  ];
+
+  /**
+   * @return  array
+   */
+  public function rules()
+  {
+    return [
+      'id' => 'required|exists:releases,id',
+      'name' => 'required|unique:releases,name|max:40|min:3',
+      'date_created' => 'required|date',
+      'title_description' => 'required|max:255|min:3',
+      'detail_description' => 'required|string|max:4096|min:3',
+      'images' => 'array',
+      'images.*' => 'image|mimes:jpeg,png,jpg,gif,svg,webp|max:6144',
     ];
+  }
 
-    /**
-     * Id's that needs decoding before applying the validation rules.
-     *
-     * @var  array
-     */
-    protected $decode = [
-        // 'id',
-    ];
-
-    /**
-     * Defining the URL parameters (e.g, `/user/{id}`) allows applying
-     * validation rules on them and allows accessing them like request data.
-     *
-     * @var  array
-     */
-    protected $urlParameters = [
-        // 'id',
-    ];
-
-    /**
-     * @return  array
-     */
-    public function rules()
-    {
-        return [
-            // 'id' => 'required',
-            // '{user-input}' => 'required|max:255',
-        ];
-    }
-
-    /**
-     * @return  bool
-     */
-    public function authorize()
-    {
-        return $this->check([
-            'hasAccess',
-        ]);
-    }
+  /**
+   * @return  bool
+   */
+  public function authorize()
+  {
+    return $this->check([
+      'hasAccess',
+    ]);
+  }
 }

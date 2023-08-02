@@ -28,5 +28,6 @@ class AppServiceProvider extends ServiceProvider
     if (!Type::hasType('json')) {
       Type::addType('json', \Doctrine\DBAL\Types\JsonArrayType::class);
     }
+
   }
 }

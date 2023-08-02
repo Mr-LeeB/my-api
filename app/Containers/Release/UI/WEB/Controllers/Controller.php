@@ -97,7 +97,7 @@ class Controller extends WebController
    */
   public function edit(EditReleaseRequest $request)
   {
-    $release = Apiato::call('Release@GetReleaseByIdAction', [new DataTransporter($request)]);
+    $release = Apiato::call('Release@FindReleaseByIdAction', [new DataTransporter($request)]);
     return view('release::admin.admin-edit-release-page', compact('release'));
   }
 

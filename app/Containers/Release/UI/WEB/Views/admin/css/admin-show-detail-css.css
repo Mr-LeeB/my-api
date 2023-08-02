@@ -1,6 +1,11 @@
+/* css image is actived */
+.active {
+  border: 2px solid #4CAF50;
+}
+
 /* css image-container */
 .image-container {
-  width: 40%;
+  width: 32%;
 }
 
 
@@ -24,7 +29,7 @@ div.scroll-container img {
 
 /* css content-container */
 .content-container{
-  width: 50%;
+  width: 60%;
   padding: 20px;
   display: flex;
   flex-direction: column;

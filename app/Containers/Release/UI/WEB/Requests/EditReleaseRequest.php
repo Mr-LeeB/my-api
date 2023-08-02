@@ -43,7 +43,7 @@ class EditReleaseRequest extends Request
      * @var  array
      */
     protected $urlParameters = [
-        // 'id',
+        'id',
     ];
 
     /**
@@ -52,7 +52,7 @@ class EditReleaseRequest extends Request
     public function rules()
     {
         return [
-            // 'id' => 'required',
+            'id' => 'required|exists:releases,id',
             // '{user-input}' => 'required|max:255',
         ];
     }

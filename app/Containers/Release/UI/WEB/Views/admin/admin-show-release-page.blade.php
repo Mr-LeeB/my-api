@@ -81,26 +81,26 @@
                           ${data.map((release) => {
                               release.detail_description = release.detail_description.length > 42 ? release.detail_description.substring(0, 42).concat('...'):release.detail_description;
                               return`<div class="release-note-item">
-       <div class="release-note-item-header" onclick="activeBody(${release.id})">
-         <div class="release-note-item-header-title">
-           ${release.name}
-         </div>
-         <div class="release-note-item-header-date">
-           ${release.date_created}
-         </div>
-       </div>
-       <div class="release-note-item-body unactive" id="body${release.id}">
-         <div class="release-note-item-body-title ">
-           Title: ${release.title_description}
-         </div>
-         <div class="release-note-item-body-description">
-           Description: ${release.detail_description}
-         </div>
-         <div class="more-detail">
-           <a href="/releases/${release.id}" target="blank">More detail</a>
-         </div>
-       </div>
-     </div>`}).join('')}
+                                                   <div class="release-note-item-header" onclick="activeBody(${release.id})">
+                                                     <div class="release-note-item-header-title">
+                                                       ${release.name}
+                                                     </div>
+                                                     <div class="release-note-item-header-date">
+                                                       ${release.date_created}
+                                                     </div>
+                                                   </div>
+                                                   <div class="release-note-item-body unactive" id="body${release.id}">
+                                                     <div class="release-note-item-body-title ">
+                                                       Title: ${release.title_description}
+                                                     </div>
+                                                     <div class="release-note-item-body-description">
+                                                       Description: ${release.detail_description}
+                                                     </div>
+                                                     <div class="more-detail">
+                                                       <a href="/releases/${release.id}" target="_blank">More detail</a>
+                                                     </div>
+                                                   </div>
+                                                 </div>`}).join('')}
                         </div>`
                     );
                 },
@@ -174,7 +174,13 @@
         }
 
         function showReleaseDetailPage(id) {
-            window.location.href = '/releases/' + id;
+            // open in new tab
+            window.open('/releases/' + id, '_blank');
+        }
+
+        function enableEdit(id) {
+            window.open('/releases/' + id + '/edit', '_blank');
+
         }
     </script>
 @endsection
@@ -195,9 +201,9 @@
             return $description;
         }
 
-        function tooltip_description($description)
+        function tooltip_description($id, $description)
         {
-            $seeMore = '<a style="color:blue" href="#" >See more</a>';
+            $seeMore = '<a style="color:blue"  href="/releases/' . $id . '" target="_blank" >See more</a>';
             if (strlen($description) > 100) {
                 return substr($description, 0, 100) . '...' . $seeMore;
             }
@@ -256,6 +262,7 @@
                 @php
                     echo html_entity_decode(session('success'));
                 @endphp
+                {{ session('success') }}
             @endif
             <div class="sort">
                 <form id="form-sort-release" action="{{ route('web_release_get_all_release') }}" method="GET">
@@ -331,7 +338,7 @@
                     </th>
                     <th>Is Publish</th>
                     <th>Images</th>
-                    <th colspan="2">Actions</th>
+                    <th colspan="3">Actions</th>
                 </thead>
                 <tbody>
                     @foreach ($releases as $release)
@@ -345,7 +352,7 @@
                             <td>{{ $release->title_description }}</td>
                             <td>
                                 <div class="tooltip">{{ detail_description($release->detail_description) }}
-                                    <span class="tooltiptext">@php echo html_entity_decode(tooltip_description($release->detail_description)) @endphp</span>
+                                    <span class="tooltiptext">@php echo html_entity_decode(tooltip_description($release->id, $release->detail_description)) @endphp</span>
                                 </div>
 
                             </td>
@@ -372,14 +379,16 @@
                                 <input class="btn-edit" type="button" id="edit-release-{{ $release->id }}"
                                     onclick="showReleaseDetailPage({{ $release->id }})" value="More Detail">
                             </td>
+                            <td>
+                                <i class="fa fa-pencil btn-edit" onclick="enableEdit({{ $release->id }})"></i>
+                            </td>
                             <td style="text-align: center;">
                                 <form id="form-delete-release-id-{{ $release->id }}" method="POST"
                                     action="{{ route('web_release_delete', $release->id) }}">
                                     {{ csrf_field() }}
                                     {{ method_field('DELETE') }}
                                 </form>
-                                <input class="btn-delete" type="button" id="delete-release-{{ $release->id }}"
-                                    onclick="deleteRelease({{ $release->id }})" value="Delete">
+                                <i class="fa fa-trash btn-delete-one" onclick="deleteRelease({{ $release->id }})"></i>
                             </td>
                         </tr>
                     @endforeach
