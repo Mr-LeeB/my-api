@@ -83,6 +83,17 @@
     </div>
 </body>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"
+    integrity="sha512-3gJwYpMe3QewGELv8k/BX9vcqhryRdzRMxVfq6ngyWXwo03GFEzjsUm8Q7RZcHPHksttq7/GFoxjCVUjkjvPdw=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script>
+    $(document).ready(function() {
+        $('h1::after').css('content', $('h1').html());
+    });
+</script>
+
+@yield('css')
+
 <style>
     @import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@800&family=Roboto:wght@100;300&display=swap");
 
@@ -156,17 +167,7 @@
         color: transparent;
     }
 
-    h1:after {
-        -webkit-animation: swing var(--speed) infinite alternate ease-in-out;
-        animation: swing var(--speed) infinite alternate ease-in-out;
-        content: "404";
-        position: absolute;
-        top: 0;
-        left: 0;
-        color: var(--shadow);
-        filter: blur(1.5vmin);
-        transform: scale(1.05) translate3d(0, 12%, -10vmin) translate(calc((var(--swing-x, 0) * 0.05) * 1%), calc((var(--swing-y) * 0.05) * 1%));
-    }
+
 
     .cloak {
         animation: swing var(--speed) infinite alternate-reverse ease-in-out;

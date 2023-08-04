@@ -10,20 +10,19 @@ use Exception;
 class UpdateReleaseTask extends Task
 {
 
-    protected $repository;
+  protected $repository;
 
-    public function __construct(ReleaseRepository $repository)
-    {
-        $this->repository = $repository;
-    }
+  public function __construct(ReleaseRepository $repository)
+  {
+    $this->repository = $repository;
+  }
 
-    public function run($id, array $data)
-    {
-        try {
-            return $this->repository->update($data, $id);
-        }
-        catch (Exception $exception) {
-            throw new UpdateResourceFailedException();
-        }
+  public function run($id, array $data)
+  {
+    try {
+      return $this->repository->update($data, $id);
+    } catch (Exception $exception) {
+      throw new UpdateResourceFailedException();
     }
+  }
 }

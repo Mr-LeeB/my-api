@@ -15,13 +15,14 @@ class UpdateReleaseAction extends Action
       'date_created',
       'title_description',
       'detail_description',
-      'is_publish'
+      'is_publish',
+      'images'
     ]);
 
     // remove null values and their keys
     $data = array_filter($data);
 
-    $release = Apiato::call('Release@pUpdateReleaseTask', [$request->id, $data]);
+    $release = Apiato::call('Release@UpdateReleaseTask', [$request->id, $data]);
 
     return $release;
   }

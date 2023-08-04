@@ -209,7 +209,6 @@
                         @if ($errors->has('images.*'))
                             <span style="color:red">{{ $errors->first('images') }} </span>
                         @endif
-
                     </div>
                     <div class="list-images"></div>
                     <input type="button" onclick="confirmCreateRelease()" value="Create new release">

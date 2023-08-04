@@ -75,7 +75,7 @@ class Controller extends WebController
 
         $image = new \Imagick($file->getRealPath());
         // resize image
-        $image->resizeImage(100, 100, \Imagick::FILTER_LANCZOS, 1);
+        $image->resizeImage(400, 400, \Imagick::FILTER_LANCZOS, 1);
 
         // save image
         $image->writeImage($path . '/' . $name);
@@ -108,8 +108,10 @@ class Controller extends WebController
    */
   public function update(UpdateReleaseRequest $request)
   {
+    // dd($request);
     $release = Apiato::call('Release@UpdateReleaseAction', [new DataTransporter($request)]);
-    // ..
+
+    return redirect()->route('web_release_edit', [$release->id])->with('success', '<p>Release <strong>' . $release->name . '</strong> Updated Successfully</p>');
   }
 
   /**

@@ -2,7 +2,6 @@
 
 namespace App\Containers\Welcome\UI\WEB\Controllers;
 
-use App\Containers\User\Models\User;
 use App\Ship\Parents\Controllers\WebController;
 
 /**
@@ -18,9 +17,6 @@ class Controller extends WebController
    */
   public function sayWelcome()
   {
-
-    $user = User::all();
-    dd($user);
     // No actions to call. Since there's nothing to do but returning a response.
     return view('welcome::welcome-page');
   }

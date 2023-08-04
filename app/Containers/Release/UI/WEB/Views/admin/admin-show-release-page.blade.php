@@ -38,6 +38,29 @@
                     return false;
                 }
             });
+
+            const url = new URL(window.location.href);
+            const params = new URLSearchParams(url.search);
+
+            const orderBy = params.get('orderBy');
+            const sortedBy = params.get('sortedBy');
+            const limit = params.get('limit');
+
+            if (orderBy != null && sortedBy != null) {
+                $('#noti-sortedBy').html(sortedBy);
+                $('#noti-orderBy').html(orderBy);
+                $('.noti-sorted').css('display', 'inline-block');
+            }
+
+            if (limit != null) {
+                $('.limit').html(limit);
+            }
+        });
+
+        $('.set-limit').on('click', function() {
+            var limit = $(this).attr('data-limit');
+            $('#limit').val(limit);
+            $('#form-sort-release').submit();
         });
 
         function activeBody(id) {
@@ -81,26 +104,26 @@
                           ${data.map((release) => {
                               release.detail_description = release.detail_description.length > 42 ? release.detail_description.substring(0, 42).concat('...'):release.detail_description;
                               return`<div class="release-note-item">
-                                                   <div class="release-note-item-header" onclick="activeBody(${release.id})">
-                                                     <div class="release-note-item-header-title">
-                                                       ${release.name}
-                                                     </div>
-                                                     <div class="release-note-item-header-date">
-                                                       ${release.date_created}
-                                                     </div>
-                                                   </div>
-                                                   <div class="release-note-item-body unactive" id="body${release.id}">
-                                                     <div class="release-note-item-body-title ">
-                                                       Title: ${release.title_description}
-                                                     </div>
-                                                     <div class="release-note-item-body-description">
-                                                       Description: ${release.detail_description}
-                                                     </div>
-                                                     <div class="more-detail">
-                                                       <a href="/releases/${release.id}" target="_blank">More detail</a>
-                                                     </div>
-                                                   </div>
-                                                 </div>`}).join('')}
+                                                                             <div class="release-note-item-header" onclick="activeBody(${release.id})">
+                                                                               <div class="release-note-item-header-title">
+                                                                                 ${release.name}
+                                                                               </div>
+                                                                               <div class="release-note-item-header-date">
+                                                                                 ${release.date_created}
+                                                                               </div>
+                                                                             </div>
+                                                                             <div class="release-note-item-body unactive" id="body${release.id}">
+                                                                               <div class="release-note-item-body-title ">
+                                                                                 Title: ${release.title_description}
+                                                                               </div>
+                                                                               <div class="release-note-item-body-description">
+                                                                                 Description: ${release.detail_description}
+                                                                               </div>
+                                                                               <div class="more-detail">
+                                                                                 <a href="/releases/${release.id}">More detail</a>
+                                                                               </div>
+                                                                             </div>
+                                                                           </div>`}).join('')}
                         </div>`
                     );
                 },
@@ -170,16 +193,20 @@
         function sortRelease(orderBy, sortedBy) {
             $('#orderBy').val(orderBy.trim());
             $('#sortedBy').val(sortedBy.trim());
+
+            $('#noti-orderBy').val(orderBy.trim());
+            $('#noti-sortedBy').val(sortedBy.trim());
+
             $('#form-sort-release').submit();
         }
 
         function showReleaseDetailPage(id) {
-            // open in new tab
-            window.open('/releases/' + id, '_blank');
+            // open in this tab
+            window.location.href = '/releases/' + id;
         }
 
         function enableEdit(id) {
-            window.open('/releases/' + id + '/edit', '_blank');
+            window.location.href = '/releases/' + id + '/edit';
 
         }
     </script>
@@ -203,7 +230,7 @@
 
         function tooltip_description($id, $description)
         {
-            $seeMore = '<a style="color:blue"  href="/releases/' . $id . '" target="_blank" >See more</a>';
+            $seeMore = '<a style="color:blue"  href="/releases/' . $id . '" >See more</a>';
             if (strlen($description) > 100) {
                 return substr($description, 0, 100) . '...' . $seeMore;
             }
@@ -262,22 +289,28 @@
                 @php
                     echo html_entity_decode(session('success'));
                 @endphp
-                {{ session('success') }}
             @endif
             <div class="sort">
                 <form id="form-sort-release" action="{{ route('web_release_get_all_release') }}" method="GET">
                     <input type="hidden" id="orderBy" name="orderBy">
                     <input type="hidden" id="sortedBy" name="sortedBy">
+                    <input type="hidden" id="limit" name="limit">
                 </form>
             </div>
-            {{-- <div class="dropdown">
-                <span>awdawd</span>
-                <div class="dropdown-content">
-                    <a href="#">Link 1</a>
-                    <a href="#">Link 2</a>
-                    <a href="#">Link 3</a>
+            <div class="sort-and-limit">
+                <div class="dropdown">
+                    <span>Show <span class="limit">10</span> in <span class="all-releases">50</span> release(s)</span>
+                    <div class="dropdown-content">
+                        <a class="set-limit" data-limit='10'><span>Show 10 in <span class="all-releases">50</span>
+                                release(s)</span></a>
+                        <a class="set-limit" data-limit='20'><span>Show 20 in <span class="all-releases">50</span>
+                                release(s)</span></a>
+                        <a class="set-limit" data-limit='50'><span>Show 50 in <span class="all-releases">50</span>
+                                release(s)</span></a>
+                    </div>
                 </div>
-            </div> --}}
+                <p class="noti-sorted"> Sorted <span id="noti-sortedBy"></span> by <span id="noti-orderBy"></span> </p>
+            </div>
             <table>
                 <thead>
                     <th><input type="checkbox" id="checkAll" onclick="checkAll({{ $releaseID_json }})"></th>

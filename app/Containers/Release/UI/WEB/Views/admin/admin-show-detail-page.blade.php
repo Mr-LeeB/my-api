@@ -59,7 +59,9 @@
             <div class="image-title">
                 <h1>Images</h1>
             </div>
-
+            @php
+                echo html_entity_decode(session('success'));
+            @endphp
             <img src="" alt="name" id="image" width="400px">
 
             <div class="scroll-container">

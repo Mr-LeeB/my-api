@@ -50,12 +50,45 @@
             insert: detail_description,
         }]);
 
-        // $("#identifier").on("submit", function() {
-        //     $("#hiddenArea").val($("#quillArea").html());
-        // })
+        $(".ql-editor").attr('id', 'detail_description_editor');
+
+
+
+        $("#form-update-release").on("submit", function() {
+            // put data from quill editor into input
+            $("#detail_description").val($(".ql-editor").html());
+        })
     </script>
 
     <script>
+        // Function to calculate and set the input width based on its value
+        function adjustInputWidth(input) {
+            // Create a hidden temporary element to calculate the width of the input value
+            var tempElement = $('<span>').css({
+                'font-size': $(input).css('font-size'),
+                'font-family': $(input).css('font-family'),
+                'white-space': 'pre'
+            }).text($(input).val());
+
+            // Append the temporary element to the body so it gets rendered
+            $('body').append(tempElement);
+
+            // Get the width of the temporary element
+            var width = tempElement.width();
+
+            // Remove the temporary element
+            tempElement.remove();
+
+            // Set the input width (add some extra pixels to account for padding and border if needed)
+            $(input).css('width', width + 25); // Adjust the value of 25 as needed
+        }
+
+        function adjustTextareaHeight(textarea) {
+            $(textarea).css('height', 'auto'); // Reset the height
+            var height = textarea.scrollHeight;
+            $(textarea).css('height', height); // Adjust the value of 25 as needed
+        }
+
         $(document).ready(function() {
             $('.image').click(function() {
                 var src = $(this).attr('src');
@@ -67,6 +100,16 @@
             var src = $('.image').attr('src');
             document.getElementsByClassName('image')[0].classList.add('active');
             $('#image').attr('src', src);
+
+            $('#title_description').val($('#title_description').val().trim());
+
+            // Call the function on page load
+            adjustInputWidth($('#name'));
+            adjustInputWidth($('#title_description'));
+            // $('#title_description').css('width', $('#title_description').width() - 18);
+            $('#title_description').css('min-height', 18);
+            adjustInputWidth($('#date_created'));
+            $('#date_created').attr('type', 'text');
         });
 
         $('#name').on('input', function() {
@@ -78,14 +121,35 @@
                 $('#name').removeClass('error');
                 console.log('success')
             }
-            this.size = this.value.length + 1;
-            console.log(this.size)
+
+            // Attach an input event listener to dynamically adjust the input width
+            adjustInputWidth(this);
+        });
+
+        $('#title_description').on('input', function() {
+            var title_description = $('#title_description').val();
+            if (title_description.length < 3 || title_description.length > 40) {
+                $('#title_description').addClass('error');
+                console.log('error')
+            } else {
+                $('#title_description').removeClass('error');
+                console.log('success')
+            }
+
+            // Attach an input event listener to dynamically adjust the input width
+            adjustInputWidth(this);
+            // if ($(this).val().length > 0) {
+            //     $(this).css('width', $(this).width() - 18);
+            // }
+            adjustTextareaHeight(this);
+
         });
 
         function resetAll() {
             $('#name').attr('disabled', 'disabled');
             $('#title_description').attr('disabled', 'disabled');
             $('#date_created').attr('disabled', 'disabled');
+            $('#date_created').attr('type', 'text');
 
             $('.icon-edit').removeClass('active');
             $('.icon-edit').removeClass('save-edit');
@@ -108,6 +172,8 @@
                 $('#title_description').removeAttr('disabled');
             } else if ($(this).data('id') == 'date_created') {
                 $('#date_created').removeAttr('disabled');
+                $('#date_created').attr('type', 'date');
+
             }
         });
 
@@ -123,7 +189,20 @@
                 $('#title_description').attr('disabled', 'disabled');
             } else if ($(this).data('id') == 'date_created') {
                 $('#date_created').attr('disabled', 'disabled');
+                $('#date_created').attr('type', 'text');
             }
+        });
+
+        $('#detail_description_editor').on('input', function() {
+            $("#detail_description").val($("#detail_description_editor").html());
+            console.log($("#detail_description").val());
+        });
+
+        $('#btn-save-edit').on('click', function() {
+            $('#name').removeAttr('disabled');
+            $('#title_description').removeAttr('disabled');
+            $('#date_created').removeAttr('disabled');
+            $('#form-update-release').submit();
         });
     </script>
 @endsection
@@ -150,7 +229,7 @@
             if (old('title_description')) {
                 return old('title_description');
             }
-            return $title_description;
+            return trim($title_description);
         }
 
         function detail_description($detail_description)
@@ -158,7 +237,7 @@
             if (old('detail_description')) {
                 return old('detail_description');
             }
-            return $detail_description;
+            return trim($detail_description);
         }
 
         function date_created($date_created)
@@ -184,6 +263,8 @@
         <div class="image-container">
             <div class="image-title">
                 <h1>Images</h1>
+                {{ $errors }}
+
             </div>
             <img src="" alt="name" id="image" width="400px">
             <div class="scroll-container">
@@ -195,7 +276,8 @@
             </div>
         </div>
         <div class="content-container">
-            <form action="" method="post">
+            <form id="form-update-release" action="{{ route('web_release_update', $release->id) }}" method="post"
+                enctype="multipart/form-data">
                 {{ csrf_field() }}
                 {{ method_field('PUT') }}
 
@@ -207,8 +289,9 @@
                     <div class="title">
                         <span>
                             <strong>Title: </strong>
-                            <input type="text" name="title_description" id="title_description"
-                                value="{{ $release->title_description }}" disabled=>
+                            <textarea type="text" name="title_description" id="title_description" rows="1" disabled>
+                                 {{ title_description($release->title_description) }}
+                            </textarea>
                             <i class="fa fa-pencil icon-edit" data-id="title_description"></i>
                         </span>
                         <div class="content-publish">
@@ -219,6 +302,8 @@
                     <p><strong>Description: </strong> </p>
                     <div id="editor">
                     </div>
+                    <textarea name="detail_description" id="detail_description" hidden>
+                    </textarea>
                 </div>
                 <div class="content-date">
                     <p> <strong>Date Created: </strong>
@@ -227,7 +312,7 @@
                         <i class="fa fa-pencil icon-edit" data-id="date_created"></i>
                     </p>
                 </div>
-
+                <input type="button" id="btn-save-edit" value="Save">
             </form>
         </div>
     </div>
