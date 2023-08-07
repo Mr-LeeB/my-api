@@ -5,6 +5,8 @@
 @php
     $view_load_theme = 'base';
 @endphp
+
+{{-- thêm Style --}}
 <style>
     .undisplay {
         display: none;
@@ -56,6 +58,7 @@
         <div class="row">
             <div class="col">
                 <div class="card card-custom gutter-b card-stretch">
+                    {{-- thêm class boloc --}}
                     <div class="card-header boloc border-0 py-5">
                         <h3 class="card-title"><span class="font-weight-bolder">{{ __('Bộ Lọc') }}</span></h3>
                         <div class="card-toolbar">
@@ -67,6 +70,7 @@
                     <div class="card-body boloc-show undisplay">
                         {{-- <div class="card-body d-flex flex-column" style="position: relative;"> --}}
                         <div class="tab-content">
+                            {{-- sửa lại form --}}
                             <form class="form gutter-b col" action="">
                                 @csrf
                                 <div class="row">
@@ -91,7 +95,6 @@
                                         </div>
                                     </div>
                                     <div class="col-6">
-                                        {{-- <div class="row"> --}}
                                         <div class="col col-12">
                                             <div class="form-group">
                                                 <select class="form-control" name="status">
@@ -102,11 +105,6 @@
                                                 </select>
                                             </div>
                                         </div>
-                                        {{-- <div class="col col-6 col-lg-4">
-                                                <button type="submit" id="search_zns"
-                                                    class="btn btn-primary btn-block mr-2">{{ __('Lọc danh sách') }}</button>
-                                            </div> --}}
-                                        {{-- </div> --}}
                                     </div>
                                 </div>
                                 <div class="d-flex flex-row-reverse">
@@ -235,6 +233,7 @@
                 // do nothing
             }
 
+            // thêm script
             $('.boloc').on('click', function() {
                 $('.boloc-show').toggleClass('undisplay');
             });
