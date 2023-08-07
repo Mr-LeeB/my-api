@@ -54,12 +54,16 @@
                 </div>
             </a>
         @endcan
+        <a href="{{ route('web_release_get_all_release') }}">
+            <div class="menu-item">
+                Releases
+            </div>
+        </a>
         <a href="{{ route('get_user_logout_page') }}">
             <div class="menu-item">
                 Logout
             </div>
         </a>
-
 
     </div>
 </header>

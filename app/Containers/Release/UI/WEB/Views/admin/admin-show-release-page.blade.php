@@ -1,32 +1,15 @@
-@extends('release::layouts.admin-layout')
+@extends('release::layout.app_admin_nova')
 
 @section('title', 'Release')
 
 @section('css')
     <style>
-        @include('release::admin.css.admin-main-css');
-    </style>
-    <style>
         @include('release::admin.css.admin-show-release-css');
     </style>
 @endsection
 
-@section('header')
-    @parent
-    @include('release::header.header')
-@endsection
 
-@section('menu')
-    @parent
-    @include('release::menu.menu')
-@endsection
-
-@section('footer')
-    @parent
-    @include('release::footer.footer')
-@endsection
-
-@section('js')
+@section('javascript')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"
         integrity="sha512-3gJwYpMe3QewGELv8k/BX9vcqhryRdzRMxVfq6ngyWXwo03GFEzjsUm8Q7RZcHPHksttq7/GFoxjCVUjkjvPdw=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -38,30 +21,49 @@
                     return false;
                 }
             });
+        });
 
+        $(document).ready(function() {
             const url = new URL(window.location.href);
             const params = new URLSearchParams(url.search);
 
-            const orderBy = params.get('orderBy');
-            const sortedBy = params.get('sortedBy');
+            let orderBy = params.get('orderBy');
+            let sortedBy = params.get('sortedBy');
             const limit = params.get('limit');
-
             if (orderBy != null && sortedBy != null) {
-                $('#noti-sortedBy').html(sortedBy);
-                $('#noti-orderBy').html(orderBy);
+                $('#orderBy').attr('name', 'orderBy');
+                $('#orderBy').val(orderBy);
+
+                $('#sortedBy').attr('name', 'sortedBy');
+                $('#sortedBy').val(sortedBy);
+            }
+            if (limit != null) {
+                $('#limit').attr('name', 'limit');
+                $('#limit').val(limit);
+            }
+            if (orderBy != null && sortedBy != null) {
+                // in hoa chu cai dau
+                order = orderBy.charAt(0).toUpperCase() + orderBy.slice(1);
+                sorted = sortedBy.charAt(0).toUpperCase() + sortedBy.slice(1);
+                $('#noti-orderBy').html(order);
+                $('#noti-sortedBy').html(sorted);
                 $('.noti-sorted').css('display', 'inline-block');
             }
-
             if (limit != null) {
                 $('.limit').html(limit);
             }
+
+            $('.all-releases').html('{{ $all_Releases_count }}');
+
         });
 
         $('.set-limit').on('click', function() {
             var limit = $(this).attr('data-limit');
             $('#limit').val(limit);
+            $('#limit').attr('name', 'limit');
             $('#form-sort-release').submit();
         });
+
 
         function activeBody(id) {
             $('#body' + id).toggleClass('unactive');
@@ -102,28 +104,28 @@
                         `<p>Result: ${data.length} release(s)</p>
                         <div class="release-note-list">
                           ${data.map((release) => {
-                              release.detail_description = release.detail_description.length > 42 ? release.detail_description.substring(0, 42).concat('...'):release.detail_description;
+                              release.detail_description = release.detail_description.length > 62 ? release.detail_description.substring(0, 62).concat('...'):release.detail_description;
                               return`<div class="release-note-item">
-                                                                             <div class="release-note-item-header" onclick="activeBody(${release.id})">
-                                                                               <div class="release-note-item-header-title">
-                                                                                 ${release.name}
-                                                                               </div>
-                                                                               <div class="release-note-item-header-date">
-                                                                                 ${release.date_created}
-                                                                               </div>
-                                                                             </div>
-                                                                             <div class="release-note-item-body unactive" id="body${release.id}">
-                                                                               <div class="release-note-item-body-title ">
-                                                                                 Title: ${release.title_description}
-                                                                               </div>
-                                                                               <div class="release-note-item-body-description">
-                                                                                 Description: ${release.detail_description}
-                                                                               </div>
-                                                                               <div class="more-detail">
-                                                                                 <a href="/releases/${release.id}">More detail</a>
-                                                                               </div>
-                                                                             </div>
-                                                                           </div>`}).join('')}
+              <div class="release-note-item-header" onclick="activeBody(${release.id})">
+                <div class="release-note-item-header-title">
+                  ${release.name}
+                </div>
+                <div class="release-note-item-header-date">
+                  ${release.date_created}
+                </div>
+              </div>
+              <div class="release-note-item-body unactive" id="body${release.id}">
+                <div class="release-note-item-body-title ">
+                  Title: ${release.title_description}
+                </div>
+                <div class="release-note-item-body-description">
+                  Description: ${release.detail_description}
+                </div>
+                <div class="more-detail">
+                  <a href="/releases/${release.id}">More detail</a>
+                </div>
+              </div>
+            </div>`}).join('')}
                         </div>`
                     );
                 },
@@ -194,14 +196,13 @@
             $('#orderBy').val(orderBy.trim());
             $('#sortedBy').val(sortedBy.trim());
 
-            $('#noti-orderBy').val(orderBy.trim());
-            $('#noti-sortedBy').val(sortedBy.trim());
+            $('#orderBy').attr('name', 'orderBy');
+            $('#sortedBy').attr('name', 'sortedBy');
 
             $('#form-sort-release').submit();
         }
 
         function showReleaseDetailPage(id) {
-            // open in this tab
             window.location.href = '/releases/' + id;
         }
 
@@ -223,7 +224,8 @@
         function detail_description($description)
         {
             if (strlen($description) > 50) {
-                return substr($description, 0, 37) . '...';
+                // return substr($description, 0, 37) . '...';
+                return mb_str_split($description, 60)[0] . '...';
             }
             return $description;
         }
@@ -286,30 +288,30 @@
         </div>
         <div class="table-list-all-release">
             @if (session('success'))
-                @php
-                    echo html_entity_decode(session('success'));
-                @endphp
+                {!! session('success') !!}
             @endif
             <div class="sort">
                 <form id="form-sort-release" action="{{ route('web_release_get_all_release') }}" method="GET">
-                    <input type="hidden" id="orderBy" name="orderBy">
-                    <input type="hidden" id="sortedBy" name="sortedBy">
-                    <input type="hidden" id="limit" name="limit">
+                    <input type="hidden" id="orderBy">
+                    <input type="hidden" id="sortedBy">
+                    <input type="hidden" id="limit">
                 </form>
             </div>
             <div class="sort-and-limit">
                 <div class="dropdown">
-                    <span>Show <span class="limit">10</span> in <span class="all-releases">50</span> release(s)</span>
+                    <span>Show <span class="limit">10</span> in <span class="all-releases">0</span> release(s)</span>
                     <div class="dropdown-content">
-                        <a class="set-limit" data-limit='10'><span>Show 10 in <span class="all-releases">50</span>
+                        <a class="set-limit" data-limit='10'><span>Show 10 in <span class="all-releases">0</span>
                                 release(s)</span></a>
-                        <a class="set-limit" data-limit='20'><span>Show 20 in <span class="all-releases">50</span>
+                        <a class="set-limit" data-limit='20'><span>Show 20 in <span class="all-releases">0</span>
                                 release(s)</span></a>
-                        <a class="set-limit" data-limit='50'><span>Show 50 in <span class="all-releases">50</span>
+                        <a class="set-limit" data-limit='50'><span>Show 50 in <span class="all-releases">0</span>
+                                release(s)</span></a>
+                        <a class="set-limit" data-limit='100'><span>Show 100 in <span class="all-releases">0</span>
                                 release(s)</span></a>
                     </div>
                 </div>
-                <p class="noti-sorted"> Sorted <span id="noti-sortedBy"></span> by <span id="noti-orderBy"></span> </p>
+                <p class="noti-sorted"> Sorted <span id="noti-sortedBy"></span> follow <span id="noti-orderBy"></span> </p>
             </div>
             <table>
                 <thead>
@@ -318,9 +320,9 @@
                         <div class="th-sort">
                             <span>ID</span>
                             <div class="sort-item">
-                                <i class="fa fa-sort-asc icon-sort-item asc" aria-hidden="true"
+                                <i class="fa fa-sort-up icon-sort-item asc" aria-hidden="true"
                                     onclick="sortRelease('id','asc')"></i>
-                                <i class="fa fa-sort-desc icon-sort-item" aria-hidden="true"
+                                <i class="fa fa-sort-down icon-sort-item" aria-hidden="true"
                                     onclick="sortRelease('id','desc')"></i>
                             </div>
                         </div>
@@ -329,9 +331,9 @@
                         <div class="th-sort">
                             <span>Name</span>
                             <div class="sort-item">
-                                <i class="fa fa-sort-asc icon-sort-item asc" aria-hidden="true"
+                                <i class="fa fa-sort-up icon-sort-item asc" aria-hidden="true"
                                     onclick="sortRelease('name','asc')"></i>
-                                <i class="fa fa-sort-desc icon-sort-item" aria-hidden="true"
+                                <i class="fa fa-sort-down icon-sort-item" aria-hidden="true"
                                     onclick="sortRelease('name','desc')"></i>
                             </div>
                         </div>
@@ -340,9 +342,9 @@
                         <div class="th-sort">
                             <span>Title</span>
                             <div class="sort-item">
-                                <i class="fa fa-sort-asc icon-sort-item asc" aria-hidden="true"
+                                <i class="fa fa-sort-up icon-sort-item asc" aria-hidden="true"
                                     onclick="sortRelease('title_description','asc')"></i>
-                                <i class="fa fa-sort-desc icon-sort-item" aria-hidden="true"
+                                <i class="fa fa-sort-down icon-sort-item" aria-hidden="true"
                                     onclick="sortRelease('title_description','desc')"></i>
                             </div>
                         </div>
@@ -351,9 +353,9 @@
                         <div class="th-sort">
                             <span>Description</span>
                             <div class="sort-item">
-                                <i class="fa fa-sort-asc icon-sort-item asc" aria-hidden="true"
+                                <i class="fa fa-sort-up icon-sort-item asc" aria-hidden="true"
                                     onclick="sortRelease('detail_description','asc')"></i>
-                                <i class="fa fa-sort-desc icon-sort-item" aria-hidden="true"
+                                <i class="fa fa-sort-down icon-sort-item" aria-hidden="true"
                                     onclick="sortRelease('detail_description','desc')"></i>
                             </div>
                         </div>
@@ -362,9 +364,9 @@
                         <div class="th-sort">
                             <span>Date Created</span>
                             <div class="sort-item">
-                                <i class="fa fa-sort-asc icon-sort-item asc" aria-hidden="true"
+                                <i class="fa fa-sort-up icon-sort-item asc" aria-hidden="true"
                                     onclick="sortRelease('date_created','asc')"></i>
-                                <i class="fa fa-sort-desc icon-sort-item" aria-hidden="true"
+                                <i class="fa fa-sort-down icon-sort-item" aria-hidden="true"
                                     onclick="sortRelease('date_created','desc')"></i>
                             </div>
                         </div>
@@ -384,10 +386,7 @@
                             <td>{{ $release->name }}</td>
                             <td>{{ $release->title_description }}</td>
                             <td>
-                                <div class="tooltip">{{ detail_description($release->detail_description) }}
-                                    <span class="tooltiptext">@php echo html_entity_decode(tooltip_description($release->id, $release->detail_description)) @endphp</span>
-                                </div>
-
+                                {!! detail_description($release->detail_description) !!}
                             </td>
 
                             <td style="text-align: center;">{{ $release->date_created }}</td>
@@ -413,7 +412,7 @@
                                     onclick="showReleaseDetailPage({{ $release->id }})" value="More Detail">
                             </td>
                             <td>
-                                <i class="fa fa-pencil btn-edit" onclick="enableEdit({{ $release->id }})"></i>
+                                <i class="fa fa-pen btn-edit" onclick="enableEdit({{ $release->id }})"></i>
                             </td>
                             <td style="text-align: center;">
                                 <form id="form-delete-release-id-{{ $release->id }}" method="POST"

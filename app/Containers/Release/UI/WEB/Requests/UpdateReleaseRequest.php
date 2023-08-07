@@ -51,12 +51,14 @@ class UpdateReleaseRequest extends Request
    */
   public function rules()
   {
+    // dd($this->all());
     return [
       'id' => 'required|exists:releases,id',
-      'name' => 'required|unique:releases,name|max:40|min:3',
+      'name' => 'unique:releases,name|max:40|min:3',
       'date_created' => 'required|date',
       'title_description' => 'required|max:255|min:3',
-      'detail_description' => 'required|string|max:4096|min:3',
+      'detail_description' => 'required|string|min:3',
+      'is_publish' => 'boolean',
       'images' => 'array',
       'images.*' => 'image|mimes:jpeg,png,jpg,gif,svg,webp|max:6144',
     ];

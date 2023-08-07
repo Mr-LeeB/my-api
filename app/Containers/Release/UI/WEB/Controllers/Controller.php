@@ -2,6 +2,7 @@
 
 namespace App\Containers\Release\UI\WEB\Controllers;
 
+use App\Containers\Release\Models\Release;
 use App\Containers\Release\UI\WEB\Requests\CreateReleaseRequest;
 use App\Containers\Release\UI\WEB\Requests\DeleteBulkReleaseRequest;
 use App\Containers\Release\UI\WEB\Requests\DeleteReleaseRequest;
@@ -31,10 +32,12 @@ class Controller extends WebController
   {
     $releases = Apiato::call('Release@GetAllReleasesAction', [new DataTransporter($request)]);
 
+    $all_Releases_count = Release::all()->count();
+
     if (auth()->user()->hasAdminRole()) {
-      return view('release::admin.admin-show-release-page', compact('releases'));
+      return view('release::admin.admin-show-release-page', compact('releases', 'all_Releases_count'));
     }
-    return view('release::client.home', compact('releases'));
+    return view('release::client.home', compact('releases', 'all_Releases_count'));
   }
 
   /**
@@ -56,7 +59,8 @@ class Controller extends WebController
    */
   public function create(CreateReleaseRequest $request)
   {
-    return view('release::admin.admin-create-release-page');
+    $release = null;
+    return view('release::admin.admin-create-release-page', compact('release'));
   }
 
   /**
@@ -67,7 +71,6 @@ class Controller extends WebController
   public function store(StoreReleaseRequest $request)
   {
     $requestData = $request->all();
-    $requestData['imagesName'] = '';
     if ($request->hasfile('images')) {
       foreach ($request->file('images') as $key => $file) {
         $name = time() . rand(1, 100) . '.' . $file->getClientOriginalName();
@@ -98,7 +101,7 @@ class Controller extends WebController
   public function edit(EditReleaseRequest $request)
   {
     $release = Apiato::call('Release@FindReleaseByIdAction', [new DataTransporter($request)]);
-    return view('release::admin.admin-edit-release-page', compact('release'));
+    return view('release::admin.admin-create-release-page', compact('release'));
   }
 
   /**
@@ -108,8 +111,50 @@ class Controller extends WebController
    */
   public function update(UpdateReleaseRequest $request)
   {
-    // dd($request);
-    $release = Apiato::call('Release@UpdateReleaseAction', [new DataTransporter($request)]);
+    $result      = Apiato::call('Release@FindReleaseByIdAction', [new DataTransporter($request)]);
+    $requestData = $request->all();
+
+    // remove imgages have in result->images but not in request->images_old
+    if ($result->images != null && $request->images_old != null) {
+      foreach ($result->images as $key => $value) {
+        if (!in_array($value, $request->images_old)) {
+          $path = storage_path('app/public/images-release');
+          unlink($path . substr($value, 23));
+        }
+      }
+    } else if ($result->images != null && $request->images_old == null) {
+      foreach ($result->images as $key => $value) {
+        $path = storage_path('app/public/images-release');
+        unlink($path . substr($value, 23));
+      }
+    }
+
+    if ($request->images_old != null) {
+      foreach ($request->images_old as $key => $value) {
+        $requestData['images'][$key] = $value;
+      }
+    } else {
+      $requestData['images'] = [];
+    }
+    if ($request->hasfile('images')) {
+      foreach ($request->file('images') as $file) {
+        $name = time() . rand(1, 100) . '.' . $file->getClientOriginalName();
+        $path = storage_path('app/public/images-release');
+
+        $image = new \Imagick($file->getRealPath());
+        // resize image
+        $image->resizeImage(400, 400, \Imagick::FILTER_LANCZOS, 1);
+
+        // save image
+        $image->writeImage($path . '/' . $name);
+
+        $requestData['images'][] = '/storage/images-release/' . $name;
+      }
+    }
+
+    // dd($requestData['images']);
+
+    $release = Apiato::call('Release@UpdateReleaseAction', [new DataTransporter($requestData)]);
 
     return redirect()->route('web_release_edit', [$release->id])->with('success', '<p>Release <strong>' . $release->name . '</strong> Updated Successfully</p>');
   }
@@ -182,5 +227,6 @@ class Controller extends WebController
   {
     $releases = Apiato::call('Release@SearchReleaseByDateAction', [new DataTransporter($request)]);
     return $releases;
+
   }
 }

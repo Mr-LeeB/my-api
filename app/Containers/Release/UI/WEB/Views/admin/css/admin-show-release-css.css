@@ -16,7 +16,7 @@ td {
   padding: 8px;
   color: #000000;
   font-size: 16px;
-  border-right: 1px solid #ddd;
+  /* border-right: 1px solid #ddd; */
 }
 
 tr:nth-child(even) {
@@ -35,7 +35,7 @@ th {
 
 td {
   text-align: left;
-  border-bottom: 1px solid #ddd;
+  /* border-bottom: 1px solid #ddd; */
 }
 
 td .btn-edit {
@@ -249,7 +249,7 @@ a {
   justify-content: center;
   border: #a5a1a1 2px solid;
   border-radius: 25px;
-  width: 15%;
+  width: 18%;
   margin-top: 10px;
   padding: 10px;
 }
@@ -374,7 +374,7 @@ input[type="checkbox"] {
   display: inline-block;
   text-align: left;
   margin-right: 15px;
-  border: #000000 1px solid;
+  border: rgb(131, 128, 128) 1px solid;
   padding: 10px;
 }
 
@@ -385,7 +385,7 @@ input[type="checkbox"] {
 
 .dropdown-content {
   display: none;
-  width: 210px;
+  width: 220px;
   position: absolute;
   background-color: #f9f9f9;
   min-width: 60px;
@@ -418,11 +418,13 @@ input[type="checkbox"] {
 .noti-sorted #noti-sortedBy {
   color: #22698c;
   font-weight: bold;
+  font-size: 18px;
 }
 
 .noti-sorted #noti-orderBy {
   color: #22698c;
   font-weight: bold;
+  font-size: 18px;
 }
 
 /* css sort and limit */
@@ -431,4 +433,8 @@ input[type="checkbox"] {
   flex-direction: row;
   justify-content: flex-start;
   align-items: center;
+}
+
+.unactive {
+  display: none;
 }

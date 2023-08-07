@@ -18,7 +18,7 @@ class CreateReleaseTables extends Migration
       $table->string('name', 255)->unique()->nullable();
       $table->date('date_created')->nullable();
       $table->string('title_description', 255)->nullable();
-      $table->string('detail_description', 8192)->nullable();
+      $table->text('detail_description')->nullable();
       $table->boolean('is_publish')->default(false);
       $table->jsonb('images')->nullable();
 
