@@ -17,6 +17,10 @@
     {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/jquery-ui.min.js"
         integrity="sha512-57oZ/vW8ANMjR/KQ6Be9v/+/h6bq9/l3f0Oc7vn6qMqyhvPd1cvKBRWWpzu0QoneImqr2SkmO4MSqU+RpHom3Q=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script> --}}
+
+    {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/jquery-ui.min.js"
+        integrity="sha512-57oZ/vW8ANMjR/KQ6Be9v/+/h6bq9/l3f0Oc7vn6qMqyhvPd1cvKBRWWpzu0QoneImqr2SkmO4MSqU+RpHom3Q=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script> --}}
     <script>
         $(document).ready(function() {
             $('#search-by-name').keydown(function(event) {
@@ -124,26 +128,26 @@
                           ${data.map((release) => {
                               release.detail_description = release.detail_description.length > 62 ? release.detail_description.substring(0, 62).concat('...'):release.detail_description;
                               return`<div class="release-note-item">
-                                                                                                <div class="release-note-item-header" onclick="activeBody(${release.id})">
-                                                                                                  <div class="release-note-item-header-title">
-                                                                                                    ${release.name}
-                                                                                                  </div>
-                                                                                                  <div class="release-note-item-header-date">
-                                                                                                    ${release.date_created}
-                                                                                                  </div>
-                                                                                                </div>
-                                                                                                <div class="release-note-item-body unactive" id="body${release.id}">
-                                                                                                  <div class="release-note-item-body-title ">
-                                                                                                    Title: ${release.title_description}
-                                                                                                  </div>
-                                                                                                  <div class="release-note-item-body-description">
-                                                                                                    Description: ${release.detail_description}
-                                                                                                  </div>
-                                                                                                  <div class="more-detail">
-                                                                                                    <a href="/releases/${release.id}">More detail</a>
-                                                                                                  </div>
-                                                                                                </div>
-                                                                                              </div>`}).join('')}
+              <div class="release-note-item-header" onclick="activeBody(${release.id})">
+                <div class="release-note-item-header-title">
+                  ${release.name}
+                </div>
+                <div class="release-note-item-header-date">
+                  ${release.date_created}
+                </div>
+              </div>
+              <div class="release-note-item-body unactive" id="body${release.id}">
+                <div class="release-note-item-body-title ">
+                  Title: ${release.title_description}
+                </div>
+                <div class="release-note-item-body-description">
+                  Description: ${release.detail_description}
+                </div>
+                <div class="more-detail">
+                  <a href="/releases/${release.id}">More detail</a>
+                </div>
+              </div>
+            </div>`}).join('')}
                         </div>`
                     );
                 },
@@ -338,120 +342,116 @@
             {{ csrf_field() }}
             {{ method_field('DELETE') }}
 
-            @foreach ($releaseID as $id)
-                <input type="hidden" name="id[]" id="selectedManyReleaseToDel{{ $id }}"
-                    value="{{ $id }}">
-            @endforeach
-            <input type="button" onclick="confirmDeleteMoreRelease({{ $releaseID_json }})" class="btn-delete"
-                value="Delete Releases">
-        </form>
-    </div>
-    <div class="table-list-all-release">
-        @if (session('success'))
-            {!! session('success') !!}
-        @endif
-        <div class="sort">
-            <form id="form-sort-release" action="{{ route('web_release_get_all_release') }}" method="GET">
-                <input type="hidden" id="orderBy">
-                <input type="hidden" id="sortedBy">
-                <input type="hidden" id="limit">
+                @foreach ($releaseID as $id)
+                    <input type="hidden" name="id[]" id="selectedManyReleaseToDel{{ $id }}"
+                        value="{{ $id }}">
+                @endforeach
+                <input type="button" onclick="confirmDeleteMoreRelease({{ $releaseID_json }})" class="btn-delete"
+                    value="Delete Releases">
             </form>
         </div>
-        <div class="sort-and-limit">
-            <div class="dropdown">
-                <span>Show <span class="limit">10</span> in <span class="all-releases">0</span> release(s)</span>
-                <div class="dropdown-content">
-                    <a class="set-limit" data-limit='10'><span>Show 10 in <span class="all-releases">0</span>
-                            release(s)</span></a>
-                    <a class="set-limit" data-limit='20'><span>Show 20 in <span class="all-releases">0</span>
-                            release(s)</span></a>
-                    <a class="set-limit" data-limit='50'><span>Show 50 in <span class="all-releases">0</span>
-                            release(s)</span></a>
-                    <a class="set-limit" data-limit='100'><span>Show 100 in <span class="all-releases">0</span>
-                            release(s)</span></a>
-                </div>
+        <div class="table-list-all-release">
+            @if (session('success'))
+                {!! session('success') !!}
+            @endif
+            <div class="sort">
+                <form id="form-sort-release" action="{{ route('web_release_get_all_release') }}" method="GET">
+                    <input type="hidden" id="orderBy">
+                    <input type="hidden" id="sortedBy">
+                    <input type="hidden" id="limit">
+                </form>
             </div>
-            <p class="noti-sorted"> Sorted <span id="noti-sortedBy"></span> follow <span id="noti-orderBy"></span> </p>
-        </div>
-        <table>
-            <thead>
-                <th><input type="checkbox" id="checkAll" onclick="checkAll({{ $releaseID_json }})"></th>
-                <th>
-                    <div class="th-sort">
-                        <span>ID</span>
-                        <div class="sort-item">
-                            <i class="fa fa-sort-up icon-sort-item asc" aria-hidden="true"
-                                onclick="sortRelease('id','asc')"></i>
-                            <i class="fa fa-sort-down icon-sort-item" aria-hidden="true"
-                                onclick="sortRelease('id','desc')"></i>
-                        </div>
+            <div class="sort-and-limit">
+                <div class="dropdown">
+                    <span>Show <span class="limit">10</span> in <span class="all-releases">0</span> release(s)</span>
+                    <div class="dropdown-content">
+                        <a class="set-limit" data-limit='10'><span>Show 10 in <span class="all-releases">0</span>
+                                release(s)</span></a>
+                        <a class="set-limit" data-limit='20'><span>Show 20 in <span class="all-releases">0</span>
+                                release(s)</span></a>
+                        <a class="set-limit" data-limit='50'><span>Show 50 in <span class="all-releases">0</span>
+                                release(s)</span></a>
+                        <a class="set-limit" data-limit='100'><span>Show 100 in <span class="all-releases">0</span>
+                                release(s)</span></a>
                     </div>
-                </th>
-                <th>
-                    <div class="th-sort">
-                        <span>Name</span>
-                        <div class="sort-item">
-                            <i class="fa fa-sort-up icon-sort-item asc" aria-hidden="true"
-                                onclick="sortRelease('name','asc')"></i>
-                            <i class="fa fa-sort-down icon-sort-item" aria-hidden="true"
-                                onclick="sortRelease('name','desc')"></i>
+                </div>
+                <p class="noti-sorted"> Sorted <span id="noti-sortedBy"></span> follow <span id="noti-orderBy"></span> </p>
+            </div>
+            <table>
+                <thead>
+                    <th><input type="checkbox" id="checkAll" onclick="checkAll({{ $releaseID_json }})"></th>
+                    <th>
+                        <div class="th-sort">
+                            <span>ID</span>
+                            <div class="sort-item">
+                                <i class="fa fa-sort-up icon-sort-item asc" aria-hidden="true"
+                                    onclick="sortRelease('id','asc')"></i>
+                                <i class="fa fa-sort-down icon-sort-item" aria-hidden="true"
+                                    onclick="sortRelease('id','desc')"></i>
+                            </div>
                         </div>
-                    </div>
-                </th>
-                <th>
-                    <div class="th-sort">
-                        <span>Title</span>
-                        <div class="sort-item">
-                            <i class="fa fa-sort-up icon-sort-item asc" aria-hidden="true"
-                                onclick="sortRelease('title_description','asc')"></i>
-                            <i class="fa fa-sort-down icon-sort-item" aria-hidden="true"
-                                onclick="sortRelease('title_description','desc')"></i>
+                    </th>
+                    <th>
+                        <div class="th-sort">
+                            <span>Name</span>
+                            <div class="sort-item">
+                                <i class="fa fa-sort-up icon-sort-item asc" aria-hidden="true"
+                                    onclick="sortRelease('name','asc')"></i>
+                                <i class="fa fa-sort-down icon-sort-item" aria-hidden="true"
+                                    onclick="sortRelease('name','desc')"></i>
+                            </div>
                         </div>
-                    </div>
-                </th>
-                <th>
-                    <div class="th-sort">
-                        <span>Description</span>
-                        <div class="sort-item">
-                            <i class="fa fa-sort-up icon-sort-item asc" aria-hidden="true"
-                                onclick="sortRelease('detail_description','asc')"></i>
-                            <i class="fa fa-sort-down icon-sort-item" aria-hidden="true"
-                                onclick="sortRelease('detail_description','desc')"></i>
+                    </th>
+                    <th>
+                        <div class="th-sort">
+                            <span>Title</span>
+                            <div class="sort-item">
+                                <i class="fa fa-sort-up icon-sort-item asc" aria-hidden="true"
+                                    onclick="sortRelease('title_description','asc')"></i>
+                                <i class="fa fa-sort-down icon-sort-item" aria-hidden="true"
+                                    onclick="sortRelease('title_description','desc')"></i>
+                            </div>
                         </div>
-                    </div>
-                </th>
-                <th>
-                    <div class="th-sort">
-                        <span>Date Created</span>
-                        <div class="sort-item">
-                            <i class="fa fa-sort-up icon-sort-item asc" aria-hidden="true"
-                                onclick="sortRelease('date_created','asc')"></i>
-                            <i class="fa fa-sort-down icon-sort-item" aria-hidden="true"
-                                onclick="sortRelease('date_created','desc')"></i>
+                    </th>
+                    <th>
+                        <div class="th-sort">
+                            <span>Description</span>
+                            <div class="sort-item">
+                                <i class="fa fa-sort-up icon-sort-item asc" aria-hidden="true"
+                                    onclick="sortRelease('detail_description','asc')"></i>
+                                <i class="fa fa-sort-down icon-sort-item" aria-hidden="true"
+                                    onclick="sortRelease('detail_description','desc')"></i>
+                            </div>
                         </div>
-                    </div>
-                </th>
-                <th>Is Publish</th>
-                <th>Images</th>
-                <th colspan="3">Actions</th>
-            </thead>
-            <tbody>
-                @foreach ($releases as $release)
-                    <tr>
-                        <td style="text-align: center;">
-                            <input type="checkbox" id="select_release{{ $release->id }}"
-                                onclick="checkOne({{ $releaseID_json }})">
-                        </td>
-                        <td style="text-align: center;">{{ $release->id }}</td>
-                        <td>{{ $release->name }}</td>
-                        <td>{{ $release->title_description }}</td>
-                        <td>
-                            @if (strlen($release->detail_description) > 50)
-                                {!! mb_str_split($release->detail_description, 60)[0] . '...' !!}
-                            @else
-                                {!! $release->detail_description !!}
-                            @endif
-                        </td>
+                    </th>
+                    <th>
+                        <div class="th-sort">
+                            <span>Date Created</span>
+                            <div class="sort-item">
+                                <i class="fa fa-sort-up icon-sort-item asc" aria-hidden="true"
+                                    onclick="sortRelease('date_created','asc')"></i>
+                                <i class="fa fa-sort-down icon-sort-item" aria-hidden="true"
+                                    onclick="sortRelease('date_created','desc')"></i>
+                            </div>
+                        </div>
+                    </th>
+                    <th>Is Publish</th>
+                    <th>Images</th>
+                    <th colspan="3">Actions</th>
+                </thead>
+                <tbody>
+                    @foreach ($releases as $release)
+                        <tr>
+                            <td style="text-align: center;">
+                                <input type="checkbox" id="select_release{{ $release->id }}"
+                                    onclick="checkOne({{ $releaseID_json }})">
+                            </td>
+                            <td style="text-align: center;">{{ $release->id }}</td>
+                            <td>{{ $release->name }}</td>
+                            <td>{{ $release->title_description }}</td>
+                            <td>
+                                {!! detail_description($release->detail_description) !!}
+                            </td>
 
                         <td style="text-align: center;">{{ $release->date_created }}</td>
                         <td style="text-align: center;">{{ $release->is_publish }}</td>

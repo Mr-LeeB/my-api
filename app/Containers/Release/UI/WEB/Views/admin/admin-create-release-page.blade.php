@@ -33,6 +33,7 @@
             $list_images = $release->images;
         }
     @endphp
+
     <script>
         var quill = new Quill('#editor', {
             theme: 'snow',

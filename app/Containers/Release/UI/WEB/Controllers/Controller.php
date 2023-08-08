@@ -99,6 +99,8 @@ class Controller extends WebController
     }
 
 
+    $release = Apiato::call('Release@CreateReleaseAction', [new DataTransporter($requestData)]);
+
     return redirect()->route('web_release_create')->with('success', '<p>Release <strong>' . $release->name . '</strong> Created Successfully</p>');
   }
 
