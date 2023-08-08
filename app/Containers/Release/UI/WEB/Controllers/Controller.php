@@ -87,9 +87,12 @@ class Controller extends WebController
       }
     }
 
-
-    $release = Apiato::call('Release@CreateReleaseAction', [new DataTransporter($requestData)]);
-
+    try {
+      $release = Apiato::call('Release@CreateReleaseAction', [new DataTransporter($requestData)]);
+    } catch (\Exception $e) {
+      return redirect()->route('web_release_create')->with('error', '<p>Release <strong>' . $requestData['name'] . '</strong> Created Failed</p>');
+    }
+    
     return redirect()->route('web_release_create')->with('success', '<p>Release <strong>' . $release->name . '</strong> Created Successfully</p>');
   }
 

@@ -438,3 +438,23 @@ input[type="checkbox"] {
 .unactive {
   display: none;
 }
+
+/* css show-searchable */
+.show-searchable {
+  position: absolute;
+  z-index: 1;
+  background: #fff;
+  margin-top: 60px;
+  width: 60px;
+  border: 1px solid #000;
+  /* display: none; */
+}
+
+.show-searchable div:hover {
+  cursor: pointer;
+  background-color: #d6e4f0;
+}
+
+.input-group-append:hover {
+  cursor: pointer;
+}

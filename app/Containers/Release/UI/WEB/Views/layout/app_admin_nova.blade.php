@@ -4,6 +4,8 @@
     @include('release::layout.template.head_admin')
     <link href="{{ asset('/theme/base/nova_assets/css/admin-nova.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{ asset('/theme/base/nova_assets/css/custom.css') }}?version=04082023" rel="stylesheet" type="text/css" />
+    {{-- <link href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.13.2/themes/ui-lightness/jquery-ui.css" rel="stylesheet"> --}}
+    <link rel="stylesheet" href="">
 </head>
 <style>
     .pagination {
