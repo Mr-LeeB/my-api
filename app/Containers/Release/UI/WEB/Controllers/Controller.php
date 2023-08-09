@@ -76,16 +76,11 @@ class Controller extends WebController
    */
   public function store(StoreReleaseRequest $request)
   {
-    // dd($request->file('images'));
     $requestData = $request->all();
     if ($request->hasfile('images')) {
-      foreach ($request->images as $key => $file) {
-        // dd($file);
+      foreach ($request->file('images') as $key => $file) {
         $name = time() . rand(1, 100) . '.' . $file->getClientOriginalName();
-
-        $image = Image::make($file);
-
-        $image->resize(400, 400);
+        $path = storage_path('app/public/images-release');
 
         Storage::disk('public')->putFileAs('images-release', $file, $name, 'public');
 
@@ -95,13 +90,14 @@ class Controller extends WebController
         $requestData['images'][$key] = '/storage/images-release/' . $name;
       }
     }
-
+    // dd($requestData['images']);
     try {
       $release = Apiato::call('Release@CreateReleaseAction', [new DataTransporter($requestData)]);
     } catch (Exception $e) {
       \Log::error($e);
       return redirect()->route('web_release_create')->with('error', '<p>Release <strong>' . $requestData['name'] . '</strong> Created Failed</p>');
     }
+
 
     return redirect()->route('web_release_create')->with('success', '<p>Release <strong>' . $release->name . '</strong> Created Successfully</p>');
   }
