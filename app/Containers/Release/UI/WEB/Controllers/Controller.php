@@ -70,29 +70,55 @@ class Controller extends WebController
    */
   public function store(StoreReleaseRequest $request)
   {
+    // dd($request->file('images'));
     $requestData = $request->all();
     if ($request->hasfile('images')) {
-      foreach ($request->file('images') as $key => $file) {
+      foreach ($request->images as $key => $file) {
+        // dd($file);
         $name = time() . rand(1, 100) . '.' . $file->getClientOriginalName();
-        $path = storage_path('app/public/images-release');
 
-        $image = new \Imagick($file->getRealPath());
+        // $path = storage_path('app/public/images-release');
+
+        // $file->store($name, 'public');
+
+        // dd($file->getRealPath());
+
+        // $image = new \Imagick($file->getRealPath());
+        // dd($file->getRealPath());
         // resize image
-        $image->resizeImage(400, 400, \Imagick::FILTER_LANCZOS, 1);
+        // $image->resizeImage(400, 400, \Imagick::FILTER_LANCZOS, 1);
+
+        // dd($image, $file);
+
+        // dd($image);
+        // \Storage::putFileAs('images-release', $file, $name, 'private');
+        // \Storage::disk('local')->put('file.txt', 'Contents');
 
         // save image
-        $image->writeImage($path . '/' . $name);
+        // $image->writeImage($path . '/' . $name);
+        // $file->move($path .'/', $name);
+
+        // $imagick = new \Imagick($file->getRealPath());
+        $imagick = new \Imagick($file->getRealPath());
+
+        // $imagick->readImage($file);
+        $imagick->resizeImage(400, 400, \Imagick::FILTER_LANCZOS, 1);
+
+        $saveImagePath = public_path('storage/images-release/' . $name);
+
+        $imagick->writeImage($saveImagePath);
 
         $requestData['images'][$key] = '/storage/images-release/' . $name;
       }
     }
-
+    // dd($requestData['images']);
     try {
       $release = Apiato::call('Release@CreateReleaseAction', [new DataTransporter($requestData)]);
     } catch (\Exception $e) {
+      \Log::error($e);
       return redirect()->route('web_release_create')->with('error', '<p>Release <strong>' . $requestData['name'] . '</strong> Created Failed</p>');
     }
-    
+
     return redirect()->route('web_release_create')->with('success', '<p>Release <strong>' . $release->name . '</strong> Created Successfully</p>');
   }
 

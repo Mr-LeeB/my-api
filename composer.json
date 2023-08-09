@@ -33,7 +33,6 @@
     "ext-openssl": "*",
     "ext-pdo": "*",
     "ext-tokenizer": "*",
-    "calcinai/php-imagick": "^0.1.2",
     "doctrine/dbal": "2.5.*",
     "fideloper/proxy": "^4.2",
     "fruitcake/laravel-cors": "^1.0",
