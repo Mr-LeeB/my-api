@@ -115,8 +115,9 @@
                     <li class="leading1">
                         <div>
                             <a href="{{ $child['url'] ?? '#' }}" target="_self">
-                                <div class="items-center">
-                                    <span class="text">{{ $child['label'] ?? '' }}</span>
+                                <div class="items-center" style="width: 100%">
+                                    <span class="text" style="width: 20%; display: inline-block">@if($_SERVER['REQUEST_URI'] == $child['url']){!!'<i class="fa fa-eye" aria-hidden="true"></i>'!!}@endif</span>
+                                    <span class="text" style="wdith: 80%; display: inline-block; @if($_SERVER['REQUEST_URI'] == $child['url']){{'font-weight: bold; font-style: italic'}}@endif">{{ $child['label'] ?? '' }}</span>
                                 </div>
                             </a>
                         </div>
