@@ -3,6 +3,7 @@
 namespace App\Containers\Authorization\UI\API\Tests\Functional;
 
 use App\Containers\Authorization\Tests\ApiTestCase;
+use App\Containers\User\Models\User;
 
 /**
  * Class GetAllRolesTest.
@@ -15,30 +16,30 @@ use App\Containers\Authorization\Tests\ApiTestCase;
 class GetAllRolesTest extends ApiTestCase
 {
 
-    protected $endpoint = 'get@v1/roles';
+  protected $endpoint = 'get@v1/roles';
 
-    protected $access = [
-        'roles'       => '',
-        'permissions' => 'manage-roles',
-    ];
+  protected $access = [
+    'roles'       => '',
+    'permissions' => 'manage-roles',
+  ];
 
-    /**
-     * @test
-     */
-    public function testGetAllRoles_()
-    {
-        $this->getTestingUser();
+  /**
+   * @test
+   */
+  public function testGetAllRoles_()
+  {
+    $this->getTestingUser();
 
-        // send the HTTP request
-        $response = $this->makeCall();
+    // send the HTTP request
+    $response = $this->makeCall();
 
-        // assert response status is correct
-        $response->assertStatus(200);
+    // assert response status is correct
+    $response->assertStatus(200);
 
-        // convert JSON response string to Object
-        $responseContent = $this->getResponseContentObject();
+    // convert JSON response string to Object
+    $responseContent = $this->getResponseContentObject();
 
-        $this->assertTrue(count($responseContent->data) > 0);
-    }
+    $this->assertTrue(count($responseContent->data) > 0);
+  }
 
 }

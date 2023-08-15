@@ -2,6 +2,8 @@
 
 namespace App\Containers\Product\Tests\Unit;
 
+use App\Containers\Product\Actions\CreateProductAction;
+
 use App\Containers\Product\Tests\TestCase;
 use App\Ship\Transporters\DataTransporter;
 use Illuminate\Support\Facades\App;
@@ -22,14 +24,14 @@ class CreateProductUnitTest extends TestCase
   {
     // create a data object
     $data = [
-      'name' => 'new product',
+      'name'       => 'new product',
       'descripton' => 'my description',
-      'image' => ''
+      'image'      => ''
     ];
 
     $transporter = new DataTransporter($data);
-    $action = App::make(CreateProductAction::class);
-    $user = $action->run($transporter);
+    $action      = App::make(CreateProductAction::class);
+    $user        = $action->run($transporter);
 
     // assert something here
     $this->assertEquals(true, true);

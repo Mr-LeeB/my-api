@@ -10,25 +10,29 @@
 
 @section('javascript')
     @php
-        $name = name(null);
-        $title_description = title_description(null);
-        $detail_description = detail_description(null);
-        $date_created = date_created(date('Y-m-d'));
-        $is_publish = is_publish(null);
+        $name = null;
+        $title_description = null;
+        $detail_description = null;
+        $date_created = date('Y-m-d');
+        $is_publish = null;
         $id = 0;
         $list_images = null;
 
         if ($release != null) {
-            $name = name($release->name);
-            $title_description = title_description($release->title_description);
-            $detail_description = detail_description($release->detail_description);
-            $date_created = date_created($release->date_created);
-            $is_publish = is_publish($release->is_publish);
+            $name = old('name', $release->name);
+            $title_description = old('title_description', $release->title_description);
+            $detail_description = old('detail_description', $release->detail_description);
+            $date_created = old('date_created', $release->date_created);
+            // $is_publish = is_publish($release->is_publish);
+            if (old('is_publish', $release->is_publish) == true) {
+                $is_publish = 'checked';
+            } else {
+                $is_publish = '';
+            }
             $id = $release->id;
             $list_images = $release->images;
         }
     @endphp
-
     <script>
         var quill = new Quill('#editor', {
             theme: 'snow',
@@ -173,58 +177,49 @@
     </script>
 @endsection
 
-@section('php')
-    @php
-        function convertDate($date)
-        {
-            $date = date_create($date);
-            return date_format($date, 'd/m/Y');
-        }
+@php
+    // function nameRelease($name)
+    // {
+    //     if (old('name')) {
+    //         return old('name', $name);
+    //     }
+    //     return $name;
+    // }
 
-        function name($name)
-        {
-            if (old('name')) {
-                return old('name');
-            }
-            return $name;
-        }
+    // function title_description($title_description)
+    // {
+    //     if (old('title_description')) {
+    //         return old('title_description');
+    //     }
+    //     return $title_description;
+    // }
 
-        function title_description($title_description)
-        {
-            if (old('title_description')) {
-                return old('title_description');
-            }
-            return $title_description;
-        }
+    // function detail_description($detail_description)
+    // {
+    //     if (old('detail_description')) {
+    //         return old('detail_description');
+    //     }
+    //     return $detail_description;
+    // }
 
-        function detail_description($detail_description)
-        {
-            if (old('detail_description')) {
-                return old('detail_description');
-            }
-            return $detail_description;
-        }
+    // function date_created($date_created)
+    // {
+    //     if (old('date_created')) {
+    //         return old('date_created');
+    //     }
+    //     return $date_created;
+    // }
 
-        function date_created($date_created)
-        {
-            if (old('date_created')) {
-                return old('date_created');
-            }
-            return $date_created;
-        }
-
-        function is_publish($is_publish)
-        {
-            if (old('is_publish') == true) {
-                return 'checked';
-            } elseif ($is_publish == true) {
-                return 'checked';
-            }
-            return null;
-        }
-
-    @endphp
-@endsection
+    // function is_publish($is_publish)
+    // {
+    //     if (old('is_publish') == true) {
+    //         return 'checked';
+    //     } elseif ($is_publish == true) {
+    //         return 'checked';
+    //     }
+    //     return null;
+    // }
+@endphp
 
 
 @section('content')
@@ -268,9 +263,9 @@
                         </div>
                         <button class="btn-add-image" type="button">
                             <i class="fa fa-plus" style="margin-right: 4px"> </i> Add images</button>
-                        @if ($errors->has('images.*'))
+                        {{-- @if ($errors->has('images.*'))
                             <span style="color:red">{{ $errors->first('images') }} </span>
-                        @endif
+                        @endif --}}
                     </div>
                     <div class="list-images">
                         @if (isset($list_images) && !empty($list_images))

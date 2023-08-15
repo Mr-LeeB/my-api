@@ -36,20 +36,21 @@ class CreateReleaseTask extends Task
     bool $is_publish = false,
     array $images = null
   ): Release {
-
+    // throw new Exception('Not implemented.');
     try {
       // create new release
       $release = $this->repository->create([
-        'name' => $name,
-        'date_created' => $date_created,
-        'title_description' => $title_description,
+        'name'               => $name,
+        'date_created'       => $date_created,
+        'title_description'  => $title_description,
         'detail_description' => $detail_description,
-        'is_publish' => $is_publish,
-        'images' => $images ?? null,
+        'is_publish'         => $is_publish,
+        'images'             => $images ?? null,
       ]);
 
     } catch (Exception $e) {
-      throw (new CreateResourceFailedException())->debug($e);
+      throw $e;
+      // throw (new CreateResourceFailedException())->debug($e);
     }
     return $release;
   }

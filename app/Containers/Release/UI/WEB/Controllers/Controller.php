@@ -15,6 +15,9 @@ use App\Containers\Release\UI\WEB\Requests\EditReleaseRequest;
 use App\Ship\Parents\Controllers\WebController;
 use Apiato\Core\Foundation\Facades\Apiato;
 use App\Ship\Transporters\DataTransporter;
+use Intervention\Image\Facades\Image;
+use Storage;
+use Exception;
 
 /**
  * Class Controller
@@ -77,44 +80,22 @@ class Controller extends WebController
         // dd($file);
         $name = time() . rand(1, 100) . '.' . $file->getClientOriginalName();
 
-        // $path = storage_path('app/public/images-release');
+        $image = Image::make($file);
 
-        // $file->store($name, 'public');
+        $image->resize(400, 400);
 
-        // dd($file->getRealPath());
+        Storage::disk('public')->putFileAs('images-release', $file, $name, 'public');
 
-        // $image = new \Imagick($file->getRealPath());
-        // dd($file->getRealPath());
-        // resize image
-        // $image->resizeImage(400, 400, \Imagick::FILTER_LANCZOS, 1);
-
-        // dd($image, $file);
-
-        // dd($image);
-        // \Storage::putFileAs('images-release', $file, $name, 'private');
-        // \Storage::disk('local')->put('file.txt', 'Contents');
-
-        // save image
-        // $image->writeImage($path . '/' . $name);
-        // $file->move($path .'/', $name);
-
-        // $imagick = new \Imagick($file->getRealPath());
-        $imagick = new \Imagick($file->getRealPath());
-
-        // $imagick->readImage($file);
-        $imagick->resizeImage(400, 400, \Imagick::FILTER_LANCZOS, 1);
-
-        $saveImagePath = public_path('storage/images-release/' . $name);
-
-        $imagick->writeImage($saveImagePath);
+        // $saveImagePath = public_path('storage/images-release/' . $name);
+        // $image->save($saveImagePath);
 
         $requestData['images'][$key] = '/storage/images-release/' . $name;
       }
     }
-    // dd($requestData['images']);
+
     try {
       $release = Apiato::call('Release@CreateReleaseAction', [new DataTransporter($requestData)]);
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
       \Log::error($e);
       return redirect()->route('web_release_create')->with('error', '<p>Release <strong>' . $requestData['name'] . '</strong> Created Failed</p>');
     }
@@ -140,10 +121,12 @@ class Controller extends WebController
    */
   public function update(UpdateReleaseRequest $request)
   {
-    $result      = Apiato::call('Release@FindReleaseByIdAction', [new DataTransporter($request)]);
+    // dd($request);
+    $result = Apiato::call('Release@FindReleaseByIdAction', [new DataTransporter($request)]);
+    // dd($result);
     $requestData = $request->all();
 
-    // remove imgages have in result->images but not in request->images_old
+    // remove images have in result->images but not in request->images_old
     if ($result->images != null && $request->images_old != null) {
       foreach ($result->images as $key => $value) {
         if (!in_array($value, $request->images_old)) {
@@ -168,20 +151,29 @@ class Controller extends WebController
     if ($request->hasfile('images')) {
       foreach ($request->file('images') as $file) {
         $name = time() . rand(1, 100) . '.' . $file->getClientOriginalName();
-        $path = storage_path('app/public/images-release');
+        // $path = storage_path('app/public/images-release');
 
-        $image = new \Imagick($file->getRealPath());
-        // resize image
-        $image->resizeImage(400, 400, \Imagick::FILTER_LANCZOS, 1);
+        // $image = new \Imagick($file->getRealPath());
+        // // resize image
+        // $image->resizeImage(400, 400, \Imagick::FILTER_LANCZOS, 1);
 
-        // save image
-        $image->writeImage($path . '/' . $name);
+        // // save image
+        // $image->writeImage($path . '/' . $name);
+        $image = Image::make($file->getRealPath());
+
+        // $imagick->readImage($file);
+        // $image->resizeImage(400, 400, \Imagick::FILTER_LANCZOS, 1);
+        $image->resize(400, 400);
+
+        $saveImagePath = public_path('storage/images-release/' . $name);
+
+        $image->save($saveImagePath);
 
         $requestData['images'][] = '/storage/images-release/' . $name;
       }
     }
 
-    // dd($requestData['images']);
+    // dd($requestData);
 
     $release = Apiato::call('Release@UpdateReleaseAction', [new DataTransporter($requestData)]);
 
@@ -195,11 +187,9 @@ class Controller extends WebController
    */
   public function delete(DeleteReleaseRequest $request)
   {
-    $result = Apiato::call('Release@FindReleaseByIdAction', [new DataTransporter($request)]);
-    if ($result == null) {
-      return redirect()->route('web_release_get_all_release')->with('error', '<p style="color:red"> Release Not Found </p>');
-    }
     try {
+      $result = Apiato::call('Release@FindReleaseByIdAction', [new DataTransporter($request)]);
+
       Apiato::call('Release@DeleteReleaseAction', [new DataTransporter($request)]);
       if ($result->images != null) {
         foreach ($result->images as $value) {
@@ -208,13 +198,21 @@ class Controller extends WebController
         }
       }
     } catch (\Exception $e) {
+      \Log::error($e);
       return redirect()->route('web_release_get_all_release')->with('error', '<p style="color:red"> Release Not Found </p>');
     }
     return redirect()->route('web_release_get_all_release')->with('success', '<p style="color:blue">Release <strong>' . $result->name . '</strong> Deleted Successfully</p>');
   }
   public function deleteBulk(DeleteBulkReleaseRequest $request)
   {
-    $result = Apiato::call('Release@FindReleaseByIdAction', [new DataTransporter($request)]);
+
+    try {
+      $result = Apiato::call('Release@FindReleaseByIdAction', [new DataTransporter($request)]);
+    } catch (Exception $e) {
+      \Log::error($e);
+      return redirect()->route('web_release_get_all_release')->with('error', '<p style="color:red"> Release(s) Not Found </p>');
+    }
+
     if ($result == null) {
       return redirect()->route('web_release_get_all_release')->with('error', '<p style="color:red"> Release(s) Not Found </p>');
     } else {
@@ -235,6 +233,7 @@ class Controller extends WebController
         }
       }
     } catch (\Exception $e) {
+      \Log::error($e);
       return redirect()->route('web_release_get_all_release')->with('error', '<p style="color:red"> Release(s) Not Found </p>');
     }
     return redirect()->route('web_release_get_all_release')->with('success', '<p style="color:blue"> Release <strong>' . $releaseName . '</strong> Deleted Successfully </p>');

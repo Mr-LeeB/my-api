@@ -98,7 +98,7 @@ class Controller extends ApiController
    */
   public function assignUserToPermission(AssignUserToPermissionRequest $request)
   {
-    dd($request);
+    // dd($request);
     $user = Apiato::call('Authorization@AssignUserToPermissionAction', [new DataTransporter($request)]);
 
 

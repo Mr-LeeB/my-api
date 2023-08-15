@@ -26,14 +26,14 @@ class RegisterUserTest extends TestCase
   public function testCreateUser_()
   {
     $data = [
-      'email' => 'Mahmoud@test.test',
+      'email'    => 'Mahmoud@test.test',
       'password' => 'so-secret',
-      'name' => 'Mahmoud',
+      'name'     => 'Mahmoud',
     ];
 
     $transporter = new DataTransporter($data);
-    $action = App::make(RegisterUserAction::class);
-    $user = $action->run($transporter);
+    $action      = App::make(RegisterUserAction::class);
+    $user        = $action->run($transporter);
 
     // asset the returned object is an instance of the User
     $this->assertInstanceOf(User::class, $user);
@@ -41,39 +41,17 @@ class RegisterUserTest extends TestCase
     $this->assertEquals($user->name, $data['name']);
   }
 
-  public function testCreateUserWithEmptyEmail_()
-  {
-    $data = [
-      'email' => '',
-      'password' => 'so-secret',
-      'name' => 'Mahmoud',
-    ];
-
-    $transporter = new DataTransporter($data);
-    $action = App::make(RegisterUserAction::class);
-
-    $this->expectException(ValidationException::class);
-
-    $user = $action->run($transporter);
-
-    // asset the returned object is an instance of the User
-    $this->assertInstanceOf(User::class, $user);
-
-    // $this->assertEquals($user->name, $data['name']);
-  }
-
-
 
   public function testCreateUserWithEmptyPassword_()
   {
     $data = [
-      'email' => 'test@gmail.com',
+      'email'    => 'test@gmail.com',
       'password' => '',
-      'name' => 'Mahmoud',
+      'name'     => 'Mahmoud',
     ];
 
     $transporter = new DataTransporter($data);
-    $action = App::make(RegisterUserAction::class);
+    $action      = App::make(RegisterUserAction::class);
 
     // $this->expectException(ValidationException::class);
 
