@@ -40,6 +40,9 @@ class Controller extends WebController
     if (auth()->user()->hasAdminRole()) {
       return view('release::admin.admin-show-release-page', compact('releases', 'all_Releases_count'));
     }
+
+    // return new Exception('You are not admin');
+
     return view('release::client.home', compact('releases', 'all_Releases_count'));
   }
 

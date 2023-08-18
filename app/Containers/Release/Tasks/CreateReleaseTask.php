@@ -36,7 +36,6 @@ class CreateReleaseTask extends Task
     bool $is_publish = false,
     array $images = null
   ): Release {
-    // throw new Exception('Not implemented.');
     try {
       // create new release
       $release = $this->repository->create([
@@ -49,8 +48,8 @@ class CreateReleaseTask extends Task
       ]);
 
     } catch (Exception $e) {
-      throw $e;
-      // throw (new CreateResourceFailedException())->debug($e);
+      // throw $e;
+      throw (new CreateResourceFailedException())->debug($e);
     }
     return $release;
   }

@@ -61,7 +61,8 @@ class LoginRequest extends Request
     public function authorize()
     {
         return $this->check([
-            'hasAccess',
+          'hasAccess',
         ]);
+        // return true;
     }
 }

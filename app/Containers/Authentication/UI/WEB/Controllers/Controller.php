@@ -55,6 +55,7 @@ class Controller extends WebController
 
   public function loginUser(LoginRequest $request)
   {
+    // dd('hi login');
     try {
       $result = Apiato::call('Authentication@WebLoginAction', [new DataTransporter($request)]);
     } catch (Exception $e) {
