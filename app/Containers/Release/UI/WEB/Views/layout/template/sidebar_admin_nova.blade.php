@@ -117,19 +117,12 @@
                             <a href="{{ $child['url'] ?? '#' }}" target="_self">
                                 <div class="items-center" style="width: 100%">
                                     <span class="text" style="width: 20%; display: inline-block">
-                                        {{-- @if ($_SERVER['REQUEST_URI'] == $child['url'])
-                                            {!! '<i class="fa fa-eye" aria-hidden="true"></i>' !!}
-                                        @endif --}}
-                                        @if (request()->url() == $child['url'])
+                                        @if(strpos(request()->fullUrl(), $child['url']) !== false)
                                             {!! '<i class="fa fa-eye" aria-hidden="true"></i>' !!}
                                         @endif
                                     </span>
-                                    {{-- <span class="text"
-                                        style="wdith: 80%; display: inline-block; @if ($_SERVER['REQUEST_URI'] == $child['url']) {{ 'font-weight: bold; font-style: italic' }} @endif">
-                                        {{ $child['label'] ?? '' }}
-                                    </span> --}}
                                     <span class="text"
-                                        style="wdith: 80%; display: inline-block; @if (request()->url() == $child['url']) {{ 'font-weight: bold; font-style: italic' }} @endif">
+                                        style="wdith: 80%; display: inline-block; @if(strpos(request()->fullUrl(), $child['url']) !== false) {{ 'font-weight: bold; font-style: italic' }} @endif">
                                         {{ $child['label'] ?? '' }}
                                     </span>
                                 </div>
