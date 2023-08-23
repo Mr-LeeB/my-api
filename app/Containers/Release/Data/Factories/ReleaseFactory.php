@@ -7,12 +7,15 @@ use Faker\Generator as Faker;
 use Illuminate\Http\UploadedFile;
 
 $factory->define(Release::class, function (Faker $faker) {
-  return [
-    'name'               => $faker->unique()->name,
-    'title_description'  => $faker->text,
-    'detail_description' => $faker->text,
-    'date_created'       => $faker->date('Y-m-d'),
-    'is_publish'         => $faker->boolean,
-    // 'images'             => [UploadedFile::fake()->image('release.jpg', 100, 100)],
-  ];
+    $image = UploadedFile::fake()->image(rand(1, 1000) . 'release.jpg', 200, 200);
+    Storage::disk('public')->putFileAs('images-release', $image, $image->getClientOriginalName());
+    return [
+        'name'               => $faker->unique()->name,
+        'title_description'  => $faker->text,
+        'detail_description' => $faker->text,
+        'is_publish'         => $faker->boolean,
+        'images'             => [
+            '/images-release/' . $image->getClientOriginalName(),
+        ],
+    ];
 });

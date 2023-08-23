@@ -70,9 +70,6 @@
 
         $('.btn-search-release').on('click', function() {
             var url = "http://" + window.location.host + '/releases?search=';
-
-
-            console.log(url);
         });
 
         function activeBody(id) {
@@ -124,26 +121,26 @@
                           ${data.map((release) => {
                               release.detail_description = release.detail_description.length > 62 ? release.detail_description.substring(0, 62).concat('...'):release.detail_description;
                               return`<div class="release-note-item">
-                                                                                                <div class="release-note-item-header" onclick="activeBody(${release.id})">
-                                                                                                  <div class="release-note-item-header-title">
-                                                                                                    ${release.name}
-                                                                                                  </div>
-                                                                                                  <div class="release-note-item-header-date">
-                                                                                                    ${release.date_created}
-                                                                                                  </div>
-                                                                                                </div>
-                                                                                                <div class="release-note-item-body unactive" id="body${release.id}">
-                                                                                                  <div class="release-note-item-body-title ">
-                                                                                                    Title: ${release.title_description}
-                                                                                                  </div>
-                                                                                                  <div class="release-note-item-body-description">
-                                                                                                    Description: ${release.detail_description}
-                                                                                                  </div>
-                                                                                                  <div class="more-detail">
-                                                                                                    <a href="/releases/${release.id}">More detail</a>
-                                                                                                  </div>
-                                                                                                </div>
-                                                                                              </div>`}).join('')}
+           <div class="release-note-item-header" onclick="activeBody(${release.id})">
+             <div class="release-note-item-header-title">
+               ${release.name}
+             </div>
+             <div class="release-note-item-header-date">
+               ${release.date_created}
+             </div>
+           </div>
+           <div class="release-note-item-body unactive" id="body${release.id}">
+             <div class="release-note-item-body-title ">
+               Title: ${release.title_description}
+             </div>
+             <div class="release-note-item-body-description">
+               Description: ${release.detail_description}
+             </div>
+             <div class="more-detail">
+               <a href="/releases/${release.id}">More detail</a>
+             </div>
+           </div>
+         </div>`}).join('')}
                         </div>`
                     );
                 },
@@ -237,16 +234,6 @@
             array_push($releaseID, $value->id);
         }
         $releaseID_json = json_encode($releaseID);
-
-        // function detail_description($description)
-        // {
-        //     if (strlen($description) > 50) {
-        //         // return substr($description, 0, 37) . '...';
-        //         return mb_str_split($description, 60)[0] . '...';
-        //     }
-        //     return $description;
-        // }
-
     @endphp
 @endsection
 
@@ -453,7 +440,7 @@
                             @endif
                         </td>
 
-                        <td style="text-align: center;">{{ $release->date_created }}</td>
+                        <td style="text-align: center;">{{ substr($release->created_at, 0, 10) }}</td>
                         <td style="text-align: center;">{{ $release->is_publish }}</td>
                         <td
                             style="display: flex;

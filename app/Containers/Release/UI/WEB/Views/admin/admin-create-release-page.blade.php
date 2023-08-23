@@ -22,8 +22,7 @@
             $name = old('name', $release->name);
             $title_description = old('title_description', $release->title_description);
             $detail_description = old('detail_description', $release->detail_description);
-            $date_created = old('date_created', $release->date_created);
-            // $is_publish = is_publish($release->is_publish);
+            $date_created = old('date_created', substr($release->created_at, 0, 10));
             if (old('is_publish', $release->is_publish) == true) {
                 $is_publish = 'checked';
             } else {
@@ -176,51 +175,6 @@
         });
     </script>
 @endsection
-
-@php
-    // function nameRelease($name)
-    // {
-    //     if (old('name')) {
-    //         return old('name', $name);
-    //     }
-    //     return $name;
-    // }
-
-    // function title_description($title_description)
-    // {
-    //     if (old('title_description')) {
-    //         return old('title_description');
-    //     }
-    //     return $title_description;
-    // }
-
-    // function detail_description($detail_description)
-    // {
-    //     if (old('detail_description')) {
-    //         return old('detail_description');
-    //     }
-    //     return $detail_description;
-    // }
-
-    // function date_created($date_created)
-    // {
-    //     if (old('date_created')) {
-    //         return old('date_created');
-    //     }
-    //     return $date_created;
-    // }
-
-    // function is_publish($is_publish)
-    // {
-    //     if (old('is_publish') == true) {
-    //         return 'checked';
-    //     } elseif ($is_publish == true) {
-    //         return 'checked';
-    //     }
-    //     return null;
-    // }
-@endphp
-
 
 @section('content')
     <div class="content">

@@ -10,17 +10,17 @@ use App\Ship\Parents\Repositories\Repository;
 class ReleaseRepository extends Repository
 {
 
-  /**
-   * @var array
-   */
-  protected $fieldSearchable = [
-    'id' => '=',
-    'name' => 'like',
-    'date_created' => '=',
-    'title_description' => 'like',
-    'detail_description' => 'like',
-    'is_publish' => 'like',
-    'images' => '',
-    // ...
-  ];
+    /**
+     * @var array
+     */
+    protected $fieldSearchable = [
+        'id'                 => '=',
+        'name'               => 'like',
+        'title_description'  => 'like',
+        'detail_description' => 'like',
+        'is_publish'         => '=',
+        'images'             => '',
+        'created_at'         => 'like',
+        // ...
+    ];
 }

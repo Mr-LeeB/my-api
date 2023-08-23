@@ -10,19 +10,19 @@ use Exception;
 class SearchReleaseByDateTask extends Task
 {
 
-  protected $repository;
+    protected $repository;
 
-  public function __construct(ReleaseRepository $repository)
-  {
-    $this->repository = $repository;
-  }
-
-  public function run($date)
-  {
-    try {
-      return $this->repository->where('date_created', '=', $date)->get();
-    } catch (Exception $exception) {
-      throw new NotFoundException();
+    public function __construct(ReleaseRepository $repository)
+    {
+        $this->repository = $repository;
     }
-  }
+
+    public function run($date)
+    {
+        try {
+            return $this->repository->where('created_at', '=', $date)->get();
+        } catch (Exception $exception) {
+            throw new NotFoundException();
+        }
+    }
 }

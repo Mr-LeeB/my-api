@@ -4,11 +4,11 @@ namespace App\Containers\Release\UI\WEB\Tests\Functional;
 
 use App\Containers\Release\Tests\WebTestCase;
 use App\Containers\User\Models\User;
+use App\Containers\Release\Models\Release;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
-use Mockery;
 use App\Containers\Release\Data\Repositories\ReleaseRepository;
 
 /**
@@ -19,828 +19,553 @@ use App\Containers\Release\Data\Repositories\ReleaseRepository;
  */
 class CreateReleasetest extends WebTestCase
 {
-  // use RefreshDatabase;
+    // use RefreshDatabase;
 
-  // the endpoint to be called within this test (e.g., get@v1/users)
-  protected $endpoint = '/releases/store';
+    // the endpoint to be called within this test (e.g., get@v1/users)
+    protected $endpoint = '/releases/store';
 
-  // fake some access rights
-  protected $access = [
-    'permissions' => '',
-    'roles'       => '',
-  ];
-
-  /**
-   * @testLoadCreateNewReleasePageWithAdmin_
-   */
-  public function testLoadCreateNewReleasePageWithAdmin_()
-  {
-    $user = User::find(1);
-    $this->actingAs($user);
-    // send the HTTP request
-    $response = $this->get('/releases/new');
-
-    // assert response status is correct
-    $response->assertStatus(200);
-
-    // assert we're hitting the correct route
-    $response->assertViewIs('release::admin.admin-create-release-page');
-  }
-
-  /**
-   * @testLoadCreateNewReleasePageWithoutAdmin_
-   */
-  public function testLoadCreateNewReleasePageWithoutAdmin_()
-  {
-    $user = factory(User::class)->create();
-    $this->actingAs($user);
-    // send the HTTP request
-    $response = $this->get('/releases/new');
-
-    // assert response status is correct
-    $response->assertStatus(403);
-  }
-
-  /**
-   * @from
-   *
-   * @param string $url
-   *
-   * @return $this
-   */
-  public function from(string $url)
-  {
-    $this->app['session']->setPreviousUrl($url);
-    return $this;
-  }
-
-  /**
-   * @testCreateNewReleaseSuccess_
-   */
-  public function testCreateNewReleaseSuccess_()
-  {
-    $user = User::find(1);
-
-    $this->actingAs($user);
-
-    Storage::fake('public');
-
-    $file = UploadedFile::fake()->image('release.jpg', 100, 100);
-
-    // create data for request
-    $data = [
-      'name'               => 'test',
-      'title_description'  => 'test',
-      'detail_description' => 'test',
-      'date_created'       => '2019-01-01',
-      'is_publish'         => 1,
-      'images'             => [$file],
+    // fake some access rights
+    protected $access = [
+        'permissions' => '',
+        'roles'       => '',
     ];
 
-    // send the HTTP request
-    $response = $this->post($this->endpoint, $data);
-
-    // assert response status is redirection
-    $response->assertStatus(302);
-
-    // assert the direct to the correct route
-    $response->assertRedirect('/releases/new');
-
-    // assert session success
-    $response->assertSessionHas('success');
-
-    // assert the data was stored in the database
-    $this->assertDatabaseHas('releases', [
-      'name'               => $data['name'],
-      'title_description'  => $data['title_description'],
-      'detail_description' => $data['detail_description'],
-      'date_created'       => $data['date_created'],
-      'is_publish'         => $data['is_publish'],
-    ]);
-
-    Storage::fake('public');
-  }
-
-  /**
-   * @testCreateNewReleaseWithAllFieldNull_
-   */
-  public function testCreateNewReleaseWithAllFieldNull_()
-  {
-    $user = User::find(1);
-    $this->actingAs($user);
-
-    // create data for request
-    $data = [
-      'name'               => '',
-      'title_description'  => '',
-      'detail_description' => '',
-      'date_created'       => '',
-      'is_publish'         => '',
-      'images'             => [],
-    ];
-
-    $this->from('/releases/new');
-
-    // send the HTTP request
-    $response = $this->post($this->endpoint, $data);
-
-    // assert response status is redirection
-    $response->assertStatus(302);
-
-    // assert the direct to the correct route
-    $response->assertRedirect('/releases/new');
-
-    // assert the response contain the correct message
-    $response->assertSessionHasErrors(['name', 'title_description', 'detail_description', 'date_created', 'is_publish']);
-
-    // assert the session errors are correct
-    $messages = session('errors')->getMessages();
-    $this->assertEquals($messages['name'][0], 'The name field is required.');
-    $this->assertEquals($messages['title_description'][0], 'The title description field is required.');
-    $this->assertEquals($messages['detail_description'][0], 'The detail description field is required.');
-    $this->assertEquals($messages['date_created'][0], 'The date created field is required.');
-    $this->assertEquals($messages['is_publish'][0], 'The is publish field must be true or false.');
-
-    // assert the data was not stored in the database
-    $this->assertDatabaseMissing('releases', [
-      'name'               => $data['name'],
-      'title_description'  => $data['title_description'],
-      'detail_description' => $data['detail_description'],
-      'date_created'       => $data['date_created'],
-      'is_publish'         => $data['is_publish'],
-    ]);
-  }
-
-  /**
-   * @testCreateNewReleaseWithoutData_
-   */
-  public function testCreateNewReleaseWithoutData_()
-  {
-    $user = User::find(1);
-    $this->actingAs($user);
-
-    // send the HTTP request
-    $response = $this->post($this->endpoint);
-
-    // assert response status is redirection
-    $response->assertStatus(302);
-
-    // assert the response contain the correct message
-    $response->assertSessionHasErrors(['name', 'title_description', 'detail_description', 'date_created']);
-
-    // assert the session errors are correct
-    $messages = session('errors')->getMessages();
-    $this->assertEquals($messages['name'][0], 'The name field is required.');
-    $this->assertEquals($messages['title_description'][0], 'The title description field is required.');
-    $this->assertEquals($messages['detail_description'][0], 'The detail description field is required.');
-    $this->assertEquals($messages['date_created'][0], 'The date created field is required.');
-    // $this->assertEquals($messages['is_publish'][0], 'The is publish field must be true or false.');
-  }
-
-  /**
-   * @testCreateNewReleaseWithoutName_
-   */
-  public function testCreateNewReleaseWithoutName_()
-  {
-    $user = User::find(1);
-    $this->actingAs($user);
-
-    // create data for request
-    $data = [
-      // 'name'               => 'test',
-      'title_description'  => 'test',
-      'detail_description' => 'test',
-      'date_created'       => '2019-01-01',
-      'is_publish'         => 1,
-    ];
-
-    // send the HTTP request
-    $response = $this->post($this->endpoint, $data);
-
-    // assert response status is redirection
-    $response->assertStatus(302);
-
-    // assert the response contain the correct message
-    $response->assertSessionHasErrors(['name']);
-
-    // assert the data was not stored in the database
-    $this->assertDatabaseMissing('releases', [
-      // 'name'               => $data['name'],
-      'title_description'  => $data['title_description'],
-      'detail_description' => $data['detail_description'],
-      'date_created'       => $data['date_created'],
-      'is_publish'         => $data['is_publish'],
-    ]);
-  }
-
-  /**
-   * @testCreateNewReleaseWithoutTitleDescription_
-   */
-  public function testCreateNewReleaseWithoutTitleDescription_()
-  {
-    $user = User::find(1);
-    $this->actingAs($user);
-
-    // create data for request
-    $data = [
-      'name'               => 'test',
-      // 'title_description'  => 'test',
-      'detail_description' => 'test',
-      'date_created'       => '2019-01-01',
-      'is_publish'         => 1,
-    ];
-
-    // send the HTTP request
-    $response = $this->post($this->endpoint, $data);
-
-    // assert response status is redirection
-    $response->assertStatus(302);
-
-    // assert the response contain the correct message
-    $response->assertSessionHasErrors(['title_description']);
-
-    // assert the data was not stored in the database
-    $this->assertDatabaseMissing('releases', [
-      'name'               => $data['name'],
-      // 'title_description'  => $data['title_description'],
-      'detail_description' => $data['detail_description'],
-      'date_created'       => $data['date_created'],
-      'is_publish'         => $data['is_publish'],
-    ]);
-  }
-
-  /**
-   * @testCreateNewReleaseWithoutDetailDescription_
-   */
-  public function testCreateNewReleaseWithoutDetailDescription_()
-  {
-    $user = User::find(1);
-    $this->actingAs($user);
-
-    // create data for request
-    $data = [
-      'name'              => 'test',
-      'title_description' => 'test',
-      // 'detail_description' => 'test',
-      'date_created'      => '2019-01-01',
-      'is_publish'        => 1,
-    ];
-
-    // send the HTTP request
-    $response = $this->post($this->endpoint, $data);
-
-    // assert response status is redirection
-    $response->assertStatus(302);
-
-    // assert the response contain the correct message
-    $response->assertSessionHasErrors(['detail_description']);
-
-    // assert the data was not stored in the database
-    $this->assertDatabaseMissing('releases', [
-      'name'              => $data['name'],
-      'title_description' => $data['title_description'],
-      // 'detail_description' => $data['detail_description'],
-      'date_created'      => $data['date_created'],
-      'is_publish'        => $data['is_publish'],
-    ]);
-  }
-
-  /**
-   * @testCreateNewReleaseWithoutDateCreated_
-   */
-  public function testCreateNewReleaseWithoutDateCreated_()
-  {
-    $user = User::find(1);
-    $this->actingAs($user);
-
-    // create data for request
-    $data = [
-      'name'               => 'test',
-      'title_description'  => 'test',
-      'detail_description' => 'test',
-      // 'date_created'       => '2019-01-01',
-      'is_publish'         => 1,
-    ];
-
-    // send the HTTP request
-    $response = $this->post($this->endpoint, $data);
-
-    // assert response status is redirection
-    $response->assertStatus(302);
-
-    // assert the response contain the correct message
-    $response->assertSessionHasErrors(['date_created']);
-
-    // assert the data was not stored in the database
-    $this->assertDatabaseMissing('releases', [
-      'name'               => $data['name'],
-      'title_description'  => $data['title_description'],
-      'detail_description' => $data['detail_description'],
-      // 'date_created'       => $data['date_created'],
-      'is_publish'         => $data['is_publish'],
-    ]);
-  }
-
-  /**
-   * @testCreateNewReleaseWithoutIsPublish_
-   */
-  public function testCreateNewReleaseWithoutIsPublish_()
-  {
-    $user = User::find(1);
-    $this->actingAs($user);
-
-    // create data for request
-    $data = [
-      'name'               => 'test',
-      'title_description'  => 'test',
-      'detail_description' => 'test',
-      'date_created'       => '2019-01-01',
-      // 'is_publish'         => 1,
-    ];
-
-    // send the HTTP request
-    $response = $this->post($this->endpoint, $data);
-
-    // assert response status is redirection
-    $response->assertStatus(302);
-
-    // assert the response contain the correct message
-    // $response->assertSessionHasErrors(['is_publish']);
-
-    // assert the data was stored in the database with is_publish = 0
-    $this->assertDatabaseHas('releases', [
-      'name'               => $data['name'],
-      'title_description'  => $data['title_description'],
-      'detail_description' => $data['detail_description'],
-      'date_created'       => $data['date_created'],
-      'is_publish'         => false,
-    ]);
-  }
-
-  /**
-   * @testCreateNewReleaseWithIsPublishNull_
-   */
-  public function testCreateNewReleaseWithIsPublishNull_()
-  {
-    $user = User::find(1);
-    $this->actingAs($user);
-
-    // create data for request
-    $data = [
-      'name'               => 'test',
-      'title_description'  => 'test',
-      'detail_description' => 'test',
-      'date_created'       => '2019-01-01',
-      'is_publish'         => '',
-    ];
-
-    // send the HTTP request
-    $response = $this->post($this->endpoint, $data);
-
-    // assert response status is redirection
-    $response->assertStatus(302);
-
-    // assert the response contain the correct message
-    $response->assertSessionHasErrors(['is_publish']);
-
-
-    // assert the data was not stored in the database
-    $this->assertDatabaseMissing('releases', [
-      'name'               => $data['name'],
-      'title_description'  => $data['title_description'],
-      'detail_description' => $data['detail_description'],
-      'date_created'       => $data['date_created'],
-      'is_publish'         => $data['is_publish'],
-    ]);
-  }
-
-  /**
-   * @testCreateNewReleaseWithIsPublishNotBoolean_
-   */
-  public function testCreateNewReleaseWithIsPublishNotBoolean_()
-  {
-    $user = User::find(1);
-    $this->actingAs($user);
-
-    // create data for request
-    $data = [
-      'name'               => 'test',
-      'title_description'  => 'test',
-      'detail_description' => 'test',
-      'date_created'       => '2019-01-01',
-      'is_publish'         => 'test',
-    ];
-
-    // send the HTTP request
-    $response = $this->post($this->endpoint, $data);
-
-    // assert response status is redirection
-    $response->assertStatus(302);
-
-    // assert the response has errors
-    $response->assertSessionHasErrors(['is_publish']);
-
-    // assert the response contain the correct message
-    $message = session('errors')->get('is_publish')[0];
-    $this->assertEquals('The is publish field must be true or false.', $message);
-
-    // assert the data was not stored in the database
-    $this->assertDatabaseMissing('releases', [
-      'name'               => $data['name'],
-      'title_description'  => $data['title_description'],
-      'detail_description' => $data['detail_description'],
-      'date_created'       => $data['date_created'],
-      'is_publish'         => $data['is_publish'],
-    ]);
-  }
-
-  /**
-   * @testCreateNewReleaseWithNameShorterThanThreeChar_
-   */
-  public function testCreateNewReleaseWithNameShorterThanThreeChar_()
-  {
-    $user = User::find(1);
-    $this->actingAs($user);
-
-    // create data for request
-    $data = [
-      'name'               => 'te',
-      'title_description'  => 'test',
-      'detail_description' => 'test',
-      'date_created'       => '2019-01-01',
-      'is_publish'         => 1,
-    ];
-
-    // send the HTTP request
-    $response = $this->post($this->endpoint, $data);
-
-    // assert response status is redirection
-    $response->assertStatus(302);
-
-    // assert the response has errors
-    $response->assertSessionHasErrors(['name']);
-
-    // assert the response contain the correct message
-    $message = session('errors')->get('name')[0];
-    $this->assertEquals('The name must be at least 3 characters.', $message);
-
-    // assert the data was not stored in the database
-    $this->assertDatabaseMissing('releases', [
-      'name'               => $data['name'],
-      'title_description'  => $data['title_description'],
-      'detail_description' => $data['detail_description'],
-      'date_created'       => $data['date_created'],
-      'is_publish'         => $data['is_publish'],
-    ]);
-  }
-
-  /**
-   * @testCreateNewReleaseWithNameLongerThan40Char_
-   */
-  public function testCreateNewReleaseWithNameLongerThan40Char_()
-  {
-    $user = User::find(1);
-    $this->actingAs($user);
-
-    $name = '';
-    for ($i = 0; $i < 41; $i++) {
-      $name .= 'a';
+    /**
+     * @testLoadCreateNewReleasePageWithAdmin_
+     */
+    public function testLoadCreateNewReleasePageWithAdmin_()
+    {
+        $user = User::find(1);
+        $this->actingAs($user);
+        // send the HTTP request
+        $response = $this->get('/releases/new');
+
+        // assert response status is correct
+        $response->assertStatus(200);
+
+        // assert we're hitting the correct route
+        $response->assertViewIs('release::admin.admin-create-release-page');
     }
-    // create data for request
-    $data = [
-      'name'               => $name,
-      'title_description'  => 'test',
-      'detail_description' => 'test',
-      'date_created'       => '2019-01-01',
-      'is_publish'         => 1,
-    ];
 
-    // send the HTTP request
-    $response = $this->post($this->endpoint, $data);
+    /**
+     * @testLoadCreateNewReleasePageWithoutAdmin_
+     */
+    public function testLoadCreateNewReleasePageWithoutAdmin_()
+    {
+        $user = factory(User::class)->create();
+        $this->actingAs($user);
+        // send the HTTP request
+        $response = $this->get('/releases/new');
 
-    // assert response status is redirection
-    $response->assertStatus(302);
-
-    // assert the response has errors
-    $response->assertSessionHasErrors(['name']);
-
-    // assert the response contain the correct message
-    $message = session('errors')->get('name')[0];
-    $this->assertEquals('The name may not be greater than 40 characters.', $message);
-
-    // assert the data was not stored in the database
-    $this->assertDatabaseMissing('releases', [
-      'name'               => $data['name'],
-      'title_description'  => $data['title_description'],
-      'detail_description' => $data['detail_description'],
-      'date_created'       => $data['date_created'],
-      'is_publish'         => $data['is_publish'],
-    ]);
-  }
-
-  /**
-   * @testCreateNewReleaseWithTitleDescriptionShorterThanThreeChar_
-   */
-  public function testCreateNewReleaseWithTitleDescriptionShorterThanThreeChar_()
-  {
-    $user = User::find(1);
-    $this->actingAs($user);
-
-    // create data for request
-    $data = [
-      'name'               => 'test',
-      'title_description'  => 'te',
-      'detail_description' => 'test',
-      'date_created'       => '2019-01-01',
-      'is_publish'         => 1,
-    ];
-
-    // send the HTTP request
-    $response = $this->post($this->endpoint, $data);
-
-    // assert response status is redirection
-    $response->assertStatus(302);
-
-    // assert the response has errors
-    $response->assertSessionHasErrors(['title_description']);
-
-    // assert the response contain the correct message
-    $message = session('errors')->get('title_description')[0];
-    $this->assertEquals('The title description must be at least 3 characters.', $message);
-
-    // assert the data was not stored in the database
-    $this->assertDatabaseMissing('releases', [
-      'name'               => $data['name'],
-      'title_description'  => $data['title_description'],
-      'detail_description' => $data['detail_description'],
-      'date_created'       => $data['date_created'],
-      'is_publish'         => $data['is_publish'],
-    ]);
-  }
-
-  /**
-   * @testCreateNewReleaseWithTitleDescriptionLongerThan255Char_
-   */
-  public function testCreateNewReleaseWithTitleDescriptionLongerThan255Char_()
-  {
-    $user = User::find(1);
-    $this->actingAs($user);
-
-    $title_description = '';
-    for ($i = 0; $i < 256; $i++) {
-      $title_description .= 'a';
+        // assert response status is correct
+        $response->assertStatus(403);
     }
-    // create data for request
-    $data = [
-      'name'               => 'test',
-      'title_description'  => $title_description,
-      'detail_description' => 'test',
-      'date_created'       => '2019-01-01',
-      'is_publish'         => 1,
-    ];
 
-    // send the HTTP request
-    $response = $this->post($this->endpoint, $data);
+    /**
+     * @from
+     *
+     * @param string $url
+     *
+     * @return $this
+     */
+    public function from(string $url)
+    {
+        $this->app['session']->setPreviousUrl($url);
+        return $this;
+    }
 
-    // assert response status is redirection
-    $response->assertStatus(302);
 
-    // $response->assertRedirect('/releases/new');
+    /** 
+     * Required store data validation provider.
+     *
+     * @codeCoverageIgnore
+     * 
+     * @return \string[][]
+     */
+    public function dataCreateRelease(): array
+    {
+        $file = UploadedFile::fake()->image('release.jpg', 100, 100);
 
-    // assert the response has errors
-    $response->assertSessionHasErrors(['title_description']);
+        return [
+            'Create new release success'                                 => [
+                [
+                    'name'               => 'test',
+                    'title_description'  => 'test',
+                    'detail_description' => 'test',
+                    'is_publish'         => 1,
+                    'images'             => [$file],
+                ],
+                'assert' => [
+                    'status'        => 302,
+                    'route'         => '/releases/new',
+                    'session'       => 'success',
+                    'fieldHasError' => [
+                    ],
+                ],
+            ],
 
-    // assert the response contain the correct message
-    $message = session('errors')->get('title_description')[0];
-    $this->assertEquals('The title description may not be greater than 255 characters.', $message);
+            'Create release with null values'                            => [
+                [
+                    'name'               => '',
+                    'title_description'  => '',
+                    'detail_description' => '',
+                    'is_publish'         => '',
+                    'images'             => [],
+                ],
+                'assert' => [
+                    'status'        => 302,
+                    'route'         => '/releases/new',
+                    'session'       => 'errors',
+                    'fieldHasError' => [
+                        'name',
+                        'title_description',
+                        'detail_description',
+                        'is_publish'
+                    ],
+                ],
+            ],
+            'Create Release With Existed name'                           => [
+                [
+                    'name'               => 'test update release',
+                    'title_description'  => 'test',
+                    'detail_description' => 'test',
+                    'is_publish'         => 1,
+                    'images'             => [$file],
+                ],
+                'assert' => [
+                    'status'        => 302,
+                    'route'         => '/releases/new',
+                    'session'       => 'errors',
+                    'fieldHasError' => [
+                        'name',
+                    ],
+                ],
+            ],
+            'Create release without field'                               => [
+                [
+                ],
+                'assert' => [
+                    'status'        => 302,
+                    'route'         => '/releases/new',
+                    'session'       => 'errors',
+                    'fieldHasError' => [
+                        'name',
+                        'title_description',
+                        'detail_description',
+                    ],
+                ],
+            ],
+            'Create release without name'                                => [
+                [
+                    'title_description'  => 'test',
+                    'detail_description' => 'test',
+                    'is_publish'         => 1,
+                    'images'             => [$file],
+                ],
+                'assert' => [
+                    'status'        => 302,
+                    'route'         => '/releases/new',
+                    'session'       => 'errors',
+                    'fieldHasError' => [
+                        'name',
+                    ],
+                ],
+            ],
+            'Create release without title_description'                   => [
+                [
+                    'name'               => 'test',
+                    'detail_description' => 'test',
+                    'is_publish'         => 1,
+                    'images'             => [$file],
+                ],
+                'assert' => [
+                    'status'        => 302,
+                    'route'         => '/releases/new',
+                    'session'       => 'errors',
+                    'fieldHasError' => [
+                        'title_description',
+                    ],
+                ],
+            ],
+            'Create release without detail_description'                  => [
+                [
+                    'name'              => 'test',
+                    'title_description' => 'test',
+                    'is_publish'        => 1,
+                    'images'            => [$file],
+                ],
+                'assert' => [
+                    'status'        => 302,
+                    'route'         => '/releases/new',
+                    'session'       => 'errors',
+                    'fieldHasError' => [
+                        'detail_description',
+                    ],
+                ],
+            ],
+            'Create release without is_publish'                          => [
+                [
+                    'name'               => 'test',
+                    'title_description'  => 'test',
+                    'detail_description' => 'test',
+                    'images'             => [$file],
+                ],
+                'assert' => [
+                    'status'        => 302,
+                    'route'         => '/releases/new',
+                    'session'       => 'success',
+                    'fieldHasError' => [
+                    ],
+                ],
+            ],
+            'Create release with is_publish null'                        => [
+                [
+                    'name'               => 'test',
+                    'title_description'  => 'test',
+                    'detail_description' => 'test',
+                    'is_publish'         => '',
+                    'images'             => [$file],
+                ],
+                'assert' => [
+                    'status'        => 302,
+                    'route'         => '/releases/new',
+                    'session'       => 'errors',
+                    'fieldHasError' => [
+                        'is_publish',
+                    ],
+                ],
+            ],
+            'Create release with is_publish not boolean'                 => [
+                [
+                    'name'               => 'test',
+                    'title_description'  => 'test',
+                    'detail_description' => 'test',
+                    'is_publish'         => 'test',
+                    'images'             => [$file],
+                ],
+                'assert' => [
+                    'status'        => 302,
+                    'route'         => '/releases/new',
+                    'session'       => 'errors',
+                    'fieldHasError' => [
+                        'is_publish',
+                    ],
+                ],
+            ],
+            'Create release with name shorter than 3 char'               => [
+                [
+                    'name'               => 'te',
+                    'title_description'  => 'test',
+                    'detail_description' => 'test',
+                    'is_publish'         => 1,
+                    'images'             => [$file],
+                ],
+                'assert' => [
+                    'status'        => 302,
+                    'route'         => '/releases/new',
+                    'session'       => 'errors',
+                    'fieldHasError' => [
+                        'name',
+                    ],
+                ],
+            ],
+            'Create release with name lenght is 3 char'                  => [
+                [
+                    'name'               => 'tes',
+                    'title_description'  => 'test',
+                    'detail_description' => 'test',
+                    'is_publish'         => 1,
+                    'images'             => [$file],
+                ],
+                'assert' => [
+                    'status'        => 302,
+                    'route'         => '/releases/new',
+                    'session'       => 'success',
+                    'fieldHasError' => [
+                    ],
+                ],
+            ],
+            'Create release with name longer than 40 char'               => [
+                [
+                    'name'               => str_repeat('a', 41),
+                    'title_description'  => 'test',
+                    'detail_description' => 'test',
+                    'is_publish'         => 1,
+                    'images'             => [$file],
+                ],
+                'assert' => [
+                    'status'        => 302,
+                    'route'         => '/releases/new',
+                    'session'       => 'errors',
+                    'fieldHasError' => [
+                        'name',
+                    ],
+                ],
+            ],
+            'Create release with name lenght is 40 char'                 => [
+                [
+                    'name'               => str_repeat('a', 40),
+                    'title_description'  => 'test',
+                    'detail_description' => 'test',
+                    'is_publish'         => 1,
+                    'images'             => [$file],
+                ],
+                'assert' => [
+                    'status'        => 302,
+                    'route'         => '/releases/new',
+                    'session'       => 'success',
+                    'fieldHasError' => [
+                    ],
+                ],
+            ],
+            'Create release with title_description shorter than 3 char'  => [
+                [
+                    'name'               => 'test',
+                    'title_description'  => 'te',
+                    'detail_description' => 'test',
+                    'is_publish'         => 1,
+                    'images'             => [$file],
+                ],
+                'assert' => [
+                    'status'        => 302,
+                    'route'         => '/releases/new',
+                    'session'       => 'errors',
+                    'fieldHasError' => [
+                        'title_description',
+                    ],
+                ],
+            ],
+            'Create release with title_description lenght is 3 char'     => [
+                [
+                    'name'               => 'test',
+                    'title_description'  => 'tes',
+                    'detail_description' => 'test',
+                    'is_publish'         => 1,
+                    'images'             => [$file],
+                ],
+                'assert' => [
+                    'status'        => 302,
+                    'route'         => '/releases/new',
+                    'session'       => 'success',
+                    'fieldHasError' => [
+                    ],
+                ],
+            ],
+            'Create release with title_description longer than 255 char' => [
+                [
+                    'name'               => 'test',
+                    'title_description'  => str_repeat('a', 256),
+                    'detail_description' => 'test',
+                    'is_publish'         => 1,
+                    'images'             => [$file],
+                ],
+                'assert' => [
+                    'status'        => 302,
+                    'route'         => '/releases/new',
+                    'session'       => 'errors',
+                    'fieldHasError' => [
+                        'title_description',
+                    ],
+                ],
+            ],
+            'Create release with title_description lenght is 255 char'   => [
+                [
+                    'name'               => 'test',
+                    'title_description'  => str_repeat('a', 255),
+                    'detail_description' => 'test',
+                    'is_publish'         => 1,
+                    'images'             => [$file],
+                ],
 
-    // assert the data was not stored in the database
-    $this->assertDatabaseMissing('releases', [
-      'name'               => $data['name'],
-      'title_description'  => $data['title_description'],
-      'detail_description' => $data['detail_description'],
-      'date_created'       => $data['date_created'],
-      'is_publish'         => $data['is_publish'],
-    ]);
-  }
+                'assert' => [
+                    'status'        => 302,
+                    'route'         => '/releases/new',
+                    'session'       => 'success',
+                    'fieldHasError' => [
+                    ],
+                ],
+            ],
+            'Create release with detail_description shorter than 3 char' => [
+                [
+                    'name'               => 'test',
+                    'title_description'  => 'test',
+                    'detail_description' => 'te',
+                    'is_publish'         => 1,
+                    'images'             => [$file],
+                ],
 
-  /**
-   * @testCreateNewReleaseWithDetailDescriptionShorterThanThreeChar_
-   */
-  public function testCreateNewReleaseWithDetailDescriptionShorterThanThreeChar_()
-  {
-    $user = User::find(1);
-    $this->actingAs($user);
+                'assert' => [
+                    'status'        => 302,
+                    'route'         => '/releases/new',
+                    'session'       => 'errors',
+                    'fieldHasError' => [
+                        'detail_description',
+                    ],
+                ],
+            ],
+            'Create release with detail_description lenght is 3 char'    => [
+                [
+                    'name'               => 'test',
+                    'title_description'  => 'test',
+                    'detail_description' => 'tes',
+                    'is_publish'         => 1,
+                    'images'             => [$file],
+                ],
 
-    // create data for request
-    $data = [
-      'name'               => 'test',
-      'title_description'  => 'test',
-      'detail_description' => 'te',
-      'date_created'       => '2019-01-01',
-      'is_publish'         => 1,
-    ];
+                'assert' => [
+                    'status'        => 302,
+                    'route'         => '/releases/new',
+                    'session'       => 'success',
+                    'fieldHasError' => [
+                    ],
+                ],
+            ],
+            'Create release with image is not array'                     => [
+                [
+                    'name'               => 'test',
+                    'title_description'  => 'test',
+                    'detail_description' => 'test',
+                    'is_publish'         => 1,
+                    'images'             => $file,
+                ],
 
-    // send the HTTP request
-    $response = $this->post($this->endpoint, $data);
+                'assert' => [
+                    'status'        => 302,
+                    'route'         => '/releases/new',
+                    'session'       => 'errors',
+                    'fieldHasError' => [
+                        'images',
+                    ],
+                ],
+            ],
+            'Create release with image is not incorrect format'          => [
+                [
+                    'name'               => 'test',
+                    'title_description'  => 'test',
+                    'detail_description' => 'test',
+                    'is_publish'         => 1,
+                    'images'             => ['test'],
+                ],
 
-    // assert response status is redirection
-    $response->assertStatus(302);
+                'assert' => [
+                    'status'        => 302,
+                    'route'         => '/releases/new',
+                    'session'       => 'errors',
+                    'fieldHasError' => [
+                        'images.0',
+                    ],
+                ],
+            ],
+            'Create release with image size larger than 6MB'             => [
+                [
+                    'name'               => 'test',
+                    'title_description'  => 'test',
+                    'detail_description' => 'test',
+                    'is_publish'         => 1,
+                    'images'             => [
+                        UploadedFile::fake()->image('release.jpg', 100, 100)->size(7000),
+                        UploadedFile::fake()->image('release.jpg', 100, 100)->size(7000),
+                    ],
+                ],
 
-    // $response->assertRedirect('/releases/new');
+                'assert' => [
+                    'status'        => 302,
+                    'route'         => '/releases/new',
+                    'session'       => 'errors',
+                    'fieldHasError' => [
+                        'images.0',
+                        'images.1',
+                    ],
+                ],
+            ],
+            'Create release with image size is 6MB'                      => [
+                [
+                    'name'               => 'test',
+                    'title_description'  => 'test',
+                    'detail_description' => 'test',
+                    'is_publish'         => 1,
+                    'images'             => [
+                        UploadedFile::fake()->image('release.jpg', 100, 100)->size(6144),
+                        UploadedFile::fake()->image('release.jpg', 100, 100)->size(6144),
+                    ],
+                ],
 
-    // assert the response has errors
-    $response->assertSessionHasErrors(['detail_description']);
+                'assert' => [
+                    'status'        => 302,
+                    'route'         => '/releases/new',
+                    'session'       => 'success',
+                    'fieldHasError' => [
+                    ],
+                ],
+            ],
+            'Create release with image is not support'                   => [
+                [
+                    'name'               => 'test',
+                    'title_description'  => 'test',
+                    'detail_description' => 'test',
+                    'is_publish'         => 1,
+                    'images'             => [UploadedFile::fake()->image('release.zip', 100, 100)->size(6144)],
+                ],
 
-    // assert the response contain the correct messageb
-    $message = session('errors')->get('detail_description')[0];
-    $this->assertEquals('The detail description must be at least 3 characters.', $message);
+                'assert' => [
+                    'status'        => 302,
+                    'route'         => '/releases/new',
+                    'session'       => 'errors',
+                    'fieldHasError' => [
+                        'images.0',
+                    ],
+                ],
+            ],
+        ];
+    }
 
-    // assert the data was not stored in the database
-    $this->assertDatabaseMissing('releases', [
-      'name'               => $data['name'],
-      'title_description'  => $data['title_description'],
-      'detail_description' => $data['detail_description'],
-      'date_created'       => $data['date_created'],
-      'is_publish'         => $data['is_publish'],
-    ]);
-  }
+    /**
+     * @test
+     * 
+     * @dataProvider dataCreateRelease
+     */
+    public function testCreateNewRelease_($data, $assert)
+    {
+        $user = User::find(1);
 
-  /**
-   * @testCreateNewReleaseWithDateCreatedNotInCorrectFormat_
-   */
-  public function testCreateNewReleaseWithDateCreatedNotInCorrectFormat_()
-  {
-    $user = User::find(1);
-    $this->actingAs($user);
+        $this->actingAs($user);
 
-    // create data for request
-    $data = [
-      'name'               => 'test',
-      'title_description'  => 'test',
-      'detail_description' => 'test',
-      'date_created'       => 'not a date',
-      'is_publish'         => 1,
-    ];
+        Storage::fake('public');
 
-    // send the HTTP request
-    $response = $this->post($this->endpoint, $data);
+        $this->from('/releases/new');
 
-    // assert response status is redirection
-    $response->assertStatus(302);
+        factory(Release::class)->create([
+            'name' => 'test update release',
+        ]);
 
-    // $response->assertRedirect('/releases/new');
+        // send the HTTP request
+        $response = $this->post($this->endpoint, $data);
 
-    // assert the response has errors
-    $response->assertSessionHasErrors(['date_created']);
+        // assert response status is redirection
+        $response->assertStatus($assert['status']);
 
-    // assert the response contain the correct message
-    $message = session('errors')->get('date_created')[0];
-    $this->assertEquals('The date created is not a valid date.', $message);
+        // assert the direct to the correct route
+        $response->assertRedirect($assert['route']);
 
-    // assert the data was not stored in the database
-    $this->assertDatabaseMissing('releases', [
-      'name'               => $data['name'],
-      'title_description'  => $data['title_description'],
-      'detail_description' => $data['detail_description'],
-      'date_created'       => $data['date_created'],
-      'is_publish'         => $data['is_publish'],
-    ]);
-  }
+        // assert session success
+        $response->assertSessionHas($assert['session']);
 
-  /**
-   * @testCreateNewReleaseWithImageNotInCorrectFormat_
-   */
-  public function testCreateNewReleaseWithImageNotInCorrectFormat_()
-  {
-    $user = User::find(1);
-    $this->actingAs($user);
+        // assert the data was stored in the database
+        if ($assert['session'] == 'success') {
+            $this->assertDatabaseHas('releases', [
+                'name'               => $data['name'],
+                'title_description'  => $data['title_description'],
+                'detail_description' => $data['detail_description'],
+            ]);
+        } else {
+            $response->assertSessionHasErrors($assert['fieldHasError']);
+            $this->assertDatabaseMissing('releases', [
+                'name'               => $data['name'] ?? '',
+                'title_description'  => $data['title_description'] ?? '',
+                'detail_description' => $data['detail_description'] ?? '',
+            ]);
+        }
 
-    // create data for request
-    $data = [
-      'name'               => 'test',
-      'title_description'  => 'test',
-      'detail_description' => 'test',
-      'date_created'       => '2019-01-01',
-      'is_publish'         => 1,
-      'images'             => ['not an image'],
-    ];
-
-    // send the HTTP request
-    $response = $this->post($this->endpoint, $data);
-
-    // assert response status is redirection
-    $response->assertStatus(302);
-
-    // $response->assertRedirect('/releases/new');
-
-    // assert the response has errors
-    $response->assertSessionHasErrors(['images.0']);
-
-    // assert the response contain the correct message
-    $message = session('errors')->get('images.0')[0];
-    $this->assertEquals('The images.0 must be an image.', $message);
-
-    // assert the data was not stored in the database
-    $this->assertDatabaseMissing('releases', [
-      'name'               => $data['name'],
-      'title_description'  => $data['title_description'],
-      'detail_description' => $data['detail_description'],
-      'date_created'       => $data['date_created'],
-      'is_publish'         => $data['is_publish'],
-    ]);
-  }
-
-  /**
-   * @testCreateNewReleaseWithImageSizeLargerThan6MB_
-   */
-  public function testCreateNewReleaseWithImageSizeLargerThan6MB_()
-  {
-    $user = User::find(1);
-    $this->actingAs($user);
-
-    // create data for request
-    $data = [
-      'name'               => 'test',
-      'title_description'  => 'test',
-      'detail_description' => 'test',
-      'date_created'       => '2019-01-01',
-      'is_publish'         => 1,
-      'images'             => [UploadedFile::fake()->image('avatar.jpg')->size(7001)],
-    ];
-
-    // send the HTTP request
-    $response = $this->post($this->endpoint, $data);
-
-    // assert response status is redirection
-    $response->assertStatus(302);
-
-    // $response->assertRedirect('/releases/new');
-
-    // assert the response has errors
-    $response->assertSessionHasErrors(['images.0']);
-
-    // assert the response contain the correct message
-    $message = session('errors')->get('images.0')[0];
-    $this->assertEquals('The images.0 may not be greater than 6144 kilobytes.', $message);
-
-    // assert the data was not stored in the database
-    $this->assertDatabaseMissing('releases', [
-      'name'               => $data['name'],
-      'title_description'  => $data['title_description'],
-      'detail_description' => $data['detail_description'],
-      'date_created'       => $data['date_created'],
-      'is_publish'         => $data['is_publish'],
-    ]);
-  }
-
-  /**
-   * @testCreateNewReleaseHaveException_
-   */
-  // public function testCreateNewReleaseHaveException_()
-  // {
-  //   $user = User::find(1);
-  //   $this->actingAs($user);
-
-  //   // create data for request
-  //   $data = [
-  //     'name'               => 'test',
-  //     'title_description'  => 'test',
-  //     'detail_description' => 'test',
-  //     'date_created'       => '2019-01-01',
-  //     'is_publish'         => 1,
-  //     'images'             => [UploadedFile::fake()->image('avatar.jpg')->size(7000)],
-  //   ];
-
-  //   // mock exception
-  //   $mock = Mockery::mock(ReleaseRepository::class);
-  //   $mock->shouldReceive('store')->once()->andThrow(new \Exception('error'));
-
-  //   // bind mock to this instance
-  //   $this->app->instance(ReleaseRepository::class, $mock);
-
-  //   // send the HTTP request
-  //   $response = $this->post($this->endpoint, $data);
-
-  //   // assert response status is redirection
-  //   $response->assertStatus(302);
-
-  //   // $response->assertRedirect('/releases/new');
-
-  //   // assert the response has errors
-  //   $response->assertSessionHasErrors(['images.0']);
-
-  //   // assert the response contain the correct message
-  //   $message = session('errors')->get('images.0')[0];
-  //   $this->assertEquals('The images.0 may not be greater than 6144 kilobytes.', $message);
-
-  //   // assert the data was not stored in the database
-  //   $this->assertDatabaseMissing('releases', [
-  //     'name'               => $data['name'],
-  //     'title_description'  => $data['title_description'],
-  //     'detail_description' => $data['detail_description'],
-  //     'date_created'       => $data['date_created'],
-  //     'is_publish'         => $data['is_publish'],
-  //   ]);
-  // }
+        Storage::fake('public');
+    }
 }

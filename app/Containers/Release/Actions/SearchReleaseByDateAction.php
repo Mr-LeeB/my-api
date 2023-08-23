@@ -8,10 +8,10 @@ use App\Ship\Transporters\DataTransporter;
 
 class SearchReleaseByDateAction extends Action
 {
-  public function run(DataTransporter $request)
-  {
-    $release = Apiato::call('Release@SearchReleaseByDateTask', [$request->date_created]);
+    public function run(DataTransporter $request)
+    {
+        $release = Apiato::call('Release@SearchReleaseByDateTask', [$request->created_at]);
 
-    return $release;
-  }
+        return $release;
+    }
 }

@@ -26,235 +26,202 @@ use Exception;
  */
 class Controller extends WebController
 {
-  /**
-   * Show all entities
-   *
-   * @param GetAllReleasesRequest $request
-   */
-  public function getAllRelease(GetAllReleasesRequest $request)
-  {
-    $releases = Apiato::call('Release@GetAllReleasesAction', [new DataTransporter($request)]);
+    /**
+     * Show all entities
+     *
+     * @param GetAllReleasesRequest $request
+     */
+    public function getAllRelease(GetAllReleasesRequest $request)
+    {
+        $releases = Apiato::call('Release@GetAllReleasesAction', [new DataTransporter($request)]);
 
-    $all_Releases_count = Release::all()->count();
+        $all_Releases_count = Release::all()->count();
 
-    if (auth()->user()->hasAdminRole()) {
-      return view('release::admin.admin-show-release-page', compact('releases', 'all_Releases_count'));
-    }
-    return view('release::client.home', compact('releases', 'all_Releases_count'));
-  }
-
-  /**
-   * Show one entity
-   *
-   * @param FindReleaseByIdRequest $request
-   */
-  public function showDetailRelease(FindReleaseByIdRequest $request)
-  {
-    $release = Apiato::call('Release@FindReleaseByIdAction', [new DataTransporter($request)]);
-
-    return view('release::admin.admin-show-detail-page', compact('release'));
-  }
-
-  /**
-   * Create entity (show UI)
-   *
-   * @param CreateReleaseRequest $request
-   */
-  public function create(CreateReleaseRequest $request)
-  {
-    $release = null;
-    return view('release::admin.admin-create-release-page', compact('release'));
-  }
-
-  /**
-   * Add a new entity
-   *
-   * @param StoreReleaseRequest $request
-   */
-  public function store(StoreReleaseRequest $request)
-  {
-    // dd($request->file('images'));
-    $requestData = $request->all();
-    if ($request->hasfile('images')) {
-      foreach ($request->images as $key => $file) {
-        // dd($file);
-        $name = time() . rand(1, 100) . '.' . $file->getClientOriginalName();
-
-        $image = Image::make($file);
-
-        $image->resize(400, 400);
-
-        Storage::disk('public')->putFileAs('images-release', $file, $name, 'public');
-
-        // $saveImagePath = public_path('storage/images-release/' . $name);
-        // $image->save($saveImagePath);
-
-        $requestData['images'][$key] = '/storage/images-release/' . $name;
-      }
-    }
-
-    try {
-      $release = Apiato::call('Release@CreateReleaseAction', [new DataTransporter($requestData)]);
-    } catch (Exception $e) {
-      \Log::error($e);
-      return redirect()->route('web_release_create')->with('error', '<p>Release <strong>' . $requestData['name'] . '</strong> Created Failed</p>');
-    }
-
-    return redirect()->route('web_release_create')->with('success', '<p>Release <strong>' . $release->name . '</strong> Created Successfully</p>');
-  }
-
-  /**
-   * Edit entity (show UI)
-   *
-   * @param EditReleaseRequest $request
-   */
-  public function edit(EditReleaseRequest $request)
-  {
-    $release = Apiato::call('Release@FindReleaseByIdAction', [new DataTransporter($request)]);
-    return view('release::admin.admin-create-release-page', compact('release'));
-  }
-
-  /**
-   * Update a given entity
-   *
-   * @param UpdateReleaseRequest $request
-   */
-  public function update(UpdateReleaseRequest $request)
-  {
-    // dd($request);
-    $result = Apiato::call('Release@FindReleaseByIdAction', [new DataTransporter($request)]);
-    // dd($result);
-    $requestData = $request->all();
-
-    // remove images have in result->images but not in request->images_old
-    if ($result->images != null && $request->images_old != null) {
-      foreach ($result->images as $key => $value) {
-        if (!in_array($value, $request->images_old)) {
-          $path = storage_path('app/public/images-release');
-          unlink($path . substr($value, 23));
+        if (auth()->user()->hasAdminRole()) {
+            return view('release::admin.admin-show-release-page', compact('releases', 'all_Releases_count'));
         }
-      }
-    } else if ($result->images != null && $request->images_old == null) {
-      foreach ($result->images as $key => $value) {
-        $path = storage_path('app/public/images-release');
-        unlink($path . substr($value, 23));
-      }
+        return new Exception('You are not authorized to access this page');
     }
 
-    if ($request->images_old != null) {
-      foreach ($request->images_old as $key => $value) {
-        $requestData['images'][$key] = $value;
-      }
-    } else {
-      $requestData['images'] = [];
-    }
-    if ($request->hasfile('images')) {
-      foreach ($request->file('images') as $file) {
-        $name = time() . rand(1, 100) . '.' . $file->getClientOriginalName();
-        // $path = storage_path('app/public/images-release');
+    /**
+     * Show one entity
+     *
+     * @param FindReleaseByIdRequest $request
+     */
+    public function showDetailRelease(FindReleaseByIdRequest $request)
+    {
+        $release = Apiato::call('Release@FindReleaseByIdAction', [new DataTransporter($request)]);
 
-        // $image = new \Imagick($file->getRealPath());
-        // // resize image
-        // $image->resizeImage(400, 400, \Imagick::FILTER_LANCZOS, 1);
-
-        // // save image
-        // $image->writeImage($path . '/' . $name);
-        $image = Image::make($file->getRealPath());
-
-        // $imagick->readImage($file);
-        // $image->resizeImage(400, 400, \Imagick::FILTER_LANCZOS, 1);
-        $image->resize(400, 400);
-
-        $saveImagePath = public_path('storage/images-release/' . $name);
-
-        $image->save($saveImagePath);
-
-        $requestData['images'][] = '/storage/images-release/' . $name;
-      }
+        return view('release::admin.admin-show-detail-page', compact('release'));
     }
 
-    // dd($requestData);
+    /**
+     * Create entity (show UI)
+     *
+     * @param CreateReleaseRequest $request
+     */
+    public function create(CreateReleaseRequest $request)
+    {
+        $release = null;
+        return view('release::admin.admin-create-release-page', compact('release'));
+    }
 
-    $release = Apiato::call('Release@UpdateReleaseAction', [new DataTransporter($requestData)]);
+    /**
+     * Add a new entity
+     *
+     * @param StoreReleaseRequest $request
+     */
+    public function store(StoreReleaseRequest $request)
+    {
+        // dd($request->file('images'));
+        $requestData = $request->all();
+        if ($request->hasfile('images')) {
+            foreach ($request->images as $key => $file) {
+                $name = time() . rand(1, 100) . '.' . $file->getClientOriginalName();
 
-    return redirect()->route('web_release_edit', [$release->id])->with('success', '<p>Release <strong>' . $release->name . '</strong> Updated Successfully</p>');
-  }
+                Storage::disk('public')->putFileAs('images-release', $file, $name, 'public');
 
-  /**
-   * Delete a given entity
-   *
-   * @param DeleteReleaseRequest $request
-   */
-  public function delete(DeleteReleaseRequest $request)
-  {
-    try {
-      $result = Apiato::call('Release@FindReleaseByIdAction', [new DataTransporter($request)]);
-
-      Apiato::call('Release@DeleteReleaseAction', [new DataTransporter($request)]);
-      if ($result->images != null) {
-        foreach ($result->images as $value) {
-          $path = storage_path('app/public/images-release');
-          unlink($path . substr($value, 23));
+                $requestData['images'][$key] = '/storage/images-release/' . $name;
+            }
         }
-      }
-    } catch (\Exception $e) {
-      \Log::error($e);
-      return redirect()->route('web_release_get_all_release')->with('error', '<p style="color:red"> Release Not Found </p>');
-    }
-    return redirect()->route('web_release_get_all_release')->with('success', '<p style="color:blue">Release <strong>' . $result->name . '</strong> Deleted Successfully</p>');
-  }
-  public function deleteBulk(DeleteBulkReleaseRequest $request)
-  {
 
-    try {
-      $result = Apiato::call('Release@FindReleaseByIdAction', [new DataTransporter($request)]);
-    } catch (Exception $e) {
-      \Log::error($e);
-      return redirect()->route('web_release_get_all_release')->with('error', '<p style="color:red"> Release(s) Not Found </p>');
-    }
-
-    if ($result == null) {
-      return redirect()->route('web_release_get_all_release')->with('error', '<p style="color:red"> Release(s) Not Found </p>');
-    } else {
-      $releaseName = '';
-      foreach ($result as $value) {
-        $releaseName .= $value->name . ', ';
-      }
-      $releaseName = substr($releaseName, 0, -2);
-    }
-    try {
-      Apiato::call('Release@DeleteBulkReleaseAction', [new DataTransporter($request)]);
-      foreach ($result as $item) {
-        if ($item->images != null) {
-          foreach ($item->images as $image) {
-            $path = storage_path('app/public/images-release');
-            unlink($path . substr($image, 23));
-          }
+        try {
+            $release = Apiato::call('Release@CreateReleaseAction', [new DataTransporter($requestData)]);
+        } catch (Exception $e) {
+            \Log::error($e);
+            return redirect()->route('web_release_create')->with('error', '<p>Release <strong>' . $requestData['name'] . '</strong> Created Failed</p>');
         }
-      }
-    } catch (\Exception $e) {
-      \Log::error($e);
-      return redirect()->route('web_release_get_all_release')->with('error', '<p style="color:red"> Release(s) Not Found </p>');
+
+        return redirect()->route('web_release_create')->with('success', '<p>Release <strong>' . $release->name . '</strong> Created Successfully</p>');
     }
-    return redirect()->route('web_release_get_all_release')->with('success', '<p style="color:blue"> Release <strong>' . $releaseName . '</strong> Deleted Successfully </p>');
-  }
 
-  public function search(SearchReleaseRequest $request)
-  {
-    $releases = Apiato::call('Release@SearchReleaseAction', [new DataTransporter($request)]);
-    return $releases;
-  }
+    /**
+     * Edit entity (show UI)
+     *
+     * @param EditReleaseRequest $request
+     */
+    public function edit(EditReleaseRequest $request)
+    {
+        $release = Apiato::call('Release@FindReleaseByIdAction', [new DataTransporter($request)]);
+        return view('release::admin.admin-create-release-page', compact('release'));
+    }
 
-  public function searchById(SearchReleaseRequest $request)
-  {
-    $releases = Apiato::call('Release@FindReleaseByIdAction', [new DataTransporter($request)]);
-    return [$releases];
-  }
+    /**
+     * Update a given entity
+     *
+     * @param UpdateReleaseRequest $request
+     */
+    public function update(UpdateReleaseRequest $request)
+    {
+        try {
+            $result = Apiato::call('Release@FindReleaseByIdAction', [new DataTransporter($request)]);
+        } catch (Exception $e) {
+            \Log::error($e);
+            return redirect()->route('web_release_edit', [$request->id])->with('error', '<p>Release <strong>' . $request->name . '</strong> Updated Failed</p>');
+        }
 
-  public function searchByDate(SearchReleaseRequest $request)
-  {
-    $releases = Apiato::call('Release@SearchReleaseByDateAction', [new DataTransporter($request)]);
-    return $releases;
+        $requestData = $request->all();
 
-  }
+        if ($result->images) {
+            if ($request->images_old) {
+                foreach ($result->images as $key => $value) {
+                    if (!in_array($value, $request->images_old)) {
+                        Storage::disk('public')->delete(substr($value, 8));
+                    }
+                }
+                $requestData['images'] = $request->images_old;
+            } else {
+                foreach ($result->images as $key => $value) {
+                    Storage::disk('public')->delete(substr($value, 8));
+                }
+                $requestData['images'] = [];
+            }
+        }
+
+        if ($request->hasfile('images')) {
+            foreach ($request->file('images') as $file) {
+                $name = time() . rand(1, 100) . '.' . $file->getClientOriginalName();
+                Storage::disk('public')->putFileAs('images-release', $file, $name, 'public');
+
+                $requestData['images'][] = '/storage/images-release/' . $name;
+            }
+        }
+
+        $release = Apiato::call('Release@UpdateReleaseAction', [new DataTransporter($requestData)]);
+
+        return redirect()->route('web_release_edit', [$release->id])->with('success', '<p>Release <strong>' . $release->name . '</strong> Updated Successfully</p>');
+    }
+
+    /**
+     * Delete a given entity
+     *
+     * @param DeleteReleaseRequest $request
+     */
+    public function delete(DeleteReleaseRequest $request)
+    {
+        try {
+            $result = Apiato::call('Release@FindReleaseByIdAction', [new DataTransporter($request)]);
+
+            Apiato::call('Release@DeleteReleaseAction', [new DataTransporter($request)]);
+            if ($result->images != null) {
+                foreach ($result->images as $value) {
+                    Storage::disk('public')->delete(substr($value, 8));
+                }
+            }
+        } catch (Exception $e) {
+            \Log::error($e);
+            return redirect()->route('web_release_get_all_release')->with('error', '<p style="color:red"> Release Not Found </p>');
+        }
+        return redirect()->route('web_release_get_all_release')->with('success', '<p style="color:blue">Release <strong>' . $result->name . '</strong> Deleted Successfully</p>');
+    }
+    public function deleteBulk(DeleteBulkReleaseRequest $request)
+    {
+
+        try {
+            $result = Apiato::call('Release@FindReleaseByIdAction', [new DataTransporter($request)]);
+        } catch (Exception $e) {
+            \Log::error($e);
+            return redirect()->route('web_release_get_all_release')->with('error', '<p style="color:red"> Release(s) Not Found </p>');
+        }
+
+        $releaseName = '';
+        foreach ($result as $value) {
+            $releaseName .= $value->name . ', ';
+        }
+        $releaseName = substr($releaseName, 0, -2);
+
+        try {
+            Apiato::call('Release@DeleteBulkReleaseAction', [new DataTransporter($request)]);
+            foreach ($result as $item) {
+                if ($item->images != null) {
+                    foreach ($item->images as $image) {
+                        Storage::disk('public')->delete(substr($image, 8));
+                    }
+                }
+            }
+        } catch (Exception $e) {
+            \Log::error($e);
+            return redirect()->route('web_release_get_all_release')->with('error', '<p style="color:red"> Release(s) Not Found </p>');
+        }
+        return redirect()->route('web_release_get_all_release')->with('success', '<p style="color:blue"> Release <strong>' . $releaseName . '</strong> Deleted Successfully </p>');
+    }
+
+    public function search(SearchReleaseRequest $request)
+    {
+        $releases = Apiato::call('Release@SearchReleaseAction', [new DataTransporter($request)]);
+        return $releases;
+    }
+
+    public function searchById(SearchReleaseRequest $request)
+    {
+        $releases = Apiato::call('Release@FindReleaseByIdAction', [new DataTransporter($request)]);
+        return [$releases];
+    }
+
+    public function searchByDate(SearchReleaseRequest $request)
+    {
+        $releases = Apiato::call('Release@SearchReleaseByDateAction', [new DataTransporter($request)]);
+        return $releases;
+
+    }
 }

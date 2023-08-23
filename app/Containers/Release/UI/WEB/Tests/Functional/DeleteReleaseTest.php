@@ -8,6 +8,7 @@ use App\Containers\Release\Models\Release;
 
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * Class DeleteReleaseTest.
@@ -18,171 +19,176 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 class DeleteReleaseTest extends WebTestCase
 {
 
-  // the endpoint to be called within this test (e.g., get@v1/users)
-  protected $endpoint = 'delete/{id}';
+    // the endpoint to be called within this test (e.g., get@v1/users)
+    protected $endpoint = 'delete/{id}';
 
-  // fake some access rights
-  protected $access = [
-    'permissions' => '',
-    'roles'       => 'admin',
-  ];
-
-  /**
-   * @from
-   *
-   * @param string $url
-   *
-   * @return $this
-   */
-  public function from(string $url)
-  {
-    $this->app['session']->setPreviousUrl($url);
-    return $this;
-  }
-
-  /**
-   * @testDeleteReleaseSuccess_
-   */
-  public function testDeleteReleaseSuccess_()
-  {
-    $user = User::find(1);
-    $this->actingAs($user);
-
-    $release = factory(Release::class, 6)->create();
-
-    $data = [
-      'id'   => $release[0]->id,
-      'name' => $release[0]->name,
+    // fake some access rights
+    protected $access = [
+        'permissions' => '',
+        'roles'       => 'admin',
     ];
 
-    $this->from('/releases');
+    /**
+     * @from
+     *
+     * @param string $url
+     *
+     * @return $this
+     */
+    public function from(string $url)
+    {
+        $this->app['session']->setPreviousUrl($url);
+        return $this;
+    }
 
-    // send the HTTP request
-    $response = $this->delete(route('web_release_delete', $release[0]->id));
+    /**
+     * @testDeleteReleaseSuccess_
+     */
+    public function testDeleteReleaseSuccess_()
+    {
+        $user = User::find(1);
+        $this->actingAs($user);
+        Storage::fake('public');
 
-    // assert the response status
-    $response->assertStatus(302);
+        $release = factory(Release::class, 6)->create();
 
-    // assert the redirect url
-    $response->assertRedirect('/releases');
+        $data = [
+            'id'   => $release[0]->id,
+            'name' => $release[0]->name,
+        ];
 
-    // assert the data was deleted from the database
-    $this->assertDatabaseMissing('releases', ['id' => $release[0]->id]);
+        $this->from('/releases');
 
-    // assert a session flash message was set
-    $response->assertSessionHas('success', '<p style="color:blue">Release <strong>' . $data['name'] . '</strong> Deleted Successfully</p>');
-  }
+        // send the HTTP request
+        $response = $this->delete(route('web_release_delete', $release[0]->id));
 
-  /**
-   * @testDeleteReleaseFail_
-   */
-  public function testDeleteReleaseFail_()
-  {
-    $user = User::find(1);
-    $this->actingAs($user);
+        // assert the response status
+        $response->assertStatus(302);
 
-    $release = factory(Release::class, 6)->create();
+        // assert the redirect url
+        $response->assertRedirect('/releases');
 
-    $this->from('/releases');
+        // assert the data was deleted from the database
+        $this->assertDatabaseMissing('releases', ['id' => $release[0]->id]);
 
-    // send the HTTP request
-    $response = $this->delete(route('web_release_delete', 999));
+        // assert a session flash message was set
+        $response->assertSessionHas('success', '<p style="color:blue">Release <strong>' . $data['name'] . '</strong> Deleted Successfully</p>');
+    }
 
-    // assert the response status
-    $response->assertStatus(302);
+    /**
+     * @testDeleteReleaseFail_
+     */
+    public function testDeleteReleaseFail_()
+    {
+        $user = User::find(1);
+        $this->actingAs($user);
+        Storage::fake('public');
 
-    // assert the redirect url
-    $response->assertRedirect('/releases');
+        $release = factory(Release::class, 6)->create();
 
-    // assert the data was deleted from the database
-    $this->assertDatabaseHas('releases', ['id' => $release[0]->id]);
+        $this->from('/releases');
 
-    // assert a session flash message was set
-    $response->assertSessionHas('error', '<p style="color:red"> Release Not Found </p>');
-  }
+        // send the HTTP request
+        $response = $this->delete(route('web_release_delete', 999));
 
-  /**
-   * testDeleteReleaseWithoutLogin_
-   */
-  public function testDeleteReleaseWithoutLogin_()
-  {
-    $release = factory(Release::class, 6)->create();
+        // assert the response status
+        $response->assertStatus(302);
 
-    $this->from('/releases');
+        // assert the redirect url
+        $response->assertRedirect('/releases');
 
-    // send the HTTP request
-    $response = $this->delete(route('web_release_delete', $release[0]->id));
+        // assert the data was deleted from the database
+        $this->assertDatabaseHas('releases', ['id' => $release[0]->id]);
 
-    // assert the response status
-    $response->assertStatus(401);
-  }
+        // assert a session flash message was set
+        $response->assertSessionHas('error', '<p style="color:red"> Release Not Found </p>');
+    }
 
-  /**
-   * testDeleteBulkReleaseSuccess_
-   */
-  public function testDeleteBulkReleaseSuccess_()
-  {
-    $user = User::find(1);
-    $this->actingAs($user);
+    /**
+     * testDeleteReleaseWithoutLogin_
+     */
+    public function testDeleteReleaseWithoutLogin_()
+    {
+        Storage::fake('public');
+        $release = factory(Release::class, 6)->create();
 
-    $release = factory(Release::class, 6)->create();
+        $this->from('/releases');
 
-    $data = [
-      'id'   => [$release[0]->id, $release[1]->id, $release[2]->id],
-      'name' => $release[0]->name . ', ' . $release[1]->name . ', ' . $release[2]->name,
-    ];
+        // send the HTTP request
+        $response = $this->delete(route('web_release_delete', $release[0]->id));
 
-    $this->from('/releases');
+        // assert the response status
+        $response->assertStatus(401);
+    }
 
-    // send the HTTP request
-    $response = $this->delete(route('web_release_delete_bulk'), $data);
+    /**
+     * testDeleteBulkReleaseSuccess_
+     */
+    public function testDeleteBulkReleaseSuccess_()
+    {
+        $user = User::find(1);
+        $this->actingAs($user);
 
-    // assert the response status
-    $response->assertStatus(302);
+        Storage::fake('public');
+        $release = factory(Release::class, 6)->create();
 
-    // assert the redirect url
-    $response->assertRedirect('/releases');
+        $data = [
+            'id'   => [$release[0]->id, $release[1]->id, $release[2]->id],
+            'name' => $release[0]->name . ', ' . $release[1]->name . ', ' . $release[2]->name,
+        ];
 
-    // assert the data was deleted from the database
-    $this->assertDatabaseMissing('releases', ['id' => $data['id'][0]]);
-    $this->assertDatabaseMissing('releases', ['id' => $data['id'][1]]);
-    $this->assertDatabaseMissing('releases', ['id' => $data['id'][2]]);
+        $this->from('/releases');
 
-    // assert a session flash message was set
-    $response->assertSessionHas('success', '<p style="color:blue"> Release <strong>' . $data['name'] . '</strong> Deleted Successfully </p>');
-  }
+        // send the HTTP request
+        $response = $this->delete(route('web_release_delete_bulk'), $data);
 
-  /**
-   * testDeleteBulkReleaseFail_
-   */
-  public function testDeleteBulkReleaseFail_()
-  {
-    $user = User::find(1);
-    $this->actingAs($user);
+        // assert the response status
+        $response->assertStatus(302);
 
-    $release = factory(Release::class, 6)->create();
+        // assert the redirect url
+        $response->assertRedirect('/releases');
 
-    $data = [
-      'id'   => [999, 888, 777],
-      'name' => '999, 888, 777',
-    ];
+        // assert the data was deleted from the database
+        $this->assertDatabaseMissing('releases', ['id' => $data['id'][0]]);
+        $this->assertDatabaseMissing('releases', ['id' => $data['id'][1]]);
+        $this->assertDatabaseMissing('releases', ['id' => $data['id'][2]]);
 
-    $this->assertDatabaseMissing('releases', ['id' => $data['id'][0]]);
-    $this->assertDatabaseMissing('releases', ['id' => $data['id'][1]]);
-    $this->assertDatabaseMissing('releases', ['id' => $data['id'][2]]);
+        // assert a session flash message was set
+        $response->assertSessionHas('success', '<p style="color:blue"> Release <strong>' . $data['name'] . '</strong> Deleted Successfully </p>');
+    }
 
-    $this->from('/releases');
+    /**
+     * testDeleteBulkReleaseFail_
+     */
+    public function testDeleteBulkReleaseFail_()
+    {
+        $user = User::find(1);
+        $this->actingAs($user);
 
-    // send the HTTP request
-    $response = $this->delete(route('web_release_delete_bulk'), $data);
+        Storage::fake('public');
+        $release = factory(Release::class, 6)->create();
 
-    // assert the response status
-    $response->assertStatus(302);
+        $data = [
+            'id'   => [999, 888, 777],
+            'name' => '999, 888, 777',
+        ];
 
-    // assert the redirect url
-    $response->assertRedirect('/releases');
+        $this->assertDatabaseMissing('releases', ['id' => $data['id'][0]]);
+        $this->assertDatabaseMissing('releases', ['id' => $data['id'][1]]);
+        $this->assertDatabaseMissing('releases', ['id' => $data['id'][2]]);
 
-    // assert a session flash message was set
-    // $response->assertSessionHas('error', '<p style="color:red"> Release(s) Not Found </p>');
-  }
+        $this->from('/releases');
+
+        // send the HTTP request
+        $response = $this->delete(route('web_release_delete_bulk'), $data);
+
+        // assert the response status
+        $response->assertStatus(302);
+
+        // assert the redirect url
+        $response->assertRedirect('/releases');
+
+        // assert a session flash message was set
+        // $response->assertSessionHas('error', '<p style="color:red"> Release(s) Not Found </p>');
+    }
 }

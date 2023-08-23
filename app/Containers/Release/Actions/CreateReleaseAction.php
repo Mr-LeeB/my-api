@@ -10,18 +10,17 @@ use App\Ship\Transporters\DataTransporter;
 
 class CreateReleaseAction extends Action
 {
-  public function run(DataTransporter $data): Release
-  {
+    public function run(DataTransporter $data): Release
+    {
 
-  $release = Apiato::call('Release@CreateReleaseTask', [
-      $data->name,
-      $data->date_created,
-      $data->title_description,
-      $data->detail_description,
-      $data->is_publish ?? false,
-      $data->images ?? null,
-    ]);
+        $release = Apiato::call('Release@CreateReleaseTask', [
+            $data->name,
+            $data->title_description,
+            $data->detail_description,
+            $data->is_publish ?? false,
+            $data->images ?? null,
+        ]);
 
-    return $release;
-  }
+        return $release;
+    }
 }

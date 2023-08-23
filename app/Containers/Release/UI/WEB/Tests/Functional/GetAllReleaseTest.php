@@ -25,29 +25,11 @@ class GetAllReleaseTest extends WebTestCase
   ];
 
   /**
-   * @testGetAllRelease_
-   */
-  public function testGetAllRelease_()
-  {
-    $user = factory(User::class)->create();
-    $this->actingAs($user);
-
-    $release = factory(Release::class, 6)->create();
-    // send the HTTP request
-    $response = $this->get($this->endpoint);
-
-    // assert the response status
-    $response->assertStatus(200);
-
-  }
-
-  /**
-   * @testGetAllReleaseWithAdminRole_
+   * @test
    */
   public function testGetAllReleaseWithAdminRole_()
   {
     $user = User::find(1);
-    $user->assignRole('admin');
     $this->actingAs($user);
 
     $release = factory(Release::class, 6)->create();
@@ -60,7 +42,7 @@ class GetAllReleaseTest extends WebTestCase
   }
 
   /**
-   * @testGetAllReleaseWithClientRole_
+   * @test
    */
   public function testGetAllReleaseWithClientRole_()
   {
@@ -72,7 +54,7 @@ class GetAllReleaseTest extends WebTestCase
     $response = $this->get($this->endpoint);
 
     // assert the response status
-    $response->assertStatus(200);
+    $response->assertStatus(403);
 
   }
 
@@ -93,7 +75,7 @@ class GetAllReleaseTest extends WebTestCase
   }
 
   /**
-   * @testSearchReleaseByName_
+   * @test
    */
   public function testSearchReleaseByName_()
   {
@@ -109,7 +91,7 @@ class GetAllReleaseTest extends WebTestCase
   }
 
   /**
-   * @testSearchReleaseById_
+   * @test
    */
   public function testSearchReleaseById_()
   {
@@ -125,7 +107,7 @@ class GetAllReleaseTest extends WebTestCase
   }
 
   /**
-   * @testSearchReleaseByDate_
+   * @test
    */
   public function testSearchReleaseByDate_()
   {
@@ -139,5 +121,4 @@ class GetAllReleaseTest extends WebTestCase
     // assert the response status
     $response->assertStatus(200);
   }
-
 }
