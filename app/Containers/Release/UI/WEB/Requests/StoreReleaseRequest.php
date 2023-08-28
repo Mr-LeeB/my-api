@@ -23,7 +23,7 @@ class StoreReleaseRequest extends Request
      * @var  array
      */
     protected $access = [
-        'permissions' => '',
+        'permissions' => 'create-admins',
         'roles'       => 'admin',
     ];
 

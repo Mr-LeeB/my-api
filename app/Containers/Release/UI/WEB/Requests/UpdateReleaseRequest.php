@@ -23,8 +23,8 @@ class UpdateReleaseRequest extends Request
      * @var  array
      */
     protected $access = [
-        'permissions' => '',
-        'roles'       => '',
+        'permissions' => 'update-users',
+        'roles'       => 'admin',
     ];
 
     /**

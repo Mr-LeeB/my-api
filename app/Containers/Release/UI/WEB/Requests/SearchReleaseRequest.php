@@ -16,8 +16,8 @@ class SearchReleaseRequest extends Request
      * @var  array
      */
     protected $access = [
-        'permissions' => '',
-        'roles'       => '',
+        'permissions' => 'search-users',
+        'roles'       => 'admin',
     ];
 
     /**

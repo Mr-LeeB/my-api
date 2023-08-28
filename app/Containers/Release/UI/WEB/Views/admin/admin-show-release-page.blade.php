@@ -1,13 +1,49 @@
 @extends('release::layout.app_admin_nova')
 
-@section('title', 'Release')
-
-@section('css')
-    <style>
-        @include('release::admin.css.admin-show-release-css');
-    </style>
+@section('title')
+    {{ __('Release') }}
 @endsection
 
+@php
+    $view_load_theme = 'base';
+@endphp
+
+@section('header_sub')
+    <div class="subheader py-2 py-lg-4  subheader-solid " id="kt_subheader">
+        <div class=" container-fluid  d-flex align-items-center justify-content-between flex-wrap flex-sm-nowrap">
+            <div class="d-flex align-items-center flex-wrap mr-1">
+                <h2>{{ __('Show Releases') }}</h2>
+            </div>
+        </div>
+    </div>
+@endsection
+
+@once
+    @push('after_header')
+        <link href="{{ asset('theme/' . $view_load_theme . '/css/admin_show_release_css.css') }}" rel="stylesheet" type="text/css">
+    @endpush
+@endonce
+
+<style>
+    .undisplay {
+        display: none;
+    }
+
+    .boloc:hover {
+        cursor: pointer;
+        background-color: aliceblue !important;
+    }
+</style>
+
+@section('header_sub')
+    <div class="subheader py-2 py-lg-4  subheader-solid " id="kt_subheader">
+        <div class=" container-fluid  d-flex align-items-center justify-content-between flex-wrap flex-sm-nowrap">
+            <div class="d-flex align-items-center flex-wrap mr-1">
+                <h2>{{ __('Danh sách Release') }}</h2>
+            </div>
+        </div>
+    </div>
+@endsection
 
 @section('javascript')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"
@@ -25,47 +61,57 @@
                     return false;
                 }
             });
-        });
 
-        $(document).ready(function() {
             const url = new URL(window.location.href);
             const params = new URLSearchParams(url.search);
-
+            const limit = params.get('limit');
             let orderBy = params.get('orderBy');
             let sortedBy = params.get('sortedBy');
-            const limit = params.get('limit');
+
             if (orderBy != null && sortedBy != null) {
-                $('#orderBy').attr('name', 'orderBy');
-                $('#orderBy').val(orderBy);
-
-                $('#sortedBy').attr('name', 'sortedBy');
-                $('#sortedBy').val(sortedBy);
+                $('.icon-' + orderBy).css('display', 'inline-block');
+                $('.icon-' + orderBy).css('color', '#a9cef3');
+                $('.icon-' + orderBy + '.icon-' + sortedBy).css('color', '#3699FF');
+                $('.field-' + orderBy).css('color', '#3699FF');
             }
+
             if (limit != null) {
-                $('#limit').attr('name', 'limit');
-                $('#limit').val(limit);
+                $('.form-limit').val(limit);
             }
-            if (orderBy != null && sortedBy != null) {
-                // in hoa chu cai dau
-                order = orderBy.charAt(0).toUpperCase() + orderBy.slice(1);
-                sorted = sortedBy.charAt(0).toUpperCase() + sortedBy.slice(1);
-                $('#noti-orderBy').html(order);
-                $('#noti-sortedBy').html(sorted);
-                $('.noti-sorted').css('display', 'inline-block');
-            }
-            if (limit != null) {
-                $('.limit').html(limit);
-            }
-
-            $('.all-releases').html('{{ $all_Releases_count }}');
-
         });
 
-        $('.set-limit').on('click', function() {
-            var limit = $(this).attr('data-limit');
-            $('#limit').val(limit);
-            $('#limit').attr('name', 'limit');
-            $('#form-sort-release').submit();
+        const url = new URL(window.location.href);
+        const params = new URLSearchParams(url.search);
+
+        let orderBy = params.get('orderBy');
+        let sortedBy = params.get('sortedBy');
+        let limit = params.get('limit');
+        let page = params.get('page');
+        let search = params.get('search');
+        let searchFields = params.get('searchFields');
+
+        $('.form-limit').on('change', function() {
+            var changeLimit = $(this).val();
+
+            var form = $("<form action='{{ route('web_release_get_all_release') }}' method='GET'></form>");
+
+            form.append("<input type='hidden' name='limit' value='" + changeLimit + "'>");
+
+            if (orderBy != null && sortedBy != null) {
+                form.append("<input type='hidden' name='orderBy' value='" + orderBy + "'>");
+                form.append("<input type='hidden' name='sortedBy' value='" + sortedBy + "'>");
+            }
+
+            if (search != null) {
+                form.append("<input type='hidden' name='search' value='" + search + "'>");
+            }
+
+            if (searchFields != null) {
+                form.append("<input type='hidden' name='searchFields' value='" + searchFields + "'>");
+            }
+
+            $(document.body).append(form);
+            form.submit();
         });
 
         $('.btn-search-release').on('click', function() {
@@ -121,26 +167,26 @@
                           ${data.map((release) => {
                               release.detail_description = release.detail_description.length > 62 ? release.detail_description.substring(0, 62).concat('...'):release.detail_description;
                               return`<div class="release-note-item">
-           <div class="release-note-item-header" onclick="activeBody(${release.id})">
-             <div class="release-note-item-header-title">
-               ${release.name}
-             </div>
-             <div class="release-note-item-header-date">
-               ${release.date_created}
-             </div>
-           </div>
-           <div class="release-note-item-body unactive" id="body${release.id}">
-             <div class="release-note-item-body-title ">
-               Title: ${release.title_description}
-             </div>
-             <div class="release-note-item-body-description">
-               Description: ${release.detail_description}
-             </div>
-             <div class="more-detail">
-               <a href="/releases/${release.id}">More detail</a>
-             </div>
-           </div>
-         </div>`}).join('')}
+                                   <div class="release-note-item-header" onclick="activeBody(${release.id})">
+                                     <div class="release-note-item-header-title">
+                                       ${release.name}
+                                     </div>
+                                     <div class="release-note-item-header-date">
+                                       ${release.created_at.substring(0, 10)}
+                                     </div>
+                                   </div>
+                                   <div class="release-note-item-body unactive" id="body${release.id}">
+                                     <div class="release-note-item-body-title ">
+                                       Title: ${release.title_description}
+                                     </div>
+                                     <div class="release-note-item-body-description">
+                                       Description: ${release.detail_description}
+                                     </div>
+                                     <div class="more-detail">
+                                       <a href="/releases/${release.id}">More detail</a>
+                                     </div>
+                                   </div>
+                                 </div>`}).join('')}
                         </div>`
                     );
                 },
@@ -207,14 +253,47 @@
             }
         }
 
-        function sortRelease(orderBy, sortedBy) {
-            $('#orderBy').val(orderBy.trim());
-            $('#sortedBy').val(sortedBy.trim());
+        function sortRelease(newOrderBy) {
+            var form = $("<form action='{{ route('web_release_get_all_release') }}' method='GET'></form>");
 
-            $('#orderBy').attr('name', 'orderBy');
-            $('#sortedBy').attr('name', 'sortedBy');
+            //if orderBy is null or not equal newOrderBy => set sortedBy = asc
+            if (orderBy == null || orderBy != newOrderBy) {
+                orderBy = newOrderBy;
+                sortedBy = 'asc';
+            } else {
+                //if orderBy is equal newOrderBy => change sortedBy
+                if (sortedBy == null) {
+                    sortedBy = 'asc';
+                } else {
+                    if (sortedBy == 'asc') {
+                        sortedBy = 'desc';
+                    } else {
+                        sortedBy = 'asc';
+                    }
+                }
+            }
 
-            $('#form-sort-release').submit();
+            if (limit != null) {
+                form.append("<input type='hidden' name='limit' value='" + limit + "'>");
+            }
+
+            form.append("<input type='hidden' name='orderBy' value='" + orderBy + "'>");
+            form.append("<input type='hidden' name='sortedBy' value='" + sortedBy + "'>");
+
+            if (page != null) {
+                form.append("<input type='hidden' name='page' value='" + page + "'>");
+            }
+
+            if (search != null) {
+                form.append("<input type='hidden' name='search' value='" + search + "'>");
+            }
+
+            if (searchFields != null) {
+                form.append("<input type='hidden' name='searchFields' value='" + searchFields + "'>");
+            }
+
+            $(document.body).append(form);
+            form.submit();
         }
 
         function showReleaseDetailPage(id) {
@@ -224,265 +303,414 @@
         function enableEdit(id) {
             window.location.href = '/releases/' + id + '/edit';
         }
+
+        $('#search_release').on('click', function() {
+            var title = $('.search-title').val();
+            var description = $('.search-description').val();
+            var date = $('.search-date').val();
+
+            var field_title = $('.field-search-title').val();
+            var field_description = $('.field-search-description').val();
+
+            var url = "{{ route('web_release_get_all_release') }}";
+
+            if (title != '') {
+                url += '?search=title_description:' + title;
+            }
+
+            if (description != '') {
+                if (title != '') {
+                    url += '&detail_description:' + description;
+                } else {
+                    url += '?search=detail_description:' + description;
+                }
+            }
+
+            if (date != '') {
+                if (title != '' || description != '') {
+                    url += '&created_at:' + date;
+                } else {
+                    url += '?search=created_at:' + date;
+                }
+            }
+
+            if (field_title != 'like') {
+                if (title != '') {
+                    url += '&searchFields=title_description:' + field_title;
+                } else {
+                    url += '?searchFields=title_description:' + field_title;
+                }
+            }
+
+            if (field_description != 'like') {
+                if (title != '' || description != '') {
+                    url += '&searchFields=detail_description:' + field_description;
+                } else {
+                    url += '?searchFields=detail_description:' + field_description;
+                }
+            }
+
+            window.location.href = url;
+        });
     </script>
 @endsection
 
-@section('php')
-    @php
-        $releaseID = [];
-        foreach ($releases as $key => $value) {
-            array_push($releaseID, $value->id);
-        }
-        $releaseID_json = json_encode($releaseID);
-    @endphp
-@endsection
-
+@php
+    $releaseID = [];
+    foreach ($releases as $key => $value) {
+        array_push($releaseID, $value->id);
+    }
+    $releaseID_json = json_encode($releaseID);
+@endphp
 
 @section('content')
-    {{-- <div class="content"> --}}
-    <div class="title">
-        <h1> Release Manage</h1>
-    </div>
-    <div class="create-seach-area">
-        <div class="search-area">
-            <h2>Search releases</h2>
-            <div class="search">
-                <form class="form-search" id="form-search-release" action="" method="POST">
-                    {{ csrf_field() }}
-                    <input type="text" name="name" id="search-by-name" placeholder="Search by Name"
-                        oninput="searchRelease()" autocomplete="off">
-                </form>
-                <span>Search by: </span>
-                <div class="select-field-search">
-                    <input type="radio" onclick="searchRelease()" name="field" id="field-name" checked>
-                    <label for="field-name"> Name </label>
+    <div class="col-12">
 
-                    <input type="radio" onclick="searchRelease()" name="field" id="field-id">
-                    <label for="field-id"> ID </label>
+        {{-- @can('search-users')
+            <div class="create-seach-area">
+                <div class="search-area">
+                    <h2>Search releases</h2>
+                    <div class="search">
+                        <form class="form-search" id="form-search-release" action="" method="POST">
+                            {{ csrf_field() }}
+                            <input type="text" name="name" id="search-by-name" placeholder="Search by Name"
+                                oninput="searchRelease()" autocomplete="off">
+                        </form>
+                        <span>Search by: </span>
+                        <div class="select-field-search">
+                            <input type="radio" onclick="searchRelease()" name="field" id="field-name" checked>
+                            <label for="field-name"> Name </label>
 
-                    <input type="radio" onclick="searchRelease()" name="field" id="field-date">
-                    <label for="field-date"> Date </label>
-                </div>
-            </div>
+                            <input type="radio" onclick="searchRelease()" name="field" id="field-id">
+                            <label for="field-id"> ID </label>
 
-            <div class="result" id="result">
-            </div>
-        </div>
-        <div class="create-release">
-            <div class="create">
-                <a href="{{ route('web_release_create') }}"> <button class="btn btn-primary mt-6">Create New
-                        Release</button></a>
-            </div>
-        </div>
-    </div>
+                            <input type="radio" onclick="searchRelease()" name="field" id="field-date">
+                            <label for="field-date"> Date </label>
+                        </div>
+                    </div>
 
-    <div class="multi-search">
-        <form class="form">
-            <div class="card-header">
-                <h2>Search releases</h2>
-            </div>
-            <div class="card-body" style="background: #fff">
-                <div class="form-group row mt-4">
-                    <label class="col-3 col-form-label">Title: </label>
-                    <div class="col-9">
-                        <input type="text" class="form-control search-title" placeholder="Enter title" />
+                    <div class="result" id="result">
                     </div>
                 </div>
-                <div class="form-group row">
-                    <label class="col-3 col-form-label">Description: </label>
-                    <div class="col-9">
-                        <div class="input-group">
-                            <input type="text" class="form-control search-description" placeholder="Enter description" />
-                            <div class="input-group-append">
-                                <span class="input-group-text">
-                                    <span class="searchable">like</span>
-                                    <div class="show-searchable unactive">
-                                        <div class="set-searchable">like</div>
-                                        <div class="set-searchable">=</div>
+                <div class="create-release">
+                    <div class="create">
+                        <a href="{{ route('web_release_create') }}"> <button class="btn btn-primary mt-6">Create New
+                                Release</button></a>
+                    </div>
+                </div>
+            </div>
+        @endcan --}}
+        <div class="row">
+            @can('search-users')
+                <div class="col">
+                    <div class="card card-custom gutter-b card-stretch">
+                        {{-- thêm class boloc --}}
+                        <div class="card-header boloc border-0 py-5">
+                            <h3 class="card-title"><span class="font-weight-bolder">{{ __('Bộ Lọc') }}</span></h3>
+                            <div class="card-toolbar">
+                                <!-- // -->
+                            </div>
+                        </div>
+
+                        <div class="card-body boloc-show unactive">
+                            <div class="tab-content">
+                                <form class="form gutter-b col" action="">
+                                    <div class="form-group row mt-4">
+                                        <label class="col-3 col-form-label">Title: </label>
+                                        <div class="col-9">
+                                            <div class="input-group">
+                                                <input type="text" class="form-control search-title"
+                                                    placeholder="Enter title" />
+                                                <div class="input-group-append">
+                                                    <select
+                                                        class="field-search-title form-control form-control-nm font-weight-bold border-0 bg-light"
+                                                        style="width: 75px;">
+                                                        <option value="like">like</option>
+                                                        <option value="=">=</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                </span>
+                                    <div class="form-group row">
+                                        <label class="col-3 col-form-label">Description: </label>
+                                        <div class="col-9">
+                                            <div class="input-group">
+                                                <input type="text" class="form-control search-description"
+                                                    placeholder="Enter description" />
+                                                <div class="input-group-append">
+                                                    <select
+                                                        class="field-search-description form-control form-control-nm font-weight-bold border-0 bg-light"
+                                                        style="width: 75px;">
+                                                        <option value="like">like</option>
+                                                        <option value="=">=</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label class="col-3 col-form-label">Date Created: </label>
+                                        <div class="col-9">
+                                            <div class="input-group date">
+                                                <input type="date" class="form-control search-date" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex flex-row-reverse">
+                                        <button type="button" id="search_release" class="btn btn-primary btn-block"
+                                            style="width: 180px">{{ __('Lọc danh sách') }}</button>
+                                    </div>
+                                </form>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="form-group row">
-                    <label class="col-3 col-form-label">Date Created: </label>
-                    <div class="col-9">
-                        <div class="input-group date">
-                            <input type="date" class="form-control search-date" />
+            @endcan
+        </div>
+        @can('create-admins')
+            <div class="create-release">
+                <div class="create">
+                    <a href="{{ route('web_release_create') }}">
+                        <button class="btn btn-primary mt-6">
+                            Create New Release
+                        </button>
+                    </a>
+                </div>
+            </div>
+        @endcan
 
+        {{-- <div class="multi-search">
+            <form class="form">
+                <div class="card-header">
+                    <h2>Search releases</h2>
+                </div>
+                <div class="card-body" style="background: #fff">
+                    <div class="form-group row mt-4">
+                        <label class="col-3 col-form-label">Title: </label>
+                        <div class="col-9">
+                            <input type="text" class="form-control search-title" placeholder="Enter title" />
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-3 col-form-label">Description: </label>
+                        <div class="col-9">
+                            <div class="input-group">
+                                <input type="text" class="form-control search-description"
+                                    placeholder="Enter description" />
+                                <div class="input-group-append">
+                                    <select class="form-control form-control-sm font-weight-bold mr-4 border-0 bg-light"
+                                        style="width: 75px;">
+                                        <option value="like">like</option>
+                                        <option value="=">=</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-3 col-form-label">Date Created: </label>
+                        <div class="col-9">
+                            <div class="input-group date">
+                                <input type="date" class="form-control search-date" />
+
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="card-footer mb-6">
-                <button type="button" class="btn btn-primary pl-8 pr-8 btn-search-release">Search</button>
-            </div>
-        </form>
-    </div>
-    <div class="delete-more-release">
-        <form action="{{ route('web_release_delete_bulk') }}" method="POST" id="form-delete-more-release">
-            {{ csrf_field() }}
-            {{ method_field('DELETE') }}
-
-            @foreach ($releaseID as $id)
-                <input type="hidden" name="id[]" id="selectedManyReleaseToDel{{ $id }}"
-                    value="{{ $id }}">
-            @endforeach
-            <input type="button" onclick="confirmDeleteMoreRelease({{ $releaseID_json }})" class="btn-delete"
-                value="Delete Releases">
-        </form>
-    </div>
-    <div class="table-list-all-release">
-        @if (session('success'))
-            {!! session('success') !!}
-        @endif
-        <div class="sort">
-            <form id="form-sort-release" action="{{ route('web_release_get_all_release') }}" method="GET">
-                <input type="hidden" id="orderBy">
-                <input type="hidden" id="sortedBy">
-                <input type="hidden" id="limit">
+                <div class="card-footer mb-6">
+                    <button type="button" class="btn btn-primary pl-8 pr-8 btn-search-release">Search</button>
+                </div>
             </form>
-        </div>
-        <div class="sort-and-limit">
-            <div class="dropdown">
-                <span>Show <span class="limit">10</span> in <span class="all-releases">0</span> release(s)</span>
-                <div class="dropdown-content">
-                    <a class="set-limit" data-limit='10'><span>Show 10 in <span class="all-releases">0</span>
-                            release(s)</span></a>
-                    <a class="set-limit" data-limit='20'><span>Show 20 in <span class="all-releases">0</span>
-                            release(s)</span></a>
-                    <a class="set-limit" data-limit='50'><span>Show 50 in <span class="all-releases">0</span>
-                            release(s)</span></a>
-                    <a class="set-limit" data-limit='100'><span>Show 100 in <span class="all-releases">0</span>
-                            release(s)</span></a>
+        </div> --}}
+
+        <div class="table-list-all-release">
+            @if (session('success'))
+                {!! session('success') !!}
+            @endif
+            <div class="d-flex align-items-center py-3">
+                {{-- <div class="d-flex align-items-center">
+                <div class="mr-2 text-muted">Loading...</div>
+                <div class="spinner mr-10"></div>
+            </div> --}}
+
+                <select class="form-limit form-control form-control-sm font-weight-bold mr-4 border-0 bg-light"
+                    style="width: 75px;">
+                    <option value="10">10</option>
+                    <option value="20">20</option>
+                    <option value="30">30</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                </select>
+                <span class="text-muted">Displaying {{ $releases->count() }} of {{ $all_Releases_count }} records</span>
+            </div>
+
+            @can('delete-users')
+                <div class="delete-more-release unactive">
+                    <form action="{{ route('web_release_delete_bulk') }}" method="POST" id="form-delete-more-release">
+                        {{ csrf_field() }}
+                        {{ method_field('DELETE') }}
+
+                        @foreach ($releaseID as $id)
+                            <input type="hidden" name="id[]" id="selectedManyReleaseToDel{{ $id }}"
+                                value="{{ $id }}">
+                        @endforeach
+                        <input type="button" onclick="confirmDeleteMoreRelease({{ $releaseID_json }})"
+                            class="btn btn-light-danger font-weight-bold mr-2" value="Delete Releases">
+                    </form>
+                </div>
+            @endcan
+
+            <div class="card card-custom card-fit">
+                <div class="card-header">
+                    <h3 class="card-title">{{ __('Danh sách') }} Release</h3>
+                </div>
+                <div class="card-body">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                @can('delete-users')
+                                    <td>
+                                        <input type="checkbox" id="checkAll" onclick="checkAll({{ $releaseID_json }})">
+                                    </td>
+                                @endcan
+                                <td onclick="sortRelease('id')" class="field-id">ID
+                                    <i class="la la-long-arrow-up icon-nm icon icon-asc icon-id"></i>
+                                    <i class="la la-long-arrow-down icon-nm icon icon-desc icon-id"></i>
+                                </td>
+                                <td onclick="sortRelease('name')" class="field-name">Name
+                                    <i class="la la-long-arrow-up icon-nm icon icon-asc icon-name"></i>
+                                    <i class="la la-long-arrow-down icon-nm icon icon-desc icon-name"></i>
+                                </td>
+                                <td class="text-center field-title_description"
+                                    onclick="sortRelease('title_description')">
+                                    Title
+                                    <i class="la la-long-arrow-up icon-nm icon icon-asc icon-title_description"></i>
+                                    <i class="la la-long-arrow-down icon-nm icon icon-desc icon-title_description"></i>
+                                </td>
+                                <td class="text-center field-detail_description"
+                                    onclick="sortRelease('detail_description')">Description
+                                    <i class="la la-long-arrow-up icon-nm icon icon-asc icon-detail_description"></i>
+                                    <i class="la la-long-arrow-down icon-nm icon icon-desc icon-detail_description"></i>
+                                </td>
+                                <td class="text-center field-created_at" onclick="sortRelease('created_at')">Date Created
+                                    <i class="la la-long-arrow-up icon-nm icon icon-asc icon-created_at"></i>
+                                    <i class="la la-long-arrow-down icon-nm icon icon-desc icon-created_at"></i>
+                                </td>
+                                <td>Is Publish</td>
+                                <td class="text-center">Images</td>
+                                @canany(['search-users', 'update-users', 'delete-users'])
+                                    <td class="text-center" colspan="3">Actions</td>
+                                @endcanany
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if ($releases->isNotEmpty())
+                                @can('list-users')
+                                    @foreach ($releases as $release)
+                                        <tr class="bg-hover-secondary">
+                                            @can('delete-users')
+                                                <td style="text-align: center;">
+                                                    <input type="checkbox" id="select_release{{ $release->id }}"
+                                                        onclick="checkOne({{ $releaseID_json }})">
+                                                </td>
+                                            @endcan
+                                            <td>
+                                                {{ $release->id }}
+                                            </td>
+                                            <td>
+                                                {{ $release->name }}
+                                            </td>
+                                            <td class="text-center">
+                                                {{ $release->title_description }}
+                                            </td>
+                                            <td class="text-center">
+                                                @if (strlen($release->detail_description) > 40)
+                                                    {!! mb_str_split($release->detail_description, 40)[0] . '...' !!}
+                                                @else
+                                                    {!! $release->detail_description !!}
+                                                @endif
+                                            </td>
+                                            <td class="text-center">
+                                                {{ substr($release->created_at, 0, 10) }}
+                                            </td>
+                                            <td>
+                                                {{ $release->is_publish }}
+                                            </td>
+                                            <td>
+                                                <div class="small-image d-flex flex-column align-items-center">
+                                                    @if (isset($release->images) && count($release->images) > 0 && $release->images[0] != '')
+                                                        {{-- <img src="{{ asset($release->images[0]) }}" alt="Image"
+                                                        style="width: 50px; height: 50px; border-radius: 10px"> --}}
+                                                        <div class="symbol symbol-40 mr-3">
+                                                            <img alt="Image" src="{{ asset($release->images[0]) }}" />
+                                                        </div>
+                                                        @if (count($release->images) > 1)
+                                                            <span style="font-size: 12px"> More
+                                                                {{ count($release->images) - 1 }}
+                                                                image(s)</span>
+                                                        @endif
+                                                    @else
+                                                        <p> No Image </p>
+                                                    @endif
+                                                </div>
+                                            </td>
+                                            @can('search-users')
+                                                <td style="text-align: center">
+                                                    <i class="fa la-info-circle btn-show-info" data-toggle="tooltip"
+                                                        title="Detail Release"
+                                                        onclick="showReleaseDetailPage({{ $release->id }})"></i>
+                                                </td>
+                                            @endcan
+                                            @can('update-users')
+                                                <td style="text-align: center">
+                                                    <i class="fa fa-pen btn-edit" data-toggle="tooltip" title="Edit Release"
+                                                        onclick="enableEdit({{ $release->id }})"></i>
+                                                </td>
+                                            @endcan
+                                            @can('delete-users')
+                                                <td style="text-align: center">
+                                                    <form id="form-delete-release-id-{{ $release->id }}" method="POST"
+                                                        action="{{ route('web_release_delete', $release->id) }}">
+                                                        {{ csrf_field() }}
+                                                        {{ method_field('DELETE') }}
+                                                    </form>
+                                                    <i class="fa fa-trash btn-delete-one" data-toggle="tooltip"
+                                                        title="Delete Release" onclick="deleteRelease({{ $release->id }})"></i>
+                                                </td>
+                                            @endcan
+                                        </tr>
+                                    @endforeach
+                                @endcan
+                            @else
+                                <tr>
+                                    <td colspan="100%" class=" bg-hover-secondary text-center">
+                                        <b>{{ __('global.no_data') }}</b>
+                                    </td>
+                                </tr>
+                            @endif
+                        </tbody>
+                    </table>
+                </div>
+                <div class="paginate">
+                    @if (isset($releases) && count($releases) > 0)
+                        {{ $releases->links() }}
+                    @endif
                 </div>
             </div>
-            <p class="noti-sorted"> Sorted <span id="noti-sortedBy"></span> follow <span id="noti-orderBy"></span> </p>
         </div>
-        <table>
-            <thead>
-                <th><input type="checkbox" id="checkAll" onclick="checkAll({{ $releaseID_json }})"></th>
-                <th>
-                    <div class="th-sort">
-                        <span>ID</span>
-                        <div class="sort-item">
-                            <i class="fa fa-sort-up icon-sort-item asc" aria-hidden="true"
-                                onclick="sortRelease('id','asc')"></i>
-                            <i class="fa fa-sort-down icon-sort-item" aria-hidden="true"
-                                onclick="sortRelease('id','desc')"></i>
-                        </div>
-                    </div>
-                </th>
-                <th>
-                    <div class="th-sort">
-                        <span>Name</span>
-                        <div class="sort-item">
-                            <i class="fa fa-sort-up icon-sort-item asc" aria-hidden="true"
-                                onclick="sortRelease('name','asc')"></i>
-                            <i class="fa fa-sort-down icon-sort-item" aria-hidden="true"
-                                onclick="sortRelease('name','desc')"></i>
-                        </div>
-                    </div>
-                </th>
-                <th>
-                    <div class="th-sort">
-                        <span>Title</span>
-                        <div class="sort-item">
-                            <i class="fa fa-sort-up icon-sort-item asc" aria-hidden="true"
-                                onclick="sortRelease('title_description','asc')"></i>
-                            <i class="fa fa-sort-down icon-sort-item" aria-hidden="true"
-                                onclick="sortRelease('title_description','desc')"></i>
-                        </div>
-                    </div>
-                </th>
-                <th>
-                    <div class="th-sort">
-                        <span>Description</span>
-                        <div class="sort-item">
-                            <i class="fa fa-sort-up icon-sort-item asc" aria-hidden="true"
-                                onclick="sortRelease('detail_description','asc')"></i>
-                            <i class="fa fa-sort-down icon-sort-item" aria-hidden="true"
-                                onclick="sortRelease('detail_description','desc')"></i>
-                        </div>
-                    </div>
-                </th>
-                <th>
-                    <div class="th-sort">
-                        <span>Date Created</span>
-                        <div class="sort-item">
-                            <i class="fa fa-sort-up icon-sort-item asc" aria-hidden="true"
-                                onclick="sortRelease('date_created','asc')"></i>
-                            <i class="fa fa-sort-down icon-sort-item" aria-hidden="true"
-                                onclick="sortRelease('date_created','desc')"></i>
-                        </div>
-                    </div>
-                </th>
-                <th>Is Publish</th>
-                <th>Images</th>
-                <th colspan="3">Actions</th>
-            </thead>
-            <tbody>
-                @foreach ($releases as $release)
-                    <tr>
-                        <td style="text-align: center;">
-                            <input type="checkbox" id="select_release{{ $release->id }}"
-                                onclick="checkOne({{ $releaseID_json }})">
-                        </td>
-                        <td style="text-align: center;">{{ $release->id }}</td>
-                        <td>{{ $release->name }}</td>
-                        <td>{{ $release->title_description }}</td>
-                        <td>
-                            @if (strlen($release->detail_description) > 50)
-                                {!! mb_str_split($release->detail_description, 60)[0] . '...' !!}
-                            @else
-                                {!! $release->detail_description !!}
-                            @endif
-                        </td>
-
-                        <td style="text-align: center;">{{ substr($release->created_at, 0, 10) }}</td>
-                        <td style="text-align: center;">{{ $release->is_publish }}</td>
-                        <td
-                            style="display: flex;
-                                      text-align: center;
-                                      flex-direction: column;
-                                      justify-content: center;
-                                      align-items: center;">
-                            @if (isset($release->images) && count($release->images) > 0 && $release->images[0] != '')
-                                <img src="{{ asset($release->images[0]) }}" alt="Image"
-                                    style="width: 50px; height: 50px; border-radius: 10px">
-                                @if (count($release->images) > 1)
-                                    <span style="font-size: 12px"> More {{ count($release->images) - 1 }}
-                                        image(s)</span>
-                                @endif
-                            @else
-                                <p> No Image </p>
-                            @endif
-                        <td style="text-align: center;">
-                            <input class="btn-edit" type="button" id="edit-release-{{ $release->id }}"
-                                onclick="showReleaseDetailPage({{ $release->id }})" value="More Detail">
-                        </td>
-                        <td>
-                            <i class="fa fa-pen btn-edit" onclick="enableEdit({{ $release->id }})"></i>
-                        </td>
-                        <td style="text-align: center;">
-                            <form id="form-delete-release-id-{{ $release->id }}" method="POST"
-                                action="{{ route('web_release_delete', $release->id) }}">
-                                {{ csrf_field() }}
-                                {{ method_field('DELETE') }}
-                            </form>
-                            <i class="fa fa-trash btn-delete-one" onclick="deleteRelease({{ $release->id }})"></i>
-                        </td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
-    </div>
-    <div class="paginationWrap">
-        @if (isset($releases) && count($releases) > 0)
-            {{ $releases->links() }}
-        @endif
     </div>
 
     {{-- </div> --}}
 @endsection
+
+
+@once
+    @push('after_script')
+        <script>
+            $('.boloc').on('click', function() {
+                $('.boloc-show').toggleClass('unactive');
+            });
+        </script>
+    @endpush
+@endonce

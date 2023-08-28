@@ -18,8 +18,8 @@ class ReleaseRepository extends Repository
         'name'               => 'like',
         'title_description'  => 'like',
         'detail_description' => 'like',
-        'is_publish'         => '=',
-        'images'             => '',
+        'is_publish',
+        'images',
         'created_at'         => 'like',
         // ...
     ];

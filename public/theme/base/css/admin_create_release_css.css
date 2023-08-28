@@ -84,8 +84,8 @@
 }
 
 .box-image {
-    width: 100px;
-    height: 108px;
+    width: 130px;
+    height: 140px;
     position: relative;
     float: left;
     margin-left: 5px;
@@ -115,20 +115,11 @@
 }
 
 .btn-add-image {
-    display: flex;
+    width: 30%;
+    cursor: pointer;
     border: 1px solid #ddd;
     border-radius: 5px;
-    cursor: pointer;
-    width: 120px;
-    height: 30px;
-    justify-content: center;
-    align-items: center;
-    margin-left: 5px;
-    font-size: 14px;
-    font-weight: bold;
-    float: left;
-    background-color: #6274bd;
-
+    background-color: #fff;
 }
 
 /* css create-content */
@@ -182,4 +173,9 @@
     justify-content: flex-start;
     display: flex;
     background-color: #fff;
+}
+
+/* unactive */
+.unactive {
+    display: none;
 }

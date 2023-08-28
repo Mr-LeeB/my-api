@@ -4,6 +4,10 @@
     @include('release::layout.template.head_admin')
     <link href="{{ asset('/theme/base/nova_assets/css/admin-nova.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{ asset('/theme/base/nova_assets/css/custom.css') }}?version=04082023" rel="stylesheet" type="text/css" />
+
+    {{-- <link href="{{ asset('/theme/base/css/admin_create_release_css.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('/theme/base/css/admin_show_detail_css.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('/theme/base/css/admin_show_release_css.css') }}" rel="stylesheet" type="text/css" /> --}}
 </head>
 <style>
     .pagination {

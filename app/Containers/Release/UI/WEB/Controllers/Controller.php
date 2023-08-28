@@ -15,6 +15,7 @@ use App\Containers\Release\UI\WEB\Requests\EditReleaseRequest;
 use App\Ship\Parents\Controllers\WebController;
 use Apiato\Core\Foundation\Facades\Apiato;
 use App\Ship\Transporters\DataTransporter;
+use Illuminate\Http\File;
 use Intervention\Image\Facades\Image;
 use Storage;
 use Exception;
@@ -34,13 +35,14 @@ class Controller extends WebController
     public function getAllRelease(GetAllReleasesRequest $request)
     {
         $releases = Apiato::call('Release@GetAllReleasesAction', [new DataTransporter($request)]);
+        // dd($releases);
 
         $all_Releases_count = Release::all()->count();
 
-        if (auth()->user()->hasAdminRole()) {
-            return view('release::admin.admin-show-release-page', compact('releases', 'all_Releases_count'));
-        }
-        return new Exception('You are not authorized to access this page');
+        // if (auth()->user()->hasAdminRole()) {
+        return view('release::admin.admin-show-release-page', compact('releases', 'all_Releases_count'));
+        // }
+        // return new Exception('You are not authorized to access this page');
     }
 
     /**
@@ -79,8 +81,18 @@ class Controller extends WebController
             foreach ($request->images as $key => $file) {
                 $name = time() . rand(1, 100) . '.' . $file->getClientOriginalName();
 
-                Storage::disk('public')->putFileAs('images-release', $file, $name, 'public');
+                $image_resize = Image::make($file->getRealPath());
+                $image_resize->resize(400, 400);
+                $image_resize->save(public_path('storage/images/' . $name));
 
+                $saved_image_uri = $image_resize->dirname . '/' . $name;
+
+                Storage::disk('public')->putFileAs('images-release', new File($saved_image_uri), $name, 'public');
+
+                $image_resize->destroy();
+                unlink($saved_image_uri);
+                // Storage::disk('public')->putFileAs('images-release', $image_resize, $name, 'public');
+                // $file->storeAs('public/images-release', $name);
                 $requestData['images'][$key] = '/storage/images-release/' . $name;
             }
         }
@@ -136,12 +148,26 @@ class Controller extends WebController
                 }
                 $requestData['images'] = [];
             }
+        } else {
+            $requestData['images'] = [];
         }
 
         if ($request->hasfile('images')) {
             foreach ($request->file('images') as $file) {
                 $name = time() . rand(1, 100) . '.' . $file->getClientOriginalName();
-                Storage::disk('public')->putFileAs('images-release', $file, $name, 'public');
+
+                $image_resize = Image::make($file->getRealPath());
+                $image_resize->resize(400, 400);
+                $image_resize->save(public_path('storage/images/' . $name));
+
+                $saved_image_uri = $image_resize->dirname . '/' . $name;
+
+                Storage::disk('public')->putFileAs('images-release', new File($saved_image_uri), $name, 'public');
+
+                $image_resize->destroy();
+                unlink($saved_image_uri);
+
+                // Storage::disk('public')->putFileAs('images-release', $file, $name, 'public');
 
                 $requestData['images'][] = '/storage/images-release/' . $name;
             }

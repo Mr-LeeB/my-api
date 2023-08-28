@@ -8,10 +8,10 @@ use App\Ship\Transporters\DataTransporter;
 
 class GetAllReleasesAction extends Action
 {
-  public function run(DataTransporter $request)
-  {
-    $releases = Apiato::call('Release@GetAllReleasesTask', [], ['addRequestCriteria', 'ordered']);
+    public function run(DataTransporter $request)
+    {
+        $releases = Apiato::call('Release@GetAllReleasesTask', [], ['addRequestCriteria', 'ordered']);
 
-    return $releases;
-  }
+        return $releases;
+    }
 }
