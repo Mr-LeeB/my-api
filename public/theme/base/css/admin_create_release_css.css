@@ -1,80 +1,5 @@
-/* css form create */
-.create-release {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    width: 40%;
-    border-radius: 5px;
-    padding: 20px;
-    margin-top: 20px;
-    margin-bottom: 20px;
-    background-color: #e2ecf3;
-    border: #000000 1px solid;
-}
-
-.create-release form {
-    width: 100%;
-    padding-right: 20px;
-}
-
-.create-release form textarea {
-    width: 100%;
-    max-width: 100%;
-    min-width: 100%;
-    max-height: 205px;
-    min-height: 30px;
-    padding: 10px;
-    margin-bottom: 10px;
-    border-radius: 5px;
-    border: 1px solid #ddd;
-}
-
-.create-release form input {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 10px;
-    border-radius: 5px;
-    border: 1px solid #ddd;
-}
-
-.create-release form input[type="button"] {
-    background-color: #22698c;
-    color: white;
-    border: none;
-    cursor: pointer;
-    font-weight: bold;
-    font-size: large;
-    margin-left: 10px;
-}
-
-.create-release form input[type="submit"]:hover {
-    background-color: #3266ab;
-    color: white;
-}
-
-.is-publish-checkbox {
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
-    align-items: center;
-}
-
-.is-publish-checkbox input {
-    width: 20px !important;
-    height: 20px;
-    margin-right: 10px;
-}
-
-.is-publish-checkbox label {
-    margin: 0;
-    padding: 0;
-    font-size: 16px;
-}
-
 /* css add image */
 .list-images {
-    width: 90%;
     margin-top: 20px;
     display: inline-block;
 }
@@ -91,29 +16,6 @@
     margin-left: 5px;
 }
 
-.box-image img {
-    width: 100px;
-    height: 100px;
-}
-
-.wrap-btn-delete {
-    position: absolute;
-    top: -8px;
-    right: 0;
-    height: 2px;
-    font-size: 20px;
-    font-weight: bold;
-    color: red;
-}
-
-.btn-delete-image {
-    cursor: pointer;
-}
-
-.table {
-    width: 15%;
-}
-
 .btn-add-image {
     width: 30%;
     cursor: pointer;
@@ -122,41 +24,12 @@
     background-color: #fff;
 }
 
-/* css create-content */
-.create-content {
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
-    align-items: flex-start;
-    border-radius: 5px;
-    padding: 20px;
-    margin-top: 20px;
-    margin-bottom: 20px;
-}
-
-
-/* css info-release-created-recently */
-.info-release-created-recently {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: flex-start;
-    width: 50%;
-    border-radius: 5px;
-    padding: 20px;
-    margin: 20px;
-    background-color: #e2ecf3;
-    border: #000000 1px solid;
-}
-
-
 /* css editor */
 #editor {
     height: fit-content;
     width: 100%;
     margin-bottom: 10px;
     background-color: #fff;
-
 }
 
 .ql-editor {
@@ -165,17 +38,11 @@
     color: #000000;
     line-height: 1.5;
     width: 100%;
-    max-height: 350px;
 }
 
-.ql-toolbar {
+/* .ql-toolbar {
     width: 100%;
     justify-content: flex-start;
     display: flex;
     background-color: #fff;
-}
-
-/* unactive */
-.unactive {
-    display: none;
-}
+} */

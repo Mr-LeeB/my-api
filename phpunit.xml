@@ -15,12 +15,9 @@
       <directory suffix="Test.php">./app/Containers</directory>
     </testsuite>
   </testsuites>
-  <!-- <logging>
-    <log type="coverage-html" target="./tests/codeCoverage" />
-  </logging> -->
+
   <filter>
-    <!-- <whitelist processUncoveredFilesFromWhitelist="true"> -->
-    <whitelist>
+    <whitelist processUncoveredFilesFromWhitelist="false">
       <directory suffix=".php">./app</directory>
       <exclude>
         <!--NOTE:
@@ -29,11 +26,8 @@
         <directory suffix=".php">./app/Containers/*/UI/*/Routes</directory>
         <directory suffix=".php">./app/Containers/*/Data/Factories</directory>
         <directory suffix=".php">./app/Containers/*/Tests</directory>
-        <!-- <directory suffix=".php">./app/Containers/*/Tests/Unit</directory> -->
         <directory suffix=".blade.php">./app/Containers/*/UI/*/Views</directory>
-
       </exclude>
-      <!-- <directory suffix=".php">./src</directory> -->
     </whitelist>
   </filter>
   <php>

@@ -8,14 +8,14 @@ use App\Ship\Transporters\DataTransporter;
 
 class DeleteBulkReleaseAction extends Action
 {
-  public function run(DataTransporter $request)
-  {
-    $release_Ids = [];
-    $release = Apiato::call('Release@FindReleaseByIdTask', [$request->id]);
+    public function run(DataTransporter $request)
+    {
+        // $release_Ids = [];
+        // $release     = Apiato::call('Release@FindReleaseByIdTask', [$request->id]);
 
-    foreach ($release as $Rid) {
-      array_push($release_Ids, $Rid->id);
+        // foreach ($release as $Rid) {
+        //     array_push($release_Ids, $Rid->id);
+        // }
+        return Apiato::call('Release@DeleteBulkReleaseTask', [$request->id]);
     }
-    return Apiato::call('Release@DeleteBulkReleaseTask', [$release_Ids]);
-  }
 }

@@ -21,8 +21,8 @@ class DeleteReleaseTask extends Task
     {
         try {
             return $this->repository->delete($id);
-        }
-        catch (Exception $exception) {
+            // return $this->repository->whereIn('id', $id)->delete();
+        } catch (Exception $exception) {
             throw new DeleteResourceFailedException();
         }
     }

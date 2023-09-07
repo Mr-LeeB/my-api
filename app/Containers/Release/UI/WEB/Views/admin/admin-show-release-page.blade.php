@@ -49,10 +49,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"
         integrity="sha512-3gJwYpMe3QewGELv8k/BX9vcqhryRdzRMxVfq6ngyWXwo03GFEzjsUm8Q7RZcHPHksttq7/GFoxjCVUjkjvPdw=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-
-    {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/jquery-ui.min.js"
-        integrity="sha512-57oZ/vW8ANMjR/KQ6Be9v/+/h6bq9/l3f0Oc7vn6qMqyhvPd1cvKBRWWpzu0QoneImqr2SkmO4MSqU+RpHom3Q=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script> --}}
     <script>
         $(document).ready(function() {
             $('#search-by-name').keydown(function(event) {
@@ -87,7 +83,19 @@
         let sortedBy = params.get('sortedBy');
         let limit = params.get('limit');
         let page = params.get('page');
-        let search = params.get('search');
+
+        let search = params.get('search')
+        // if (search) {
+        //     search = url.search.substring(url.search.indexOf('search=') + 7, url.search.length);
+        //     // console.log(search);
+
+        //     search = search.replace(/%3A/, ':');
+        //     search = search.replace(/%3A/, ':');
+        //     search = search.replace(/%3A/, ':');
+        //     search = search.replace(/%3A/, ':');
+        //     search = search.replace(/%26/, '&');
+        // }
+        // console.log(search);
         let searchFields = params.get('searchFields');
 
         $('.form-limit').on('change', function() {
@@ -130,73 +138,73 @@
             $('.searchable').html($(this).html());
         });
 
-        function searchRelease() {
-            var search = $('#search-by-name').val();
-            var url = '';
-            if ($('#field-name').is(':checked')) {
-                url = "{{ route('web_release_search') }}";
-                $('#search-by-name').attr('type', 'text');
-                $('#search-by-name').attr('name', 'name');
-                $('#search-by-name').attr('placeholder', 'Search by Name');
+        // function searchRelease() {
+        //     var search = $('#search-by-name').val();
+        //     var url = '';
+        //     if ($('#field-name').is(':checked')) {
+        //         url = "{{ route('web_release_search') }}";
+        //         $('#search-by-name').attr('type', 'text');
+        //         $('#search-by-name').attr('name', 'name');
+        //         $('#search-by-name').attr('placeholder', 'Search by Name');
 
-            } else if ($('#field-id').is(':checked')) {
-                url = "{{ route('web_release_search_by_id') }}";
-                $('#search-by-name').attr('name', 'id');
-                $('#search-by-name').attr('type', 'number');
-                $('#search-by-name').attr('placeholder', 'Search by Id');
+        //     } else if ($('#field-id').is(':checked')) {
+        //         url = "{{ route('web_release_search_by_id') }}";
+        //         $('#search-by-name').attr('name', 'id');
+        //         $('#search-by-name').attr('type', 'number');
+        //         $('#search-by-name').attr('placeholder', 'Search by Id');
 
-            } else if ($('#field-date').is(':checked')) {
-                url = "{{ route('web_release_search_by_date') }}";
-                $('#search-by-name').attr('name', 'date_created');
-                $('#search-by-name').attr('type', 'date');
-            }
+        //     } else if ($('#field-date').is(':checked')) {
+        //         url = "{{ route('web_release_search_by_date') }}";
+        //         $('#search-by-name').attr('name', 'date_created');
+        //         $('#search-by-name').attr('type', 'date');
+        //     }
 
-            if (search.trim() == '') {
-                $('#result').html('');
-                return;
-            }
+        //     if (search.trim() == '') {
+        //         $('#result').html('');
+        //         return;
+        //     }
 
-            $.ajax({
-                url: url,
-                type: "POST",
-                data: $('#form-search-release').serialize(),
-                success: function(data) {
-                    $('#result').html(
-                        `<p>Result: ${data.length} release(s)</p>
-                        <div class="release-note-list">
-                          ${data.map((release) => {
-                              release.detail_description = release.detail_description.length > 62 ? release.detail_description.substring(0, 62).concat('...'):release.detail_description;
-                              return`<div class="release-note-item">
-                                   <div class="release-note-item-header" onclick="activeBody(${release.id})">
-                                     <div class="release-note-item-header-title">
-                                       ${release.name}
-                                     </div>
-                                     <div class="release-note-item-header-date">
-                                       ${release.created_at.substring(0, 10)}
-                                     </div>
-                                   </div>
-                                   <div class="release-note-item-body unactive" id="body${release.id}">
-                                     <div class="release-note-item-body-title ">
-                                       Title: ${release.title_description}
-                                     </div>
-                                     <div class="release-note-item-body-description">
-                                       Description: ${release.detail_description}
-                                     </div>
-                                     <div class="more-detail">
-                                       <a href="/releases/${release.id}">More detail</a>
-                                     </div>
-                                   </div>
-                                 </div>`}).join('')}
-                        </div>`
-                    );
-                },
-                error: function(data) {
-                    $('#result').html(
-                        '<p>Result: 0 release(s)</p>'
-                    )
-                }
-            });
-        }
+        //     $.ajax({
+        //         url: url,
+        //         type: "POST",
+        //         data: $('#form-search-release').serialize(),
+        //         success: function(data) {
+        //             $('#result').html(
+        //                 `<p>Result: ${data.length} release(s)</p>
+    //                 <div class="release-note-list">
+    //                   ${data.map((release) => {
+    //                       release.detail_description = release.detail_description.length > 62 ? release.detail_description.substring(0, 62).concat('...'):release.detail_description;
+    //                       return`<div class="release-note-item">
+        //                 <div class="release-note-item-header" onclick="activeBody(${release.id})">
+        //                   <div class="release-note-item-header-title">
+        //                     ${release.name}
+        //                   </div>
+        //                   <div class="release-note-item-header-date">
+        //                     ${release.created_at.substring(0, 10)}
+        //                   </div>
+        //                 </div>
+        //                 <div class="release-note-item-body unactive" id="body${release.id}">
+        //                   <div class="release-note-item-body-title ">
+        //                     Title: ${release.title_description}
+        //                   </div>
+        //                   <div class="release-note-item-body-description">
+        //                     Description: ${release.detail_description}
+        //                   </div>
+        //                   <div class="more-detail">
+        //                     <a href="/releases/${release.id}">More detail</a>
+        //                   </div>
+        //                 </div>
+        //               </div>`}).join('')}
+    //                 </div>`
+        //             );
+        //         },
+        //         error: function(data) {
+        //             $('#result').html(
+        //                 '<p>Result: 0 release(s)</p>'
+        //             )
+        //         }
+        //     });
+        // }
 
         function confirmDeleteMoreRelease(releaseIDs) {
             for (var i = 0; i < releaseIDs.length; i++) {
@@ -265,11 +273,7 @@
                 if (sortedBy == null) {
                     sortedBy = 'asc';
                 } else {
-                    if (sortedBy == 'asc') {
-                        sortedBy = 'desc';
-                    } else {
-                        sortedBy = 'asc';
-                    }
+                    sortedBy = sortedBy == 'asc' ? 'desc' : 'asc';
                 }
             }
 
@@ -480,50 +484,6 @@
             </div>
         @endcan
 
-        {{-- <div class="multi-search">
-            <form class="form">
-                <div class="card-header">
-                    <h2>Search releases</h2>
-                </div>
-                <div class="card-body" style="background: #fff">
-                    <div class="form-group row mt-4">
-                        <label class="col-3 col-form-label">Title: </label>
-                        <div class="col-9">
-                            <input type="text" class="form-control search-title" placeholder="Enter title" />
-                        </div>
-                    </div>
-                    <div class="form-group row">
-                        <label class="col-3 col-form-label">Description: </label>
-                        <div class="col-9">
-                            <div class="input-group">
-                                <input type="text" class="form-control search-description"
-                                    placeholder="Enter description" />
-                                <div class="input-group-append">
-                                    <select class="form-control form-control-sm font-weight-bold mr-4 border-0 bg-light"
-                                        style="width: 75px;">
-                                        <option value="like">like</option>
-                                        <option value="=">=</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-group row">
-                        <label class="col-3 col-form-label">Date Created: </label>
-                        <div class="col-9">
-                            <div class="input-group date">
-                                <input type="date" class="form-control search-date" />
-
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="card-footer mb-6">
-                    <button type="button" class="btn btn-primary pl-8 pr-8 btn-search-release">Search</button>
-                </div>
-            </form>
-        </div> --}}
-
         <div class="table-list-all-release">
             @if (session('success'))
                 {!! session('success') !!}
@@ -622,13 +582,23 @@
                                                 {{ $release->name }}
                                             </td>
                                             <td class="text-center">
-                                                {{ $release->title_description }}
-                                            </td>
-                                            <td class="text-center">
-                                                @if (strlen($release->detail_description) > 40)
-                                                    {!! mb_str_split($release->detail_description, 40)[0] . '...' !!}
+                                                @if (strlen($release->title_description) > 10)
+                                                    {!! mb_str_split($release->title_description, 10)[0] . '...' !!}
                                                 @else
-                                                    {!! $release->detail_description !!}
+                                                    {!! $release->title_description !!}
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @php
+                                                    // $detail_description = $release->detail_description;
+                                                    // remove tag <br> in string
+                                                    $detail_description = strip_tags($release->detail_description, '<b><i><u><strong><em>');
+                                                @endphp
+
+                                                @if (strlen($detail_description) > 20)
+                                                    {!! mb_str_split($detail_description, 20)[0] . '...' !!}
+                                                @else
+                                                    {!! $detail_description !!}
                                                 @endif
                                             </td>
                                             <td class="text-center">
@@ -657,15 +627,13 @@
                                             </td>
                                             @can('search-users')
                                                 <td style="text-align: center">
-                                                    <i class="fa la-info-circle btn-show-info" data-toggle="tooltip"
-                                                        title="Detail Release"
+                                                    <i class="fa la-info-circle btn-show-info"
                                                         onclick="showReleaseDetailPage({{ $release->id }})"></i>
                                                 </td>
                                             @endcan
                                             @can('update-users')
                                                 <td style="text-align: center">
-                                                    <i class="fa fa-pen btn-edit" data-toggle="tooltip" title="Edit Release"
-                                                        onclick="enableEdit({{ $release->id }})"></i>
+                                                    <i class="fa fa-pen btn-edit" onclick="enableEdit({{ $release->id }})"></i>
                                                 </td>
                                             @endcan
                                             @can('delete-users')
@@ -675,8 +643,8 @@
                                                         {{ csrf_field() }}
                                                         {{ method_field('DELETE') }}
                                                     </form>
-                                                    <i class="fa fa-trash btn-delete-one" data-toggle="tooltip"
-                                                        title="Delete Release" onclick="deleteRelease({{ $release->id }})"></i>
+                                                    <i class="fa fa-trash btn-delete-one"
+                                                        onclick="deleteRelease({{ $release->id }})"></i>
                                                 </td>
                                             @endcan
                                         </tr>

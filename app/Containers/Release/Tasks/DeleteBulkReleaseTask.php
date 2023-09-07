@@ -10,20 +10,20 @@ use Exception;
 class DeleteBulkReleaseTask extends Task
 {
 
-  protected $repository;
+    protected $repository;
 
-  public function __construct(ReleaseRepository $repository)
-  {
-    $this->repository = $repository;
-  }
-
-  public function run($release_Ids)
-  {
-    try {
-      return $this->repository->whereIn('id', $release_Ids)->delete();
-
-    } catch (Exception $exception) {
-      throw new DeleteResourceFailedException();
+    public function __construct(ReleaseRepository $repository)
+    {
+        $this->repository = $repository;
     }
-  }
+
+    public function run($release_Ids)
+    {
+        try {
+            return $this->repository->whereIn('id', $release_Ids)->delete();
+
+        } catch (Exception $exception) {
+            throw new DeleteResourceFailedException();
+        }
+    }
 }

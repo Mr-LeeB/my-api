@@ -58,7 +58,7 @@
             <div class="menu-item">
                 Releases
             </div>
-        </a>
+        </a> 
         <a href="{{ route('get_user_logout_page') }}">
             <div class="menu-item">
                 Logout
