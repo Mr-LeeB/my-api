@@ -17,26 +17,25 @@ use SebastianBergmann\Environment\Console;
  */
 class WebLoginTask extends Task
 {
-  /**
-   * @param string $email
-   * @param string $password
-   * @param bool   $remember
-   *
-   * @return Authenticatable
-   * @throws LoginFailedException
-   */
-  public function run(string $email, string $password, bool $remember = false): Authenticatable
-  {
-    if (!$user = Auth::attempt(['email' => $email, 'password' => $password], $remember)) {
-      // throw new LoginFailedException();
-      $userExist = User::where('email', $email)->first();
-      if ($userExist) {
-        throw new LoginFailedException('Password is incorrect');
-      } else {
-        throw new LoginFailedException('Email does not exist');
-      }
-
+    /**
+     * @param string $email
+     * @param string $password
+     * @param bool   $remember
+     *
+     * @return Authenticatable
+     * @throws LoginFailedException
+     */
+    public function run(string $email, string $password, bool $remember = false): Authenticatable
+    {
+        if (!$user = Auth::attempt(['email' => $email, 'password' => $password], $remember)) {
+            // throw new LoginFailedException();
+            $userExist = User::where('email', $email)->first();
+            if ($userExist) {
+                throw new LoginFailedException('Password is incorrect');
+            } else {
+                throw new LoginFailedException('Email does not exist');
+            }
+        }
+        return Auth::user();
     }
-    return Auth::user();
-  }
 }

@@ -16,13 +16,13 @@ class CheckIfUserIsConfirmedTask extends Task
     public function run()
     {
         // is the config flag set?
-        if(Config::get('authentication-container.require_email_confirmation')) {
+        if (Config::get('authentication-container.require_email_confirmation')) {
 
-            if(! $this->user) {
+            if (!$this->user) {
                 throw new LoginFailedException();
             }
 
-            if(! $this->user->confirmed) {
+            if (!$this->user->confirmed) {
                 throw new UserNotConfirmedException();
             }
         }
@@ -30,10 +30,9 @@ class CheckIfUserIsConfirmedTask extends Task
 
     public function loginWithCredentials($username, $password, $field = 'email')
     {
-        if(Auth::attempt([$field => $username, 'password' => $password])) {
+        if (Auth::attempt([$field => $username, 'password' => $password])) {
             $this->user = Auth::user();
-        }
-        else {
+        } else {
             throw new LoginFailedException();
         }
     }

@@ -590,8 +590,6 @@
                                             </td>
                                             <td>
                                                 @php
-                                                    // $detail_description = $release->detail_description;
-                                                    // remove tag <br> in string
                                                     $detail_description = strip_tags($release->detail_description, '<b><i><u><strong><em>');
                                                 @endphp
 

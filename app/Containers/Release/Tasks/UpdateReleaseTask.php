@@ -12,24 +12,24 @@ use App\Ship\Exceptions\NotFoundException;
 class UpdateReleaseTask extends Task
 {
 
-  protected $repository;
+    protected $repository;
 
-  public function __construct(ReleaseRepository $repository)
-  {
-    $this->repository = $repository;
-  }
+    public function __construct(ReleaseRepository $repository)
+    {
+        $this->repository = $repository;
+    }
 
-  public function run($id, array $data)
-  {
-    if (empty($data)) {
-      throw new UpdateResourceFailedException('Inputs are empty.');
+    public function run($id, array $data)
+    {
+        if (empty($data)) {
+            throw new UpdateResourceFailedException('Inputs are empty.');
+        }
+        try {
+            return $this->repository->update($data, $id);
+        } catch (ModelNotFoundException $exception) {
+            throw new NotFoundException('Release Not Found.');
+        } catch (Exception $exception) {
+            throw new UpdateResourceFailedException();
+        }
     }
-    try {
-      return $this->repository->update($data, $id);
-    } catch (ModelNotFoundException $exception) {
-      throw new NotFoundException('Release Not Found.');
-    } catch (Exception $exception) {
-      throw new UpdateResourceFailedException();
-    }
-  }
 }

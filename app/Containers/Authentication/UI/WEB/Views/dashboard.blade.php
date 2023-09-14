@@ -12,7 +12,6 @@
         body {
             height: 100%;
             background: #6471a7;
-            background-image: url('/app/public/images/1689586982Cat03.jpg');
         }
 
         body {

@@ -91,8 +91,6 @@ class Controller extends WebController
 
                 $image_resize->destroy();
                 unlink($saved_image_uri);
-                // Storage::disk('public')->putFileAs('images-release', $image_resize, $name, 'public');
-                // $file->storeAs('public/images-release', $name);
                 $requestData['images'][$key] = '/storage/images-release/' . $name;
             }
         }

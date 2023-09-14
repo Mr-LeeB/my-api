@@ -20,98 +20,96 @@ class Controller extends WebController
 {
 
 
-  /**
-   * @return  \Illuminate\Contracts\View\Factory|\Illuminate\View\View
-   */
-  public function showLoginPage()
-  {
-    return view('authentication::login');
-  }
-
-  /**
-   * @return  \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
-   */
-  public function logoutAdmin(LogoutRequest $request)
-  {
-    Apiato::call('Authentication@WebLogoutAction');
-
-    return redirect('login');
-  }
-
-  /**
-   * @param \App\Containers\Authentication\UI\WEB\Requests\LoginRequest $request
-   *
-   * @return  \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
-   */
-  public function loginAdmin(LoginRequest $request)
-  {
-    try {
-      $result = Apiato::call('Authentication@WebAdminLoginAction', [new DataTransporter($request)]);
-    } catch (Exception $e) {
-      return redirect('login')->with('status', $e->getMessage());
-    }
-    return is_array($result) ? redirect('login')->with($result) : redirect('dashboard');
-  }
-
-  public function loginUser(LoginRequest $request)
-  {
-    try {
-      $result = Apiato::call('Authentication@WebLoginAction', [new DataTransporter($request)]);
-    } catch (Exception $e) {
-      // dd($e);
-      return redirect('login')->with('status', $e->getMessage());
+    /**
+     * @return  \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function showLoginPage()
+    {
+        return view('authentication::login');
     }
 
-    try {
-      $permissions = $result->roles->first()->permissions->pluck('name');
-    } catch (Exception $e) {
-      Log::error($e->getMessage());
-      $permissions = [];
+    /**
+     * @return  \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
+    public function logoutAdmin(LogoutRequest $request)
+    {
+        Apiato::call('Authentication@WebLogoutAction');
+
+        return redirect('login');
     }
 
-    foreach ($permissions as $key => $value) {
-      if ($value == 'access-dashboard') {
-        return redirect('userdashboard');
-      }
+    /**
+     * @param \App\Containers\Authentication\UI\WEB\Requests\LoginRequest $request
+     *
+     * @return  \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
+    public function loginAdmin(LoginRequest $request)
+    {
+        try {
+            $result = Apiato::call('Authentication@WebAdminLoginAction', [new DataTransporter($request)]);
+        } catch (Exception $e) {
+            return redirect('login')->with('status', $e->getMessage());
+        }
+        return is_array($result) ? redirect('login')->with($result) : redirect('dashboard');
     }
-    // return $permission;
-    return is_array($result) ? redirect('login')->with($result) : redirect('user');
-  }
 
-  /**
-   * @return  \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
-   */
-  public function logoutUser(LogoutRequest $request)
-  {
+    public function loginUser(LoginRequest $request)
+    {
+        try {
+            $result = Apiato::call('Authentication@WebLoginAction', [new DataTransporter($request)]);
+        } catch (Exception $e) {
+            return redirect('login')->with('status', $e->getMessage());
+        }
 
-    $result = Apiato::call('Authentication@WebLogoutAction');
+        try {
+            $permissions = $result->roles->first()->permissions->pluck('name');
+        } catch (Exception $e) {
+            Log::error($e->getMessage());
+            $permissions = [];
+        }
 
-    return redirect('logout')->with(['result' => $result]);
-  }
+        foreach ($permissions as $key => $value) {
+            if ($value == 'access-dashboard') {
+                return redirect('userdashboard');
+            }
+        }
+        return is_array($result) ? redirect('login')->with($result) : redirect('user');
+    }
 
-  /**
-   * @return  \Illuminate\Contracts\View\Factory|\Illuminate\View\View
-   */
-  public function showUserLoginPage()
-  {
-    return view('authentication::userlogin');
-  }
+    /**
+     * @return  \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
+    public function logoutUser(LogoutRequest $request)
+    {
 
-  /**
-   * @return  \Illuminate\Contracts\View\Factory|\Illuminate\View\View
-   */
-  public function showUserLogoutPage()
-  { // user show user
-    return view('authentication::userlogout');
-  }
+        $result = Apiato::call('Authentication@WebLogoutAction');
 
-  /**
-   * @param \App\Containers\Authentication\UI\WEB\Requests\ViewDashboardRequest $request
-   *
-   * @return  \Illuminate\Contracts\View\Factory|\Illuminate\View\View
-   */
-  public function viewDashboardPage(ViewDashboardRequest $request)
-  {
-    return view('authentication::dashboard');
-  }
+        return redirect('logout')->with(['result' => $result]);
+    }
+
+    /**
+     * @return  \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function showUserLoginPage()
+    {
+        return view('authentication::userlogin');
+    }
+
+    /**
+     * @return  \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function showUserLogoutPage()
+    { // user show user
+        return view('authentication::userlogout');
+    }
+
+    /**
+     * @param \App\Containers\Authentication\UI\WEB\Requests\ViewDashboardRequest $request
+     *
+     * @return  \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function viewDashboardPage(ViewDashboardRequest $request)
+    {
+        return view('authentication::dashboard');
+    }
 }

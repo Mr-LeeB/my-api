@@ -42,16 +42,16 @@ class ApiatoProvider extends AbstractMainProvider
      * @var array
      */
     public $serviceProviders = [
-        // Third Party Packages Providers:
+            // Third Party Packages Providers:
         HashidsServiceProvider::class,
         RepositoryServiceProvider::class,
         CorsServiceProvider::class,
         FractalServiceProvider::class,
 
-        // add the Laravel Tinker Service Provider
+            // add the Laravel Tinker Service Provider
         TinkerServiceProvider::class,
 
-        // Internal Apiato Providers:
+            // Internal Apiato Providers:
         RoutesProvider::class, // exceptionally adding the Route Provider, unlike all other providers in the parents.
         ShipProvider::class, // the ShipProvider for the Ship third party packages.
         GeneratorsServiceProvider::class, // the code generator provider.
