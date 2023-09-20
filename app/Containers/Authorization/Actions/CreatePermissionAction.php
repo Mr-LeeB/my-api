@@ -22,8 +22,9 @@ class CreatePermissionAction extends Action
      */
     public function run(DataTransporter $data): Permission
     {
-        $permission = Apiato::call('Authorization@CreatePermissionTask',
-            [$data->name, $data->description, $data->display_name]
+        $permission = Apiato::call(
+            'Authorization@CreatePermissionTask',
+            [$data->name, $data->description, $data->display_name, $data->group]
         );
 
         return $permission;

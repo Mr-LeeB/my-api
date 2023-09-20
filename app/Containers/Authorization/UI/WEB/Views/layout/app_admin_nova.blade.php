@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 
 <head>
-    @include('releasevuejs::layout.template.head_admin')
+    @include('authorization::layout.template.head_admin')
     <link href="{{ asset('/theme/base/nova_assets/css/admin-nova.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{ asset('/theme/base/nova_assets/css/custom.css') }}?version=04082023" rel="stylesheet" type="text/css" />
     <script src="https://cdn.jsdelivr.net/npm/vue@2.7.14/dist/vue.js"></script>
@@ -25,7 +25,7 @@
         <div class="nova-dashboards">
             <!-- Menu -->
             <div class="nova-sidebar">
-                @include('releasevuejs::layout.template.sidebar_admin_nova')
+                @include('authorization::layout.template.sidebar_admin_nova')
             </div>
             <!-- End Menu -->
             <!-- Content -->
