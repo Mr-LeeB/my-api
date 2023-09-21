@@ -21,7 +21,6 @@
     margin-left: 20px;
 } */
 
-.group_name:hover {
-    cursor: pointer;
-    background-color: antiquewhite;
+h3 i {
+    color: #3f4254;
 }

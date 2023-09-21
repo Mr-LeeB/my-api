@@ -55,11 +55,7 @@
             'children' => [
                 [
                     'label' => 'Permissions',
-                    'url' => '/#',
-                ],
-                [
-                    'label' => 'Permissions 2',
-                    'url' => '/#',
+                    'url' => '/authorization',
                 ],
             ],
         ],
@@ -116,11 +112,11 @@
                         <div>
                             <a href="{{ $child['url'] ?? '#' }}" target="_self">
                                 <div class="items-center" style="width: 100%">
-                                    <span class="text" style="width: 20%; display: inline-block">
-                                        @if (strpos(request()->fullUrl(), $child['url']) !== false)
+                                    @if (strpos(request()->fullUrl(), $child['url']) !== false)
+                                        <span class="text" style="width: 20%; display: inline-block">
                                             {!! '<i class="fa fa-eye" aria-hidden="true"></i>' !!}
-                                        @endif
-                                    </span>
+                                        </span>
+                                    @endif
                                     <span class="text"
                                         style="wdith: 80%; display: inline-block; @if (strpos(request()->fullUrl(), $child['url']) !== false) {{ 'font-weight: bold; font-style: italic' }} @endif">
                                         {{ $child['label'] ?? '' }}
