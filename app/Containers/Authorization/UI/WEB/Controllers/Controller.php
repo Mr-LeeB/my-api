@@ -56,6 +56,10 @@ class Controller extends WebController
     public function attachPermissionToRole(AttachPermissionToRoleRequest $request)
     {
         $role = Apiato::call('Authorization@AttachPermissionsToRoleAction', [new DataTransporter($request)]);
+
+        if ($request->expectsJson()) {
+            return $role;
+        }
         return redirect()->route('get_authorization_home_page')->with(['success' => 'Permission Attached Successfully.']);
     }
 

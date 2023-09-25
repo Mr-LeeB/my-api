@@ -127,84 +127,84 @@
         });
 
         function activeBody(id) {
-            $('#body' + id).toggleClass('unactive');
+            $('#body' + id).toggleClass('hidden');
         }
 
         $('.input-group-text').on('click', function() {
-            $('.show-searchable').toggleClass('unactive');
+            $('.show-searchable').toggleClass('hidden');
         });
 
         $('.set-searchable').on('click', function() {
             $('.searchable').html($(this).html());
         });
 
-        // function searchRelease() {
-        //     var search = $('#search-by-name').val();
-        //     var url = '';
-        //     if ($('#field-name').is(':checked')) {
-        //         url = "{{ route('web_release_search') }}";
-        //         $('#search-by-name').attr('type', 'text');
-        //         $('#search-by-name').attr('name', 'name');
-        //         $('#search-by-name').attr('placeholder', 'Search by Name');
+         function searchRelease() {
+             var search = $('#search-by-name').val();
+             var url = '';
+             if ($('#field-name').is(':checked')) {
+                 url = "{{ route('web_release_search') }}";
+                 $('#search-by-name').attr('type', 'text');
+                 $('#search-by-name').attr('name', 'name');
+                 $('#search-by-name').attr('placeholder', 'Search by Name');
 
-        //     } else if ($('#field-id').is(':checked')) {
-        //         url = "{{ route('web_release_search_by_id') }}";
-        //         $('#search-by-name').attr('name', 'id');
-        //         $('#search-by-name').attr('type', 'number');
-        //         $('#search-by-name').attr('placeholder', 'Search by Id');
+             } else if ($('#field-id').is(':checked')) {
+                 url = "{{ route('web_release_search_by_id') }}";
+                 $('#search-by-name').attr('name', 'id');
+                 $('#search-by-name').attr('type', 'number');
+                 $('#search-by-name').attr('placeholder', 'Search by Id');
 
-        //     } else if ($('#field-date').is(':checked')) {
-        //         url = "{{ route('web_release_search_by_date') }}";
-        //         $('#search-by-name').attr('name', 'date_created');
-        //         $('#search-by-name').attr('type', 'date');
-        //     }
+             } else if ($('#field-date').is(':checked')) {
+                 url = "{{ route('web_release_search_by_date') }}";
+                 $('#search-by-name').attr('name', 'date_created');
+                 $('#search-by-name').attr('type', 'date');
+             }
 
-        //     if (search.trim() == '') {
-        //         $('#result').html('');
-        //         return;
-        //     }
+             if (search.trim() == '') {
+                 $('#result').html('');
+                 return;
+             }
 
-        //     $.ajax({
-        //         url: url,
-        //         type: "POST",
-        //         data: $('#form-search-release').serialize(),
-        //         success: function(data) {
-        //             $('#result').html(
-        //                 `<p>Result: ${data.length} release(s)</p>
-    //                 <div class="release-note-list">
-    //                   ${data.map((release) => {
-    //                       release.detail_description = release.detail_description.length > 62 ? release.detail_description.substring(0, 62).concat('...'):release.detail_description;
-    //                       return`<div class="release-note-item">
-        //                 <div class="release-note-item-header" onclick="activeBody(${release.id})">
-        //                   <div class="release-note-item-header-title">
-        //                     ${release.name}
-        //                   </div>
-        //                   <div class="release-note-item-header-date">
-        //                     ${release.created_at.substring(0, 10)}
-        //                   </div>
-        //                 </div>
-        //                 <div class="release-note-item-body unactive" id="body${release.id}">
-        //                   <div class="release-note-item-body-title ">
-        //                     Title: ${release.title_description}
-        //                   </div>
-        //                   <div class="release-note-item-body-description">
-        //                     Description: ${release.detail_description}
-        //                   </div>
-        //                   <div class="more-detail">
-        //                     <a href="/releases/${release.id}">More detail</a>
-        //                   </div>
-        //                 </div>
-        //               </div>`}).join('')}
-    //                 </div>`
-        //             );
-        //         },
-        //         error: function(data) {
-        //             $('#result').html(
-        //                 '<p>Result: 0 release(s)</p>'
-        //             )
-        //         }
-        //     });
-        // }
+             $.ajax({
+                 url: url,
+                 type: "POST",
+                 data: $('#form-search-release').serialize(),
+                 success: function(data) {
+                     $('#result').html(
+                         `<p>Result: ${data.length} release(s)</p>
+                     <div class="release-note-list">
+                       ${data.map((release) => {
+                           release.detail_description = release.detail_description.length > 62 ? release.detail_description.substring(0, 62).concat('...'):release.detail_description;
+                           return`<div class="release-note-item">
+                         <div class="release-note-item-header" onclick="activeBody(${release.id})">
+                           <div class="release-note-item-header-title">
+                             ${release.name}
+                           </div>
+                           <div class="release-note-item-header-date">
+                             ${release.created_at.substring(0, 10)}
+                           </div>
+                         </div>
+                         <div class="release-note-item-body hidden" id="body${release.id}">
+                           <div class="release-note-item-body-title ">
+                             Title: ${release.title_description}
+                           </div>
+                           <div class="release-note-item-body-description">
+                             Description: ${release.detail_description}
+                           </div>
+                           <div class="more-detail">
+                             <a href="/releases/${release.id}">More detail</a>
+                           </div>
+                         </div>
+                       </div>`}).join('')}
+                     </div>`
+                     );
+                 },
+                 error: function(data) {
+                     $('#result').html(
+                         '<p>Result: 0 release(s)</p>'
+                     )
+                 }
+             });
+         }
 
         function confirmDeleteMoreRelease(releaseIDs) {
             for (var i = 0; i < releaseIDs.length; i++) {
@@ -362,22 +362,18 @@
 @section('javascript')
     <script>
         const app = new Vue({
-            el: '#test',
+            el: '#manage_release',
             data: {
-                name: 'quang bao',
+                releases: @json($releases),
+                all_Releases_count: @json($all_Releases_count),
             },
             computed: {},
             methods: {
-                submit() {
-                    console.log(this.name);
-                },
                 enableEdit(value) {
                     console.log(value);
-                    axios.get('{{ route('api_releasevuejs_get_all_releasevuejs') }}', {
+                    axios.get("{{ route('web_releasevuejs_edit', 1) }}", {
                             headers: {
-                                'Content-Type': 'application/json',
-                                'Accept': 'application/json',
-                                'Authorization': "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIyIiwianRpIjoiYjYyZDkwNzM1ZGVlNDNjNWVmNWQ4NTZjMTBhZGQ3OGY2MmRjOWQ3NzZhZDE3MjMzMjdiY2RhNDMzOTc3YjhkNDY3YzY3OTI4MzFiZTU4ZWIiLCJpYXQiOjE2OTQ1OTU0ODYsIm5iZiI6MTY5NDU5NTQ4NiwiZXhwIjoxNjk0NjgxODg2LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.rO06JDwl35Nr3z-2kXasC-XDBKZbJh4cQBFRxwtJUZnTUGw45du-7i217GBvHI7vSKSX8WZWUfUk3fZ03B3ngvj4VbPBQ-fzk5BtDnEmksr-3h9_7EIAGWJNG4J-HBxmeY8guNXXO_0uNiwoSWFKbo-zwGxRk40WEaKEP3vskYq2MvU6DR9b8Akz7tAODZ4qOcrDSwuOHpsJKXmtbU0MHxH6FHENbYiKByNIj29-VtIN4v_CxEuRsg7gshnBh_6b2Bd80vTNPWN7bkzDfgeT0NOYVWYh8qz49CnelDllAxA95mSt2az3xwwNE3M2NJR_4Yw0RGgbIFu8L4i4ta_zS447_NUw4PoysVCKxCD9KbXwjTccGkSpYKht7Trnxe-YCW7liR57HnKx0i5IdqvR0VlyIB5UZY9pE6OrQRsdG-vEChoAD_qkDVXzV4gaof9qRxehrYALGSJ4O2443HSOUUPJZgT-n5ij-prA-QopZ7CxHhVc-OCUjqHVoDUfw_OsJorDB09t_TU4Afsr4DdCo0viDhxfmsur5tzyaiscQGy2nj7Lb7mbDgKibfsHQDfwZQALh5ZSE_3n-XzNNEdLg4o1bMSpsF3EFshwJoYsn1Gui9I985T7zmxSBGDdDZSPlAJz7N-COBtxeCDiujxwFItQyyjCAWpCosmtKchgSIw"
+                                _token: "{{ csrf_token() }}",
                             },
                         })
                         .then(function(response) {
@@ -404,54 +400,17 @@
 @endphp
 
 @section('content')
-    <div class="col-12" id="test">
-        {{-- @can('search-users')
-            <div class="create-seach-area">
-                <div class="search-area">
-                    <h2>Search releases</h2>
-                    <div class="search">
-                        <form class="form-search" id="form-search-release" action="" method="POST">
-                            {{ csrf_field() }}
-                            <input type="text" name="name" id="search-by-name" placeholder="Search by Name"
-                                oninput="searchRelease()" autocomplete="off">
-                        </form>
-                        <span>Search by: </span>
-                        <div class="select-field-search">
-                            <input type="radio" onclick="searchRelease()" name="field" id="field-name" checked>
-                            <label for="field-name"> Name </label>
-
-                            <input type="radio" onclick="searchRelease()" name="field" id="field-id">
-                            <label for="field-id"> ID </label>
-
-                            <input type="radio" onclick="searchRelease()" name="field" id="field-date">
-                            <label for="field-date"> Date </label>
-                        </div>
-                    </div>
-
-                    <div class="result" id="result">
-                    </div>
-                </div>
-                <div class="create-release">
-                    <div class="create">
-                        <a href="{{ route('web_release_create') }}"> <button class="btn btn-primary mt-6">Create New
-                                Release</button></a>
-                    </div>
-                </div>
-            </div>
-        @endcan --}}
+    <div class="col-12" id="manage_release">
         <div class="row">
             @can('search-users')
                 <div class="col">
                     <div class="card card-custom gutter-b card-stretch">
-                        {{-- thêm class boloc --}}
                         <div class="card-header boloc border-0 py-5">
                             <h3 class="card-title"><span class="font-weight-bolder">{{ __('Bộ Lọc') }}</span></h3>
                             <div class="card-toolbar">
-                                <!-- // -->
                             </div>
                         </div>
-
-                        <div class="card-body boloc-show unactive">
+                        <div class="card-body boloc-show hidden">
                             <div class="tab-content">
                                 <form class="form gutter-b col" action="">
                                     <div class="form-group row mt-4">
@@ -541,7 +500,7 @@
             </div>
 
             @can('delete-users')
-                <div class="delete-more-release unactive">
+                <div class="delete-more-release hidden">
                     <form action="{{ route('web_releasevuejs_delete_bulk') }}" method="POST" id="form-delete-more-release">
                         {{ csrf_field() }}
                         {{ method_field('DELETE') }}
@@ -654,7 +613,7 @@
                                                                 image(s)</span>
                                                         @endif
                                                     @else
-                                                        <p> No Image </p>
+                                                        <p> Not image </p>
                                                     @endif
                                                 </div>
                                             </td>
@@ -666,8 +625,8 @@
                                             @endcan
                                             @can('update-users')
                                                 <td style="text-align: center">
-                                                    <i class="fa fa-pen btn-edit"
-                                                        v-on:click="enableEdit({{ $release->id }})"></i>
+                                                    <i class="fa fa-pen btn-edit" @click="enableEdit({{ $release->id }})"></i>
+                                                    {{ csrf_field() }}
                                                 </td>
                                             @endcan
                                             @can('delete-users')
@@ -711,7 +670,7 @@
     @push('after_script')
         <script>
             $('.boloc').on('click', function() {
-                $('.boloc-show').toggleClass('unactive');
+                $('.boloc-show').toggleClass('hidden');
             });
         </script>
     @endpush

@@ -537,12 +537,6 @@
             margin-right: 5px;
         }
 
-        /* .gender-male label,
-                                                        .gender-female label,
-                                                        .gender-none label {
-                                                            font-size: 16px
-                                                        } */
-
         label {
             margin: 0;
             font-size: 16px;

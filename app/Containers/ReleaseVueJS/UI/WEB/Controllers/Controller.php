@@ -36,6 +36,17 @@ class Controller extends WebController
     {
         $releases           = Apiato::call('ReleaseVueJS@GetAllReleaseVueJsAction', [new DataTransporter($request)]);
         $all_Releases_count = ReleaseVueJS::all()->count();
+
+        // if ($request->expectsJson()) {
+        //     return response()->json([
+        //         'status' => 'success',
+        //         'data'   => $releases,
+        //         'meta'   => [
+        //             'total' => $all_Releases_count,
+        //         ],
+        //     ]);
+        // }
+
         return view('releasevuejs::admin.admin-show-release-page', compact('releases', 'all_Releases_count'));
     }
 
@@ -69,7 +80,6 @@ class Controller extends WebController
      */
     public function store(StoreReleaseVueJSRequest $request)
     {
-        // dd($request->file('images'));
         $requestData = $request->all();
         if ($request->hasfile('images')) {
             foreach ($request->images as $key => $file) {
@@ -107,6 +117,12 @@ class Controller extends WebController
     public function edit(EditReleaseVueJSRequest $request)
     {
         $release = Apiato::call('ReleaseVueJS@FindReleaseVueJSByIdAction', [new DataTransporter($request)]);
+        if ($request->expectsJson()) {
+            return response()->json([
+                'status' => 'success',
+                'data'   => $release,
+            ]);
+        }
         return view('releasevuejs::admin.admin-create-release-page', compact('release'));
     }
 

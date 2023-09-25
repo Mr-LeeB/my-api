@@ -24,3 +24,14 @@
 h3 i {
     color: #3f4254;
 }
+
+.check-all-permission-in-group {}
+
+.check-box-permission {
+    width: 20px;
+    height: 20px;
+}
+
+.check-box-permission:checked {
+    background-color: red;
+}

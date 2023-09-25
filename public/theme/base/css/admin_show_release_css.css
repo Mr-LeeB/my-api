@@ -222,10 +222,6 @@ a {
     align-items: center;
 }
 
-.unactive {
-    display: none;
-}
-
 /* css show-searchable */
 .show-searchable {
     position: absolute;
