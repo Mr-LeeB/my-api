@@ -52,7 +52,7 @@ class FindReleaseVueJSByIdRequest extends Request
     public function rules()
     {
         return [
-            'id' => 'required|exists:releases,id|integer',
+            'id' => 'required|exists:releasevuejs,id|integer',
         ];
     }
 

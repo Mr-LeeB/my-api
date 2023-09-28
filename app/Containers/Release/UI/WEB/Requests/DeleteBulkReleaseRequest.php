@@ -43,7 +43,7 @@ class DeleteBulkReleaseRequest extends Request
     public function rules()
     {
         return [
-            'id'   => 'array|required',
+            'id'   => 'required',
             'id.*' => 'exists:releases,id',
         ];
     }

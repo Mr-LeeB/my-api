@@ -43,8 +43,8 @@ class DeleteBulkReleaseVueJSRequest extends Request
     public function rules()
     {
         return [
-            'id'   => 'array|required',
-            'id.*' => 'exists:releases,id',
+            'id'   => 'required',
+            'id.*' => 'exists:releasevuejs,id',
         ];
     }
 

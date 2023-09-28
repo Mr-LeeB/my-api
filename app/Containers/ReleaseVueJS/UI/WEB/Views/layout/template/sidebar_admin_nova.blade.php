@@ -5,9 +5,10 @@
 @endphp
 <!-- Logo -->
 <div class="logo-nova">
-    {{-- <a href="/system">
-        <img src="{{asset('storage/'.$view_load_namespace.'/images/logo.png')}}" alt="" />
-    </a> --}}
+    <a href="#">
+        <img src="{{ asset('storage/images/logo.png') }}" alt="" />
+        {{-- <img src="{{ asset('storage/' . $view_load_namespace . '/images/logo.png') }}" alt="" /> --}}
+    </a>
 </div>
 @php
     $menus = [
@@ -55,11 +56,7 @@
             'children' => [
                 [
                     'label' => 'Permissions',
-                    'url' => '/#',
-                ],
-                [
-                    'label' => 'Permissions 2',
-                    'url' => '/#',
+                    'url' => '/authorization',
                 ],
             ],
         ],
@@ -116,11 +113,11 @@
                         <div>
                             <a href="{{ $child['url'] ?? '#' }}" target="_self">
                                 <div class="items-center" style="width: 100%">
-                                    <span class="text" style="width: 20%; display: inline-block">
-                                        @if (strpos(request()->fullUrl(), $child['url']) !== false)
+                                    @if (strpos(request()->fullUrl(), $child['url']) !== false)
+                                        <span class="text" style="width: 20%; display: inline-block">
                                             {!! '<i class="fa fa-eye" aria-hidden="true"></i>' !!}
-                                        @endif
-                                    </span>
+                                        </span>
+                                    @endif
                                     <span class="text"
                                         style="wdith: 80%; display: inline-block; @if (strpos(request()->fullUrl(), $child['url']) !== false) {{ 'font-weight: bold; font-style: italic' }} @endif">
                                         {{ $child['label'] ?? '' }}

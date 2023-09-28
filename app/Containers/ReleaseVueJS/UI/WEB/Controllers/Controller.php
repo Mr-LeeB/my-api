@@ -34,20 +34,20 @@ class Controller extends WebController
      */
     public function getAllRelease(GetAllReleaseVueJsRequest $request)
     {
-        $releases           = Apiato::call('ReleaseVueJS@GetAllReleaseVueJsAction', [new DataTransporter($request)]);
-        $all_Releases_count = ReleaseVueJS::all()->count();
+        $releases = Apiato::call('ReleaseVueJS@GetAllReleaseVueJsAction', [new DataTransporter($request)]);
 
-        // if ($request->expectsJson()) {
-        //     return response()->json([
-        //         'status' => 'success',
-        //         'data'   => $releases,
-        //         'meta'   => [
-        //             'total' => $all_Releases_count,
-        //         ],
-        //     ]);
-        // }
+        if ($request->expectsJson()) {
+            return response()->json([
+                'status' => 'success',
+                'data'   => $releases,
+            ]);
+        }
 
-        return view('releasevuejs::admin.admin-show-release-page', compact('releases', 'all_Releases_count'));
+        // dd(response()->json([
+        //     'status' => 'success',
+        //     'data'   => $releases,
+        // ]));
+        return view('releasevuejs::admin.admin-show-release-page', compact('releases'));
     }
 
     /**
@@ -103,7 +103,22 @@ class Controller extends WebController
             $release = Apiato::call('ReleaseVueJS@CreateReleaseVueJSAction', [new DataTransporter($requestData)]);
         } catch (Exception $e) {
             \Log::error($e);
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'status'  => 'error',
+                    'message' => '',
+                    'error'   => '<p>Release <strong>' . $requestData['name'] . '</strong> Created Failed</p>',
+                ]);
+            }
             return redirect()->route('web_releasevuejs_create')->with('error', '<p>Release <strong>' . $requestData['name'] . '</strong> Created Failed</p>');
+        }
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'status'  => 'success',
+                'message' => 'Release created successfully',
+                'success' => '<p>Release <strong>' . $release->name . '</strong> Created Successfully</p>',
+            ]);
         }
 
         return redirect()->route('web_releasevuejs_create')->with('success', '<p>Release <strong>' . $release->name . '</strong> Created Successfully</p>');
@@ -118,10 +133,7 @@ class Controller extends WebController
     {
         $release = Apiato::call('ReleaseVueJS@FindReleaseVueJSByIdAction', [new DataTransporter($request)]);
         if ($request->expectsJson()) {
-            return response()->json([
-                'status' => 'success',
-                'data'   => $release,
-            ]);
+            return $release;
         }
         return view('releasevuejs::admin.admin-create-release-page', compact('release'));
     }
@@ -135,53 +147,70 @@ class Controller extends WebController
     {
         try {
             $result = Apiato::call('ReleaseVueJS@FindReleaseVueJSByIdAction', [new DataTransporter($request)]);
+
+
+            $requestData = $request->all();
+
+            if ($result->images) {
+                if ($request->images_old) {
+                    foreach ($result->images as $key => $value) {
+                        if (!in_array($value, $request->images_old)) {
+                            Storage::disk('public')->delete(substr($value, 8));
+                        }
+                    }
+                    $requestData['images'] = $request->images_old;
+                } else {
+                    foreach ($result->images as $key => $value) {
+                        Storage::disk('public')->delete(substr($value, 8));
+                    }
+                    $requestData['images'] = [];
+                }
+            } else {
+                $requestData['images'] = [];
+            }
+
+            if ($request->hasfile('images')) {
+                foreach ($request->file('images') as $file) {
+                    $name = time() . rand(1, 100) . '.' . $file->getClientOriginalName();
+
+                    $image_resize = Image::make($file->getRealPath());
+                    $image_resize->resize(400, 400);
+                    $image_resize->save(public_path('storage/images/' . $name));
+
+                    $saved_image_uri = $image_resize->dirname . '/' . $name;
+
+                    Storage::disk('public')->putFileAs('images-release', new File($saved_image_uri), $name, 'public');
+
+                    $image_resize->destroy();
+                    unlink($saved_image_uri);
+
+                    // Storage::disk('public')->putFileAs('images-release', $file, $name, 'public');
+
+                    $requestData['images'][] = '/storage/images-release/' . $name;
+                }
+            }
+
+            $release = Apiato::call('ReleaseVueJS@UpdateReleaseVueJSAction', [new DataTransporter($requestData)]);
+
         } catch (Exception $e) {
             \Log::error($e);
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'status'  => 'error',
+                    'message' => '',
+                    'error'   => '<p>Release <strong>' . $request->name . '</strong> Updated Failed</p>',
+                ]);
+            }
             return redirect()->route('web_releasevuejs_edit', [$request->id])->with('error', '<p>Release <strong>' . $request->name . '</strong> Updated Failed</p>');
         }
 
-        $requestData = $request->all();
-
-        if ($result->images) {
-            if ($request->images_old) {
-                foreach ($result->images as $key => $value) {
-                    if (!in_array($value, $request->images_old)) {
-                        Storage::disk('public')->delete(substr($value, 8));
-                    }
-                }
-                $requestData['images'] = $request->images_old;
-            } else {
-                foreach ($result->images as $key => $value) {
-                    Storage::disk('public')->delete(substr($value, 8));
-                }
-                $requestData['images'] = [];
-            }
-        } else {
-            $requestData['images'] = [];
+        if ($request->expectsJson()) {
+            return response()->json([
+                'status'  => 'success',
+                'message' => 'Release updated successfully',
+                'success' => '<p>Release <strong>' . $release->name . '</strong> Updated Successfully</p>',
+            ]);
         }
-
-        if ($request->hasfile('images')) {
-            foreach ($request->file('images') as $file) {
-                $name = time() . rand(1, 100) . '.' . $file->getClientOriginalName();
-
-                $image_resize = Image::make($file->getRealPath());
-                $image_resize->resize(400, 400);
-                $image_resize->save(public_path('storage/images/' . $name));
-
-                $saved_image_uri = $image_resize->dirname . '/' . $name;
-
-                Storage::disk('public')->putFileAs('images-release', new File($saved_image_uri), $name, 'public');
-
-                $image_resize->destroy();
-                unlink($saved_image_uri);
-
-                // Storage::disk('public')->putFileAs('images-release', $file, $name, 'public');
-
-                $requestData['images'][] = '/storage/images-release/' . $name;
-            }
-        }
-
-        $release = Apiato::call('ReleaseVueJS@UpdateReleaseVueJSAction', [new DataTransporter($requestData)]);
 
         return redirect()->route('web_releasevuejs_edit', [$release->id])->with('success', '<p>Release <strong>' . $release->name . '</strong> Updated Successfully</p>');
     }
@@ -204,28 +233,39 @@ class Controller extends WebController
             }
         } catch (Exception $e) {
             \Log::error($e);
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'status'  => 'error',
+                    'message' => '',
+                    'error'   => '<p style="color:red"> Release Not Found </p>',
+                ]);
+            }
             return redirect()->route('web_releasevuejs_get_all_release')->with('error', '<p style="color:red"> Release Not Found </p>');
         }
+        if ($request->expectsJson()) {
+            return response()->json([
+                'status'  => 'success',
+                'message' => 'Release deleted successfully',
+                'success' => "<p style='color:blue'>Release <strong>" . $result->name . "</strong> Deleted Successfully</p>",
+            ]);
+        }
+
         return redirect()->route('web_releasevuejs_get_all_release')->with('success', '<p style="color:blue">Release <strong>' . $result->name . '</strong> Deleted Successfully</p>');
     }
     public function deleteBulk(DeleteBulkReleaseVueJSRequest $request)
     {
-
         try {
+
             $result = Apiato::call('ReleaseVueJS@FindReleaseVueJSByIdAction', [new DataTransporter($request)]);
-        } catch (Exception $e) {
-            \Log::error($e);
-            return redirect()->route('web_releasevuejs_get_all_release')->with('error', '<p style="color:red"> Release(s) Not Found </p>');
-        }
 
-        $releaseName = '';
-        foreach ($result as $value) {
-            $releaseName .= $value->name . ', ';
-        }
-        $releaseName = substr($releaseName, 0, -2);
+            $releaseName = '';
+            foreach ($result as $value) {
+                $releaseName .= $value->name . ', ';
+            }
+            $releaseName = substr($releaseName, 0, -2);
 
-        try {
             Apiato::call('ReleaseVueJS@DeleteBulkReleaseVueJSAction', [new DataTransporter($request)]);
+
             foreach ($result as $item) {
                 if ($item->images != null) {
                     foreach ($item->images as $image) {
@@ -233,9 +273,25 @@ class Controller extends WebController
                     }
                 }
             }
+
         } catch (Exception $e) {
             \Log::error($e);
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'status'  => 'error',
+                    'message' => '',
+                    'error'   => '<p style="color:red"> Release(s) Not Found </p>',
+                ]);
+            }
             return redirect()->route('web_releasevuejs_get_all_release')->with('error', '<p style="color:red"> Release(s) Not Found </p>');
+        }
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'status'  => 'success',
+                'message' => 'Release(s) deleted successfully',
+                'success' => '<p style="color:blue"> Release <strong>' . $releaseName . '</strong> Deleted Successfully </p>',
+            ]);
         }
         return redirect()->route('web_releasevuejs_get_all_release')->with('success', '<p style="color:blue"> Release <strong>' . $releaseName . '</strong> Deleted Successfully </p>');
     }

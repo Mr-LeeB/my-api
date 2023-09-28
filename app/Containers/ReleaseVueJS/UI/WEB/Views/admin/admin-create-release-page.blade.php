@@ -53,6 +53,8 @@
             $list_images = $release->images;
         }
     @endphp
+
+
     <script>
         var quill = new Quill('#editor', {
             theme: 'snow',
@@ -83,50 +85,51 @@
     </script>
     <script>
         $("#name").on("input", function() {
-            if ($(this).val().length < 3) {
+            if ($(this).val().trim().length < 3) {
                 $(".validate-name").html('Name must be at least 3 characters!');
                 $(".validate-name").css('color', 'red');
                 $(".validate-name").removeClass('hidden');
             }
 
-            if ($(this).val().length > 40) {
+            if ($(this).val().trim().length > 40) {
                 $(".validate-name").html('Name must be less than 40 characters!');
                 $(".validate-name").css('color', 'red');
                 $(".validate-name").removeClass('hidden');
             }
 
-            if ($(this).val().length >= 3 && $("#name").val().length <= 40 || $("#name").val().length == 0) {
+            if ($(this).val().trim().length >= 3 && $("#name").val().trim().length <= 40 || $("#name").val().trim()
+                .length == 0) {
                 $(".validate-name").addClass('hidden');
             }
         });
 
         $("#title_description").on("input", function() {
-            if ($(this).val().length < 3) {
+            if ($(this).val().trim().length < 3) {
                 $(".validate-title").html('Title must be at least 3 characters!');
                 $(".validate-title").css('color', 'red');
                 $(".validate-title").removeClass('hidden');
             }
 
-            if ($(this).val().length > 255) {
+            if ($(this).val().trim().length > 255) {
                 $(".validate-title").html('Title must be less than 255 characters!');
                 $(".validate-title").css('color', 'red');
                 $(".validate-title").removeClass('hidden');
             }
 
-            if ($(this).val().length >= 3 && $("#title_description").val().length <= 255 || $(
-                    "#title_description").val().length == 0) {
+            if ($(this).val().trim().length >= 3 && $("#title_description").val().trim().length <= 255 || $(
+                    "#title_description").val().trim().length == 0) {
                 $(".validate-title").addClass('hidden');
             }
         });
 
         $('#detail_description_editor').on('input', function() {
-            if ($(this).text().length < 3) {
+            if ($(this).text().trim().length < 3) {
                 $(".validate-description").html('Description must be at least 3 characters!');
                 $(".validate-description").css('color', 'red');
                 $(".validate-description").removeClass('hidden');
             }
 
-            if ($(this).text().length >= 3 || $(this).text().length == 0) {
+            if ($(this).text().trim().length >= 3 || $(this).text().trim().length == 0) {
                 $(".validate-description").addClass('hidden');
             }
         });
@@ -218,25 +221,24 @@
 
                     box_image.append(`
                                 <div class="image-input image-input-outline" id="image_${time}_${random}">
-                                <div class="image-input-wrapper" style="background-image: url(${URL.createObjectURL(image)})"></div>
+                                    <div class="image-input-wrapper" style="background-image: url(${URL.createObjectURL(image)})"></div>
 
-                                <label class="btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary btn-shadow"
-                                    data-action="change" data-toggle="tooltip" title=""
-                                    data-original-title="Change">
-                                    <i class="fa fa-pen icon-sm text-muted"></i>
-                                    <input type="file" id="_${time}_${random}" accept=".png, .jpg, .jpeg" />
-                                </label>
+                                    <label class="btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary btn-shadow"
+                                        data-action="change">
+                                        <i class="fa fa-pen icon-sm text-muted"></i>
+                                        <input type="file" id="_${time}_${random}" accept=".png, .jpg, .jpeg" />
+                                    </label>
 
-                                <span class="btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary btn-shadow" 
-                                    data-action="cancel" data-toggle="tooltip" title="Cancel avatar">
-		                            <i class="ki ki-bold-close icon-xs text-muted"></i>
-	                            </span>
+                                    <span class="btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary btn-shadow" 
+                                        data-action="cancel" data-toggle="tooltip" title="Cancel avatar">
+                                        <i class="ki ki-bold-close icon-xs text-muted"></i>
+                                    </span>
 
-                                <span class="btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary btn-shadow"
-                                    data-action="remove" data-toggle="tooltip" title="Remove" >
-                                    <i class="ki ki-bold-close icon-xs text-muted"></i>
-                                </span>
-                            </div>`);
+                                    <span class="btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary btn-shadow"
+                                        data-action="remove">
+                                        <i class="ki ki-bold-close icon-xs text-muted"></i>
+                                    </span>
+                                </div>`);
 
 
                     $(".list-images").append(box_image);
@@ -342,14 +344,57 @@
             @endif
         });
     </script>
+
+    {{-- <script>
+        Vue.component('show-images',
+            props: {
+                time: {
+                    type: String,
+                    required: true
+                },
+                random: {
+                    type: String,
+                    required: true
+                },
+                image: {
+                    type: String,
+                    required: true
+                }
+
+            },
+            methods: {
+                showImages: function() {
+                    alert('show images');
+                }
+            },
+            template: `<div class="image-input image-input-outline" :id="'image_' + time + '_' + random">
+                            <div class="image-input-wrapper" :style="{background-image: url(image)}"></div>
+
+                            <label class="btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary btn-shadow"
+                                data-action="change">
+                                <i class="fa fa-pen icon-sm text-muted"></i>
+                                <input type="file" :id="'_' + time + '_' + random" accept=".png, .jpg, .jpeg" />
+                            </label>
+
+                            <span class="btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary btn-shadow" 
+                                data-action="cancel" data-toggle="tooltip" title="Cancel avatar">
+                                <i class="ki ki-bold-close icon-xs text-muted"></i>
+                            </span>
+
+                            <span class="btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary btn-shadow"
+                                data-action="remove">
+                                <i class="ki ki-bold-close icon-xs text-muted"></i>
+                            </span>
+                        </div>`;
+        );
+    </script> --}}
 @endsection
 
 @section('content')
-    <div class="col-12">
+    <div class="col-12" id="manage-create-edit">
         <div class="row">
             <div class="col-6 create-form">
                 <div class="card card-custom">
-
                     <div class="card-header">
                         <h3 class="card-title">
                             @if ($release != null)
@@ -358,7 +403,6 @@
                                 {{ __('Create new release') }}
                             @endif
                         </h3>
-
                     </div>
                     <form id="form-create-release" class="form" action="{{ route('web_releasevuejs_store') }}"
                         method="POST" enctype="multipart/form-data">
@@ -413,8 +457,7 @@
 
                                                 <label
                                                     class="btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary btn-shadow"
-                                                    data-action="change" data-toggle="tooltip" title=""
-                                                    data-original-title="Change">
+                                                    data-action="change">
                                                     <i class="fa fa-pen icon-sm text-muted"></i>
                                                     <input type="file" id="_{{ $key }}"
                                                         accept=".jpeg, .png, .jpg, .gif, .svg, .webp" />
@@ -428,7 +471,7 @@
 
                                                 <span
                                                     class="btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary btn-shadow"
-                                                    data-action="remove" data-toggle="tooltip" title="Remove">
+                                                    data-action="remove">
                                                     <i class="ki ki-bold-close icon-xs text-muted"></i>
                                                 </span>
                                             </div>
@@ -454,9 +497,9 @@
                         <h2 class="card-title">
                             <span style="color:red">*</span>Description:
                         </h2>
-                        <div class="card-title icon-zoom">
-                            <i class="la la-expand icon-lg zoom-in"></i>
-                            <i class="la la-compress icon-lg zoom-out hidden"></i>
+                        <div class="card-toolbar cursor-pointer icon-zoom">
+                            <i class="la la-expand icon-lg zoom-in" data-toggle="tooltip" title="Zoom in"></i>
+                            <i class="la la-compress icon-lg zoom-out hidden" data-toggle="tooltip" title="Zoom out"></i>
                         </div>
                     </div>
                     <div class="card-body">
@@ -472,7 +515,7 @@
                             {!! session('success') !!}
                         @else
                             @if ($release == null)
-                                <h4>Don't have Release(s) created recently!</h4>
+                                <h4>No Release(s) created recently!</h4>
                             @endif
                         @endif
                     </div>

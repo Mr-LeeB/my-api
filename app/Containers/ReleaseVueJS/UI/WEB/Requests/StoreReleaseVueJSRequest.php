@@ -52,7 +52,7 @@ class StoreReleaseVueJSRequest extends Request
     public function rules()
     {
         return [
-            'name'               => 'required|unique:releases,name|max:40|min:3',
+            'name'               => 'required|unique:releasevuejs,name|max:40|min:3',
             'title_description'  => 'required|max:255|min:3',
             'detail_description' => 'required|string|min:3',
             'is_publish'         => 'boolean',

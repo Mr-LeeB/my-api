@@ -127,11 +127,11 @@
         });
 
         function activeBody(id) {
-            $('#body' + id).toggleClass('unactive');
+            $('#body' + id).toggleClass('hidden');
         }
 
         $('.input-group-text').on('click', function() {
-            $('.show-searchable').toggleClass('unactive');
+            $('.show-searchable').toggleClass('hidden');
         });
 
         $('.set-searchable').on('click', function() {
@@ -183,7 +183,7 @@
         //                     ${release.created_at.substring(0, 10)}
         //                   </div>
         //                 </div>
-        //                 <div class="release-note-item-body unactive" id="body${release.id}">
+        //                 <div class="release-note-item-body hidden" id="body${release.id}">
         //                   <div class="release-note-item-body-title ">
         //                     Title: ${release.title_description}
         //                   </div>
@@ -416,7 +416,7 @@
                             </div>
                         </div>
 
-                        <div class="card-body boloc-show unactive">
+                        <div class="card-body boloc-show hidden">
                             <div class="tab-content">
                                 <form class="form gutter-b col" action="">
                                     <div class="form-group row mt-4">
@@ -506,7 +506,7 @@
             </div>
 
             @can('delete-users')
-                <div class="delete-more-release unactive">
+                <div class="delete-more-release">
                     <form action="{{ route('web_release_delete_bulk') }}" method="POST" id="form-delete-more-release">
                         {{ csrf_field() }}
                         {{ method_field('DELETE') }}
@@ -675,7 +675,7 @@
     @push('after_script')
         <script>
             $('.boloc').on('click', function() {
-                $('.boloc-show').toggleClass('unactive');
+                $('.boloc-show').toggleClass('hidden');
             });
         </script>
     @endpush

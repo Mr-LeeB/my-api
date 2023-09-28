@@ -175,7 +175,7 @@
                        ${data.map((release) => {
                            release.detail_description = release.detail_description.length > 62 ? release.detail_description.substring(0, 62).concat('...'):release.detail_description;
                            return`<div class="release-note-item">
-                         <div class="release-note-item-header" onclick="activeBody(${release.id})">
+                         <div class="release-note-item-header" @click="activeBody(${release.id})">
                            <div class="release-note-item-header-title">
                              ${release.name}
                            </div>
@@ -364,29 +364,357 @@
         const app = new Vue({
             el: '#manage_release',
             data: {
-                releases: @json($releases),
-                all_Releases_count: @json($all_Releases_count),
+                releases: @json($releases->items()),
+                total: @json($releases->total()),
+                length: @json($releases->count()),
+                message: @json(session('success')),
+                error: @json(session('error')),
+                success: @json(session('success')),
+
+                params: {
+                    orderBy: null,
+                    sortedBy: null,
+                    limit: null,
+                    page: null,
+                    search: null,
+                    searchFields: null,
+                },
+                lastPage: @json($releases->lastPage()),
+                isLoading: false,
             },
-            computed: {},
+            computed: {
+
+            },
             methods: {
-                enableEdit(value) {
-                    console.log(value);
-                    axios.get("{{ route('web_releasevuejs_edit', 1) }}", {
-                            headers: {
-                                _token: "{{ csrf_token() }}",
-                            },
+                getRelease: function() {
+                    this.isLoading = true;
+                    axios.get('releasevuejs/', {
+                            params: {
+                                orderBy: app.params.orderBy,
+                                sortedBy: app.params.sortedBy,
+                                limit: app.params.limit,
+                                page: app.params.page,
+                                search: app.params.search,
+                                searchFields: app.params.searchFields,
+                            }
                         })
                         .then(function(response) {
-                            console.log(response);
+                            app.isLoading = false;
+                            app.releases = response.data.data.data;
+                            app.total = response.data.data.total;
+                            app.length = app.releases.length;
+                            app.lastPage = response.data.data.last_page;
                         })
                         .catch(function(error) {
                             console.log(error);
-                        })
-                        .then(function() {
-                            // always executed
                         });
                 },
+                enableEdit: function(id) {
+                    window.location.href = 'releasevuejs/' + id + '/edit';
+                    // axios.get('releasevuejs/' + id + '/edit')
+                    //     .then(function(response) {
+                    //         console.log(response);
+                    //     })
+                    //     .catch(function(error) {
+                    //         console.log(error);
+                    //     });
+                },
+                deleteRelease: function(id) {
+                    if (confirm("Are you sure you want to delete this release?")) {
+                        this.isLoading = true;
+                        axios.delete('releasevuejs/' + id + '/delete')
+                            .then(function(response) {
+                                if (response.data.status == "success") {
+                                    app.success = response.data.success;
+                                    app.message = response.data.message;
+                                    app.getRelease();
+                                } else {
+                                    app.error = response.data.error;
+                                    app.message = response.data.message;
+                                }
+                                this.isLoading = false;
+                            })
+                            .catch(function(error) {
+                                console.log(error);
+                            });
+                    }
+                },
+                confirmDeleteMoreRelease: function() {
+                    this.isLoading = true;
+                    var checkBoxes = document.getElementById("body-content")
+                        .querySelectorAll('input[type="checkbox"]');
+                    var releaseIDs = [];
+                    checkBoxes.forEach((checkbox) => {
+                        if (checkbox.checked && checkbox.value != 'on') {
+                            releaseIDs.push(checkbox.value);
+                            checkbox.checked = false;
+                        }
+                    });
+
+                    if (confirm("Are you sure you want to delete this release?")) {
+                        axios.post("{{ route('web_releasevuejs_delete_bulk') }}", {
+                                id: releaseIDs,
+                                _method: 'DELETE',
+                            })
+                            .then(function(response) {
+                                if (response.data.status == "success") {
+                                    app.getRelease();
+                                    app.success = response.data.success;
+                                    app.message = response.data.message;
+                                } else {
+                                    app.error = response.data.error;
+                                    app.message = response.data.message;
+                                }
+                                this.isLoading = false;
+                            })
+                            .catch(function(error) {
+                                console.log(error);
+                            });
+                    }
+                },
+                checkAll: function() {
+                    var checkBoxes = document.getElementById("body-content")
+                        .querySelectorAll('input[type="checkbox"]');
+
+                    check = document.getElementById("checkAll").checked;
+                    checkBoxes.forEach((checkbox) => {
+                        checkbox.checked = check;
+                    });
+
+                    if (check) {
+                        $(".delete-more-release").removeClass('hidden');
+                    } else {
+                        $(".delete-more-release").addClass('hidden');
+                    }
+                },
+                check: function() {
+                    var checkBoxes = document.getElementById("body-content")
+                        .querySelectorAll('input[type="checkbox"]');
+
+                    var check = true;
+                    var count = 0;
+                    checkBoxes.forEach((checkbox) => {
+                        if (!checkbox.checked) {
+                            check = false;
+                        } else {
+                            count++;
+                        }
+                    });
+
+                    if (checkBoxes.length) {}
+                    document.getElementById("checkAll").checked = check;
+
+                    if (count) {
+                        $(".delete-more-release").removeClass('hidden');
+                    } else {
+                        $(".delete-more-release").addClass('hidden');
+                    }
+                },
+                showReleaseDetailPage: function(id) {
+                    window.location.href = 'releasevuejs/' + id;
+                },
+                sortRelease: function(newOrderBy) {
+                    //if orderBy is null or not equal newOrderBy => set sortedBy = asc
+                    if (this.params.orderBy == null || this.params.orderBy != newOrderBy) {
+                        this.params.orderBy = newOrderBy;
+                        this.params.sortedBy = 'asc';
+                    } else {
+                        //if orderBy is equal newOrderBy => change sortedBy
+                        if (this.params.sortedBy == null) {
+                            this.params.sortedBy = 'asc';
+                        } else {
+                            this.params.sortedBy = this.params.sortedBy == 'asc' ? 'desc' : 'asc';
+                        }
+                    }
+
+                    // change color icon
+                    $('.icon-nm').css('color', '#3f4254');
+                    $('.icon-' + this.params.orderBy).css('display', 'inline-block');
+                    $('.icon-' + this.params.orderBy).css('color', '#a9cef3');
+                    $('.icon-' + this.params.orderBy + '.icon-' + this.params.sortedBy).css('color', '#3699FF');
+                    $('.field').css('color', '#3f4254');
+                    $('.field-' + this.params.orderBy).css('color', '#3699FF');
+
+                },
+                searchRelease: function() {
+                    this.isLoading = true;
+
+                    this.resetParams();
+
+                    var title = $('.search-title').val();
+                    var description = $('.search-description').val();
+                    var date = $('.search-date').val();
+
+                    var field_title = $('.field-search-title').val();
+                    var field_description = $('.field-search-description').val();
+
+                    search = '';
+                    searchFields = '';
+                    if (title != '') {
+                        search += 'title_description:' + title;
+                    }
+
+                    if (description != '') {
+                        if (title != '') {
+                            search += ';detail_description:' + description;
+                        } else {
+                            search += 'detail_description:' + description;
+                        }
+                    }
+
+                    if (date != '') {
+                        if (title != '' || description != '') {
+                            search += ';created_at:' + date;
+                        } else {
+                            search += 'created_at:' + date;
+                        }
+                    }
+
+                    if (field_title != 'like') {
+                        searchFields += 'title_description:' + field_title;
+                    }
+
+                    if (field_description != 'like') {
+                        if (field_title != 'like') {
+                            searchFields += ';detail_description:' + field_description;
+                        } else {
+                            searchFields += 'detail_description:' + field_description;
+                        }
+                    } else {
+                        if (field_title == 'like') {
+                            searchFields = null;
+                        }
+                    }
+
+                    if (search != '') {
+                        this.params.search = search;
+                    }
+
+                    if (searchFields != '') {
+                        this.params.searchFields = searchFields;
+                    }
+
+                    console.log(this.params)
+
+                    this.isLoading = false;
+                },
+                limitRelease: function() {
+                    this.params.limit = $('.form-limit').val();
+
+                    this.params.page = 1;
+                },
+                strip_tags: function(description) {
+                    return description.replace(/(<([^>]+)>)/gi, "");
+                },
+                mb_str_split: function(description) {
+                    if (description.length > 20) {
+                        return description.substring(0, 20).concat('...');
+                    } else {
+                        return description;
+                    }
+                },
+                resetParams: function() {
+                    this.isLoading = true;
+
+                    // clear params
+                    this.params.orderBy = null;
+                    this.params.sortedBy = null;
+                    this.params.limit = null;
+                    this.params.page = null;
+                    this.params.search = null;
+                    this.params.searchFields = null;
+
+                    // clear message
+                    this.success = null;
+                    this.error = null;
+                    this.message = null;
+
+                    // clear search
+                    // $('.search-title').val('');
+                    // $('.search-description').val('');
+                    // $('.search-date').val('');
+
+                    // $('.field-search-title').val('like');
+                    // $('.field-search-description').val('like');
+
+                    // $('.boloc-show').addClass('hidden');
+
+                    // clear icon
+                    $('.form-limit').val(10);
+
+                    $('.icon-nm').css('color', '#3f4254');
+                    $('.field').css('color', '#3f4254');
+
+                    // clear checkbox
+                    var checkBoxes = document.getElementById("body-content")
+                        .querySelectorAll('input[type="checkbox"]');
+                    checkBoxes.forEach((checkbox) => {
+                        if (checkbox.checked) {
+                            checkbox.checked = false;
+                        }
+                    });
+                    this.check();
+
+                    this.isLoading = false;
+                },
+                cssPagination: function(page) {
+                    if (page == this.params.page || (page == 1 && this.params.page == null)) {
+                        return {
+                            'background-color': '#3699FF',
+                            'color': 'white',
+                        };
+                    }
+                },
+                changePage: function(page) {
+                    if (page == this.params.page || (page == -1 && this.params.page == null)) {
+                        return;
+                    }
+                    if (page == 1) {
+                        $(".previous").addClass("disabled");
+                        $(".previous").removeClass("cursor-pointer");
+                    } else {
+                        $(".previous").removeClass("disabled");
+                        $(".previous").addClass("cursor-pointer");
+                    }
+
+                    if (page == this.lastPage) {
+                        $(".next").addClass("disabled");
+                        $(".next").removeClass("cursor-pointer");
+                        // return;
+                    } else {
+                        $(".next").removeClass("disabled");
+                        $(".next").addClass("cursor-pointer");
+                    }
+
+                    console.log(page, this.params.page, this.lastPage);
+
+                    this.params.page = page;
+                },
             },
+            watch: {
+                releases: function() {
+                    console.log("Releases changed: ", this.releases);
+                    this.$nextTick(() => {
+                        app.check();
+                    });
+                },
+                total: function() {
+                    console.log("Rotal changed: " + this.total);
+                },
+                length: function() {
+                    console.log("Length changed: " + this.length);
+                },
+                params: {
+                    handler: function() {
+                        this.getRelease();
+                        console.log("Params changed: ", this.params);
+                    },
+                    deep: true,
+                },
+                lastPage: function() {
+                    console.log("LastPage changed: " + this.lastPage);
+                },
+            }
         })
     </script>
 @endsection
@@ -412,7 +740,7 @@
                         </div>
                         <div class="card-body boloc-show hidden">
                             <div class="tab-content">
-                                <form class="form gutter-b col" action="">
+                                <form class="form gutter-b col">
                                     <div class="form-group row mt-4">
                                         <label class="col-3 col-form-label">Title: </label>
                                         <div class="col-9">
@@ -457,7 +785,7 @@
                                     </div>
                                     <div class="d-flex flex-row-reverse">
                                         <button type="button" id="search_release" class="btn btn-primary btn-block"
-                                            style="width: 180px">{{ __('Lọc danh sách') }}</button>
+                                            style="width: 180px" @click="searchRelease()">{{ __('Lọc danh sách') }}</button>
                                     </div>
                                 </form>
                             </div>
@@ -479,192 +807,195 @@
         @endcan
 
         <div class="table-list-all-release">
-            @if (session('success'))
-                {!! session('success') !!}
-            @endif
-            <div class="d-flex align-items-center py-3">
-                {{-- <div class="d-flex align-items-center">
-                <div class="mr-2 text-muted">Loading...</div>
-                <div class="spinner mr-10"></div>
-            </div> --}}
-
-                <select class="form-limit form-control form-control-sm font-weight-bold mr-4 border-0 bg-light"
-                    style="width: 75px;">
-                    <option value="10">10</option>
-                    <option value="20">20</option>
-                    <option value="30">30</option>
-                    <option value="50">50</option>
-                    <option value="100">100</option>
-                </select>
-                <span class="text-muted">Displaying {{ $releases->count() }} of {{ $all_Releases_count }} records</span>
+            <div class="py-2">
+                <div v-if="error" v-html="error"></div>
+                <div v-if="success" v-html="success"></div>
             </div>
 
-            @can('delete-users')
-                <div class="delete-more-release hidden">
-                    <form action="{{ route('web_releasevuejs_delete_bulk') }}" method="POST" id="form-delete-more-release">
-                        {{ csrf_field() }}
-                        {{ method_field('DELETE') }}
 
-                        @foreach ($releaseID as $id)
-                            <input type="hidden" name="id[]" id="selectedManyReleaseToDel{{ $id }}"
-                                value="{{ $id }}">
-                        @endforeach
-                        <input type="button" onclick="confirmDeleteMoreRelease({{ $releaseID_json }})"
-                            class="btn btn-light-danger font-weight-bold mr-2" value="Delete Releases">
-                    </form>
+            @can('delete-users')
+                <div class="delete-more-release mb-2 hidden">
+                    <input type="button" @click="confirmDeleteMoreRelease()" class="btn btn-light-danger font-weight-bold mr-2"
+                        value="Delete Releases">
                 </div>
             @endcan
 
             <div class="card card-custom card-fit">
                 <div class="card-header">
-                    <h3 class="card-title">{{ __('Danh sách') }} Release</h3>
+                    <div class="card-title">
+                        <h3>{{ __('Danh sách') }} Release </h3>
+                        <div class="d-flex align-items-center ml-2" v-if="isLoading">
+                            <div class="mr-2 text-muted">Loading...</div>
+                            <div class="spinner mr-10"></div>
+                        </div>
+                    </div>
+                    <div class="card-toolbar">
+                        <i class="flaticon2-reload cursor-pointer reset_params" @click="resetParams()" data-toggle="tooltip"
+                            title="Reset"></i>
+                    </div>
                 </div>
-                <div class="card-body">
+
+                <div class="card-body py-0">
                     <table class="table">
                         <thead>
                             <tr>
                                 @can('delete-users')
                                     <td>
-                                        <input type="checkbox" id="checkAll" onclick="checkAll({{ $releaseID_json }})">
+                                        <input type="checkbox" id="checkAll" @click="checkAll()">
                                     </td>
                                 @endcan
-                                <td onclick="sortRelease('id')" class="field-id">ID
+                                <td @click="sortRelease('id')" class="field field-id cursor-pointer"> ID
                                     <i class="la la-long-arrow-up icon-nm icon icon-asc icon-id"></i>
                                     <i class="la la-long-arrow-down icon-nm icon icon-desc icon-id"></i>
                                 </td>
-                                <td onclick="sortRelease('name')" class="field-name">Name
+                                <td @click="sortRelease('name')" class="field field-name cursor-pointer"> Name
                                     <i class="la la-long-arrow-up icon-nm icon icon-asc icon-name"></i>
                                     <i class="la la-long-arrow-down icon-nm icon icon-desc icon-name"></i>
                                 </td>
-                                <td class="text-center field-title_description"
-                                    onclick="sortRelease('title_description')">
-                                    Title
+                                <td class="field field-title_description cursor-pointer"
+                                    @click="sortRelease('title_description')"> Title
                                     <i class="la la-long-arrow-up icon-nm icon icon-asc icon-title_description"></i>
                                     <i class="la la-long-arrow-down icon-nm icon icon-desc icon-title_description"></i>
                                 </td>
-                                <td class="text-center field-detail_description"
-                                    onclick="sortRelease('detail_description')">Description
+                                <td class="field field-detail_description cursor-pointer"
+                                    @click="sortRelease('detail_description')">Description
                                     <i class="la la-long-arrow-up icon-nm icon icon-asc icon-detail_description"></i>
                                     <i class="la la-long-arrow-down icon-nm icon icon-desc icon-detail_description"></i>
                                 </td>
-                                <td class="text-center field-created_at" onclick="sortRelease('created_at')">Date Created
+                                <td class="text-center field field-created_at cursor-pointer"
+                                    @click="sortRelease('created_at')"> Date Created
                                     <i class="la la-long-arrow-up icon-nm icon icon-asc icon-created_at"></i>
                                     <i class="la la-long-arrow-down icon-nm icon icon-desc icon-created_at"></i>
                                 </td>
-                                <td>Is Publish</td>
-                                <td class="text-center">Images</td>
+                                <td class="text-center">Is Publish</td>
+                                <td class="text-center"> Images </td>
                                 @canany(['search-users', 'update-users', 'delete-users'])
-                                    <td class="text-center" colspan="3">Actions</td>
+                                    <td class="text-center" colspan="3"> Actions </td>
                                 @endcanany
                             </tr>
                         </thead>
-                        <tbody>
-                            @if ($releases->isNotEmpty())
+                        <tbody id="body-content">
+                            <div v-if="length > 0">
                                 @can('list-users')
-                                    @foreach ($releases as $release)
-                                        <tr class="bg-hover-secondary">
-                                            @can('delete-users')
-                                                <td style="text-align: center;">
-                                                    <input type="checkbox" id="select_release{{ $release->id }}"
-                                                        onclick="checkOne({{ $releaseID_json }})">
-                                                </td>
-                                            @endcan
-                                            <td>
-                                                {{ $release->id }}
+                                    <tr class="bg-hover-secondary" v-for="release in releases">
+                                        @can('delete-users')
+                                            <td style="text-align: center;">
+                                                <input type="checkbox" :value="release.id" @click="check()">
                                             </td>
-                                            <td>
-                                                {{ $release->name }}
-                                            </td>
-                                            <td class="text-center">
-                                                @if (strlen($release->title_description) > 10)
-                                                    {!! mb_str_split($release->title_description, 10)[0] . '...' !!}
-                                                @else
-                                                    {!! $release->title_description !!}
-                                                @endif
-                                            </td>
-                                            <td>
-                                                @php
-                                                    $detail_description = strip_tags($release->detail_description, '<b><i><u><strong><em>');
-                                                @endphp
-
-                                                @if (strlen($detail_description) > 20)
-                                                    {!! mb_str_split($detail_description, 20)[0] . '...' !!}
-                                                @else
-                                                    {!! $detail_description !!}
-                                                @endif
-                                            </td>
-                                            <td class="text-center">
-                                                {{ substr($release->created_at, 0, 10) }}
-                                            </td>
-                                            <td>
-                                                {{ $release->is_publish }}
-                                            </td>
-                                            <td>
-                                                <div class="small-image d-flex flex-column align-items-center">
-                                                    @if (isset($release->images) && count($release->images) > 0 && $release->images[0] != '')
-                                                        {{-- <img src="{{ asset($release->images[0]) }}" alt="Image"
-                                                        style="width: 50px; height: 50px; border-radius: 10px"> --}}
-                                                        <div class="symbol symbol-40 mr-3">
-                                                            <img alt="Image" src="{{ asset($release->images[0]) }}" />
-                                                        </div>
-                                                        @if (count($release->images) > 1)
-                                                            <span style="font-size: 12px"> More
-                                                                {{ count($release->images) - 1 }}
-                                                                image(s)</span>
-                                                        @endif
-                                                    @else
-                                                        <p> Not image </p>
-                                                    @endif
+                                        @endcan
+                                        <td>
+                                            @{{ release.id }}
+                                        </td>
+                                        <td>
+                                            @{{ mb_str_split(release.name) }}
+                                        </td>
+                                        <td class="">
+                                            @{{ mb_str_split(release.title_description) }}
+                                        </td>
+                                        <td>
+                                            @{{ mb_str_split(strip_tags(release.detail_description)) }}
+                                        </td>
+                                        <td class="text-center">
+                                            @{{ release.created_at.substring(0, 10) }}
+                                        </td>
+                                        <td class="text-center">
+                                            @{{ release.is_publish }}
+                                        </td>
+                                        <td>
+                                            <div class="small-image d-flex flex-column align-items-center"
+                                                v-if="release.images != null">
+                                                <div class="symbol symbol-40 mr-3">
+                                                    <img alt="Image" :src="release.images[0]" />
                                                 </div>
+                                                <span style="font-size: 12px" v-if="release.images.length > 1">
+                                                    More @{{ release.images.length - 1 }} image(s)
+                                                </span>
+                                            </div>
+                                            <div class="small-image d-flex flex-column align-items-center" v-else>
+                                                <p> Not image </p>
+                                            </div>
+                                        </td>
+                                        @can('search-users')
+                                            <td style="text-align: center">
+                                                <i class="fa la-info-circle btn-show-info"
+                                                    @click="showReleaseDetailPage(release.id)"></i>
                                             </td>
-                                            @can('search-users')
-                                                <td style="text-align: center">
-                                                    <i class="fa la-info-circle btn-show-info"
-                                                        onclick="showReleaseDetailPage({{ $release->id }})"></i>
-                                                </td>
-                                            @endcan
-                                            @can('update-users')
-                                                <td style="text-align: center">
-                                                    <i class="fa fa-pen btn-edit" @click="enableEdit({{ $release->id }})"></i>
-                                                    {{ csrf_field() }}
-                                                </td>
-                                            @endcan
-                                            @can('delete-users')
-                                                <td style="text-align: center">
-                                                    <form id="form-delete-release-id-{{ $release->id }}" method="POST"
-                                                        action="{{ route('web_releasevuejs_delete', $release->id) }}">
-                                                        {{ csrf_field() }}
-                                                        {{ method_field('DELETE') }}
-                                                    </form>
-                                                    <i class="fa fa-trash btn-delete-one"
-                                                        onclick="deleteRelease({{ $release->id }})"></i>
-                                                </td>
-                                            @endcan
-                                        </tr>
-                                    @endforeach
+                                        @endcan
+                                        @can('update-users')
+                                            <td style="text-align: center">
+                                                <i class="fa fa-pen btn-edit" @click="enableEdit(release.id)"></i>
+                                            </td>
+                                        @endcan
+                                        @can('delete-users')
+                                            <td style="text-align: center">
+                                                <i class="fa fa-trash btn-delete-one" @click="deleteRelease(release.id)"></i>
+                                            </td>
+                                        @endcan
+                                    </tr>
                                 @endcan
-                            @else
-                                <tr>
+                            </div>
+                            <div v-else="">
+                                <tr v-if="length == 0">
                                     <td colspan="100%" class=" bg-hover-secondary text-center">
                                         <b>{{ __('global.no_data') }}</b>
                                     </td>
                                 </tr>
-                            @endif
+                            </div>
                         </tbody>
                     </table>
                 </div>
-                <div class="paginate">
-                    @if (isset($releases) && count($releases) > 0)
-                        {{ $releases->links() }}
-                    @endif
+
+                <div class="card-footer pt-0">
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="d-flex align-items-center py-0">
+                                <div class="d-flex align-items-center" v-if="isLoading">
+                                    <div class="mr-2 text-muted">Loading...</div>
+                                    <div class="spinner mr-10"></div>
+                                </div>
+                                <select
+                                    class="form-limit form-control form-control-sm font-weight-bold mr-4 border-0 bg-light"
+                                    style="width: 75px;" v-on:change="limitRelease()">
+                                    <option value="10">10</option>
+                                    <option value="20">20</option>
+                                    <option value="30">30</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                </select>
+                                <span class="text-muted">Displaying @{{ length }} of @{{ total }}
+                                    records</span>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="paginate">
+                                <nav aria-label="navigation">
+                                    <ul class="pagination">
+                                        <li class="page-item previous disabled">
+                                            <div class="page-link" aria-label="Previous"
+                                                @click="changePage(params.page-1)">
+                                                <span aria-hidden="true">&laquo;</span>
+                                            </div>
+                                        </li>
+                                        <li class="page-item cursor-pointer" v-for="page in lastPage">
+                                            <div class="page-link" @click="changePage(page)" :style="cssPagination(page)">
+                                                @{{ page }}
+                                            </div>
+                                        </li>
+                                        <li class="page-item cursor-pointer next">
+                                            <div class="page-link" aria-label="Next" @click="changePage(params.page+1)">
+                                                <span aria-hidden="true">&raquo;</span>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-
-    {{-- </div> --}}
 @endsection
-
 
 @once
     @push('after_script')

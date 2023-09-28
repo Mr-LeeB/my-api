@@ -51,9 +51,8 @@ class EditReleaseVueJSRequest extends Request
      */
     public function rules()
     {
-        // dd($this->all());
         return [
-            'id' => 'required|exists:releases,id',
+            'id' => 'required|exists:releasevuejs,id',
         ];
     }
 

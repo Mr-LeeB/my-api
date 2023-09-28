@@ -1,44 +1,3 @@
-.paginationWrap {
-    text-align: center;
-    margin-top: 20px;
-}
-
-.paginationWrap ul li {
-    display: inline-block;
-    margin: 0 5px;
-}
-
-a {
-    text-decoration: none;
-}
-
-.paginationWrap ul li a {
-    padding: 5px 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-}
-
-.paginationWrap ul li.active a {
-    background-color: #25458a;
-    color: white;
-}
-
-.paginationWrap ul li a:hover {
-    background-color: #3266ab;
-    color: white;
-}
-
-.paginationWrap ul li.disabled a {
-    background-color: #ddd;
-    color: #636b6f;
-}
-
-.paginationWrap ul li.disabled a:hover {
-    background-color: #ddd;
-    color: #636b6f;
-}
-
-
 /* css create - search area */
 .create-seach-area {
     display: flex;
@@ -262,4 +221,14 @@ a {
 .btn-delete-one:hover {
     color: #bc0b0b;
     cursor: pointer;
+}
+
+input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+.reset_params:hover {
+    color: #22698c;
 }
