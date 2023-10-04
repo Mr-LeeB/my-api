@@ -109,17 +109,20 @@
             <!-- Danh sách ul -->
             <ul class="nova1-list">
                 @foreach ($menu['children'] ?? [] as $child)
+                    @php
+                        $pos = strpos(request()->fullUrl(), $child['url']);
+                    @endphp
                     <li class="leading1">
                         <div>
                             <a href="{{ $child['url'] ?? '#' }}" target="_self">
                                 <div class="items-center" style="width: 100%">
-                                    @if (strpos(request()->fullUrl(), $child['url']) !== false)
+                                    @if ($pos !== false && substr(request()->fullUrl(), $pos + strlen($child['url']), 1) !== '/')
                                         <span class="text" style="width: 20%; display: inline-block">
-                                            {!! '<i class="fa fa-eye" aria-hidden="true"></i>' !!}
+                                            {!! '<i class="fa fa-eye cursor-pointer" aria-hidden="true"></i>' !!}
                                         </span>
                                     @endif
                                     <span class="text"
-                                        style="wdith: 80%; display: inline-block; @if (strpos(request()->fullUrl(), $child['url']) !== false) {{ 'font-weight: bold; font-style: italic' }} @endif">
+                                        style="display: inline-block; @if ($pos !== false && substr(request()->fullUrl(), $pos + strlen($child['url']), 1) !== '/') {{ 'font-weight: bold; font-style: italic' }} @endif">
                                         {{ $child['label'] ?? '' }}
                                     </span>
                                 </div>

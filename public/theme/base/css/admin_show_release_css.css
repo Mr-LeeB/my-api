@@ -232,3 +232,8 @@ input[type="checkbox"] {
 .reset_params:hover {
     color: #22698c;
 }
+
+.boloc:hover {
+    cursor: pointer;
+    background-color: aliceblue !important;
+}

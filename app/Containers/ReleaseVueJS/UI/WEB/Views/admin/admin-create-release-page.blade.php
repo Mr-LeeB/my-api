@@ -38,7 +38,7 @@
         }
         $id = 0;
         $list_images = null;
-        
+
         if ($release != null) {
             $name = old('name', $release->name);
             $title_description = old('title_description', $release->title_description);
@@ -53,7 +53,6 @@
             $list_images = $release->images;
         }
     @endphp
-
 
     <script>
         var quill = new Quill('#editor', {
@@ -72,16 +71,65 @@
                     [{
                         'align': []
                     }],
+                    ['image'],
                     ['clean'],
                     ['link'],
                 ]
             },
         });
         let detail_description = '{!! $detail_description !!}';
-        detail_description = quill.clipboard.convert(detail_description);
+        detail_description = quill.clipboard.convert(detail_description.toString());
         quill.setContents(detail_description, 'silent');
 
         $(".ql-editor").attr('id', 'detail_description_editor');
+
+
+        quill.getModule('toolbar').addHandler('image', () => {
+            const input = document.createElement('input');
+            input.setAttribute('type', 'file');
+            input.setAttribute('accept', '.jpeg, .png, .jpg, .gif, .svg, .webp');
+            input.click();
+            input.onchange = async () => {
+                try {
+                    const file = input.files[0];
+                    if (!file) {
+                        console.error('No file selected');
+                        return;
+                    }
+                    const imageLink = await convertBlobToDataURL(file);
+
+                    $('#file_upload').attr('id', 'files')
+
+                    let input_type_file =
+                        '<input type="file" name="images_from_quill[]" id="file_upload" class="hidden" multiple>';
+                    $('.list-input-hidden-upload').append(input_type_file);
+
+                    createImageBox(imageLink, file, input_type_file);
+
+                    $('#files').remove();
+
+                    // Insert the image into the Quill editor
+                    const range = quill.getSelection();
+                    quill.insertEmbed(range.index, 'image', imageLink);
+
+                    // Move cursor to right side of image (easier to continue typing)
+                    quill.setSelection(range.index + 1);
+
+                } catch (error) {
+                    console.error('Error handling file upload:', error);
+                }
+            };
+        });
+
+        function convertBlobToDataURL(blob) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    resolve(reader.result);
+                };
+                reader.readAsDataURL(blob);
+            });
+        }
     </script>
     <script>
         $("#name").on("input", function() {
@@ -135,18 +183,11 @@
         });
 
         $('#btn-confirm-save').on('click', function() {
-            // put data from quill editor into input
-            $("#detail_description").val($(".ql-editor").html());
-
             var name = $('#name').val().trim();
             var title_description = $('#title_description').val().trim();
-            var detail_description = $('#detail_description_editor').text();
+            var detail_description = $('#detail_description_editor').text().trim();
             var date_created = $('#date_created').val();
-            // var img = $('#file_upload').files;
             var is_publish = $('#is_publish').is(':checked');
-
-            // console.log($('#detail_description_editor').text());
-            // return;
 
             if (name.length < 3 || name.length > 40) {
                 $(".validate-name").html('Name must be between 3 and 40 characters!');
@@ -156,12 +197,11 @@
                 return;
             }
 
-            if (name == '{{ $name }}') {
+            if (name === '{{ $name }}') {
                 $("#name").removeAttr('name');
             }
 
             if (title_description.length < 3 || title_description.length > 255) {
-                // alert('Title must be between 3 and 40 characters!');
                 $(".validate-title").html('Title must be between 3 and 255 characters!');
                 $('#title_description').focus();
                 $(".validate-title").css('color', 'red');
@@ -170,13 +210,22 @@
             }
 
             if (detail_description.length < 3) {
-                // alert("Description must be at least 3 characters!");
                 $(".validate-description").html('Description must be at least 3 characters!');
                 $('#detail_description_editor').focus();
                 $(".validate-description").css('color', 'red');
                 $(".validate-description").removeClass('hidden');
                 return;
+            } else {
+                // change img tag to this format: <img src="image_0" data-id="0">
+                var img = $(".ql-editor").find('img');
+                img.each(function(index) {
+                    // if src != /storage/... => change to image_...
+                    if ($(this).attr('src').indexOf('/storage/') == -1) {
+                        $(this).attr('src', 'image_' + index);
+                    }
+                });
             }
+            $("#detail_description").val($(".ql-editor").html());
 
             // if (img == null) {
             $('#file_upload').removeAttr('name');
@@ -199,6 +248,88 @@
             }
         });
 
+        function createImageBox(image, files, input_type_file) {
+            let today = new Date();
+            let time = today.getTime();
+            let random = Math.floor(Math.random() * 1000);
+            let box_image = $('<div class="box-image"></div>');
+
+            box_image.append(`
+                                <div class="image-input image-input-outline" id="image_${time}_${random}">
+                                    <div class="image-input-wrapper" style="background-image: url(${image})"></div>
+
+                                    <label class="btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary btn-shadow"
+                                        data-action="change">
+                                        <i class="fa fa-pen icon-sm text-muted"></i>
+                                        <input type="file" id="_${time}_${random}" accept=".png, .jpg, .jpeg" />
+                                    </label>
+
+                                    <span class="btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary btn-shadow"
+                                        data-action="cancel" data-toggle="tooltip" title="Cancel avatar">
+                                        <i class="ki ki-bold-close icon-xs text-muted"></i>
+                                    </span>
+
+                                    <span class="btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary btn-shadow"
+                                        data-action="remove">
+                                        <i class="ki ki-bold-close icon-xs text-muted"></i>
+                                    </span>
+                                </div>`);
+
+
+            $(".list-images").append(box_image);
+
+            const fileInput = document.querySelector('#file_upload');
+
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(files);
+
+            fileInput.files = dataTransfer.files;
+
+            $('#file_upload').attr('id', time + "_" + random);
+
+            $('.list-input-hidden-upload').append(input_type_file);
+
+            id = time + "_" + random;
+            initActionImage(id, box_image);
+        }
+
+        function initActionImage(id, box_image) {
+            var img = new KTImageInput("image_" + id);
+            img.on('change', function() {
+                const files = $('#_' + id).prop('files');
+                let fileInput = document.getElementById(id) ?? document.getElementById("new_" + id);
+
+                if (fileInput.files != null) {
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(files[0]);
+
+                    fileInput.files = dataTransfer.files;
+                } else {
+                    let input_type_file =
+                        '<input type="file" name="images[]" id="new_' + id +
+                        '" class="hidden" multiple>';
+                    $('.list-input-hidden-upload').append(input_type_file);
+
+                    fileInput = document.getElementById("new_" + id);
+
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(files[0]);
+
+                    $('#' + id).remove();
+
+                    fileInput.files = dataTransfer.files;
+                }
+            });
+
+            img.on('cancel', function() {
+                $('#' + id).remove();
+            });
+
+            img.on('remove', function() {
+                $('#' + id).remove();
+                box_image.remove();
+            });
+        }
         $(document).ready(function() {
             $(".btn-add-image").click(function() {
                 $('#file_upload').trigger('click');
@@ -213,126 +344,44 @@
                 $('.list-input-hidden-upload').append(input_type_file);
 
                 for (let i = 0; i < event.target.files.length; i++) {
-                    let today = new Date();
-                    let time = today.getTime();
-                    let random = Math.floor(Math.random() * 1000);
-                    let image = event.target.files[i];
-                    let box_image = $('<div class="box-image"></div>');
-
-                    box_image.append(`
-                                <div class="image-input image-input-outline" id="image_${time}_${random}">
-                                    <div class="image-input-wrapper" style="background-image: url(${URL.createObjectURL(image)})"></div>
-
-                                    <label class="btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary btn-shadow"
-                                        data-action="change">
-                                        <i class="fa fa-pen icon-sm text-muted"></i>
-                                        <input type="file" id="_${time}_${random}" accept=".png, .jpg, .jpeg" />
-                                    </label>
-
-                                    <span class="btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary btn-shadow" 
-                                        data-action="cancel" data-toggle="tooltip" title="Cancel avatar">
-                                        <i class="ki ki-bold-close icon-xs text-muted"></i>
-                                    </span>
-
-                                    <span class="btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary btn-shadow"
-                                        data-action="remove">
-                                        <i class="ki ki-bold-close icon-xs text-muted"></i>
-                                    </span>
-                                </div>`);
-
-
-                    $(".list-images").append(box_image);
-
-                    const fileInput = document.querySelector('#file_upload');
-
-                    const dataTransfer = new DataTransfer();
-                    dataTransfer.items.add(files[i]);
-
-                    fileInput.files = dataTransfer.files;
-
-                    $('#file_upload').attr('id', time + "_" + random);
-
-                    $('.list-input-hidden-upload').append(input_type_file);
-
-                    id = time + "_" + random;
-                    initActionImage(id, box_image);
+                    createImageBox(URL.createObjectURL(event.target.files[i]), files[i], input_type_file);
                 }
                 $('#files').remove();
             });
 
-            function initActionImage(id, box_image) {
-                var img = new KTImageInput("image_" + id);
-                img.on('change', function() {
-                    const files = $('#_' + id).prop('files');
-                    let fileInput = document.getElementById(id) ?? document.getElementById("new_" + id);
+            $('.zoom-in').on('click', function() {
+                $('.description-form').removeClass('col-6');
+                $('.description-form').addClass('col-12 mt-4');
 
-                    if (fileInput.files != null) {
-                        const dataTransfer = new DataTransfer();
-                        dataTransfer.items.add(files[0]);
+                $('.create-form').removeClass('col-6');
+                $('.create-form').addClass('col-12');
 
-                        fileInput.files = dataTransfer.files;
-                    } else {
-                        let input_type_file =
-                            '<input type="file" name="images[]" id="new_' + id +
-                            '" class="hidden" multiple>';
-                        $('.list-input-hidden-upload').append(input_type_file);
+                $('.zoom-out').removeClass('hidden');
+                $('.zoom-in').addClass('hidden');
 
-                        fileInput = document.getElementById("new_" + id);
+                $('html, body').animate({
+                    scrollTop: $(".description-form").offset().top
+                }, 1000);
 
-                        const dataTransfer = new DataTransfer();
-                        dataTransfer.items.add(files[0]);
+                $("#editor").removeAttr('style');
+            });
 
-                        $('#' + id).remove();
+            $('.zoom-out').on('click', function() {
+                $('.description-form').removeClass('col-12 mt-4');
+                $('.description-form').addClass('col-6');
 
-                        fileInput.files = dataTransfer.files;
-                    }
-                });
+                $('.create-form').removeClass('col-12');
+                $('.create-form').addClass('col-6');
 
-                img.on('cancel', function() {
-                    $('#' + id).remove();
-                });
+                $('.zoom-in').removeClass('hidden');
+                $('.zoom-out').addClass('hidden');
 
-                img.on('remove', function() {
-                    $('#' + id).remove();
-                    box_image.remove();
-                });
-            }
+                $('html, body').animate({
+                    scrollTop: $(".create-form").offset().top
+                }, 1000);
 
-            $(document).ready(function() {
-                $('.zoom-in').on('click', function() {
-                    $('.description-form').removeClass('col-6');
-                    $('.description-form').addClass('col-12 mt-4');
-
-                    $('.create-form').removeClass('col-6');
-                    $('.create-form').addClass('col-12');
-
-                    $('.zoom-out').removeClass('hidden');
-                    $('.zoom-in').addClass('hidden');
-
-                    $('html, body').animate({
-                        scrollTop: $(".description-form").offset().top
-                    }, 1000);
-
-                    $("#editor").removeAttr('style');
-                });
-
-                $('.zoom-out').on('click', function() {
-                    $('.description-form').removeClass('col-12 mt-4');
-                    $('.description-form').addClass('col-6');
-
-                    $('.create-form').removeClass('col-12');
-                    $('.create-form').addClass('col-6');
-
-                    $('.zoom-in').removeClass('hidden');
-                    $('.zoom-out').addClass('hidden');
-
-                    $('html, body').animate({
-                        scrollTop: $(".create-form").offset().top
-                    }, 1000);
-
-                    $("#editor").css({
-                        'height': '318px'
-                    });
+                $("#editor").css({
+                    'height': '318px'
                 });
             });
 
@@ -344,50 +393,6 @@
             @endif
         });
     </script>
-
-    {{-- <script>
-        Vue.component('show-images',
-            props: {
-                time: {
-                    type: String,
-                    required: true
-                },
-                random: {
-                    type: String,
-                    required: true
-                },
-                image: {
-                    type: String,
-                    required: true
-                }
-
-            },
-            methods: {
-                showImages: function() {
-                    alert('show images');
-                }
-            },
-            template: `<div class="image-input image-input-outline" :id="'image_' + time + '_' + random">
-                            <div class="image-input-wrapper" :style="{background-image: url(image)}"></div>
-
-                            <label class="btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary btn-shadow"
-                                data-action="change">
-                                <i class="fa fa-pen icon-sm text-muted"></i>
-                                <input type="file" :id="'_' + time + '_' + random" accept=".png, .jpg, .jpeg" />
-                            </label>
-
-                            <span class="btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary btn-shadow" 
-                                data-action="cancel" data-toggle="tooltip" title="Cancel avatar">
-                                <i class="ki ki-bold-close icon-xs text-muted"></i>
-                            </span>
-
-                            <span class="btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary btn-shadow"
-                                data-action="remove">
-                                <i class="ki ki-bold-close icon-xs text-muted"></i>
-                            </span>
-                        </div>`;
-        );
-    </script> --}}
 @endsection
 
 @section('content')
