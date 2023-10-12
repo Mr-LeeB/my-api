@@ -12,8 +12,8 @@ async function ajax_setting(url, data, method) {
                 status: xhr.status,
             }
         },
-        error: function (data) {
-            console.log(data)
+        error: function (error) {
+            console.log(error)
         },
     });
 

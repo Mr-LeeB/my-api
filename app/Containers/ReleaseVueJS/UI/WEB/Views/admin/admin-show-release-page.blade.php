@@ -263,392 +263,339 @@
                             </div>
                         </div>
                         <div class="col-6">
-                            <div class="paginate">
-                                <nav aria-label="navigation">
-                                    <ul class="pagination">
-                                        <li class="page-item previous disabled">
-                                            <div class="page-link" aria-label="Previous"
-                                                @click="changePage(params.page-1)">
-                                                <span aria-hidden="true">&laquo;</span>
-                                            </div>
-                                        </li>
-                                        <li class="page-item cursor-pointer" v-for="page in lastPage">
-                                            <div class="page-link" @click="changePage(page)" :style="cssPagination(page)">
-                                                @{{ page }}
-                                            </div>
-                                        </li>
-                                        <li class="page-item cursor-pointer next">
-                                            <div class="page-link" aria-label="Next" @click="changePage(params.page+1)">
-                                                <span aria-hidden="true">&raquo;</span>
-                                            </div>
-                                        </li>
-                                    </ul>
-                                </nav>
-                            </div>
+                            <setup-paginate :current_page="params.page" :last_page="lastPage"
+                                @handle_change="changePage" />
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-@endsection
+    @endsection
 
-@section('javascript')
-    <script>
-        const app = new Vue({
-            el: '#manage_release',
-            data: {
-                releases: @json($releases->items()),
-                total: @json($releases->total()),
-                length: @json($releases->count()),
-                message: @json(session('success')),
-                error: @json(session('error')),
-                success: @json(session('success')),
+    @section('javascript')
+        <script>
+            const app = new Vue({
+                el: '#manage_release',
+                data: {
+                    releases: @json($releases->items()),
+                    total: @json($releases->total()),
+                    length: @json($releases->count()),
+                    message: @json(session('success')),
+                    error: @json(session('error')),
+                    success: @json(session('success')),
 
-                params: {
-                    orderBy: null,
-                    sortedBy: null,
-                    limit: null,
-                    page: null,
-                    search: null,
-                    searchFields: null,
+                    params: {
+                        orderBy: null,
+                        sortedBy: null,
+                        limit: null,
+                        page: 1,
+                        search: null,
+                        searchFields: null,
+                    },
+                    lastPage: @json($releases->lastPage()),
+                    isLoading: false,
                 },
-                lastPage: @json($releases->lastPage()),
-                isLoading: false,
-            },
-            computed: {},
-            mounted() {
-                this.test();
-            },
-            methods: {
-                test: async function() {
-                    const data = await ajax_setting(
-                        'releasevuejs',
-                        '',
-                        'GET',
-                    );
-
-                    console.log(data)
-                },
-                getRelease: async function() {
-                    this.isLoading = true;
-
-                    const response = await ajax_setting(
-                        'releasevuejs', {
-                            orderBy: this.params.orderBy,
-                            sortedBy: this.params.sortedBy,
-                            limit: this.params.limit,
-                            page: this.params.page,
-                            search: this.params.search,
-                            searchFields: this.params.searchFields,
-                        },
-                        'GET',
-                    );
-                    this.releases = response.data.data;
-                    this.total = response.data.total;
-                    this.length = this.releases.length;
-                    this.lastPage = response.data.last_page;
-
-                    this.isLoading = false;
-                },
-                enableEdit: function(id) {
-                    window.location.href = 'releasevuejs/' + id + '/edit';
-                },
-                deleteRelease: async function(id) {
-                    if (confirm("Are you sure you want to delete this release?")) {
+                computed: {},
+                methods: {
+                    getRelease: async function() {
                         this.isLoading = true;
 
                         const response = await ajax_setting(
-                            'releasevuejs/' + id + "/delete", {
-                                _token: "{{ csrf_token() }}",
+                            'releasevuejs', {
+                                orderBy: this.params.orderBy,
+                                sortedBy: this.params.sortedBy,
+                                limit: this.params.limit,
+                                page: this.params.page,
+                                search: this.params.search,
+                                searchFields: this.params.searchFields,
                             },
-                            'delete',
+                            'GET',
                         );
-
-                        if (response.status == 200) {
-                            app.success = response.data.success;
-                            app.message = response.data.message;
-                            app.getRelease();
-                        } else {
-                            app.error = response.data.error;
-                            app.message = response.data.message;
-                        }
+                        this.releases = response.data.data;
+                        this.total = response.data.total;
+                        this.length = this.releases.length;
+                        this.lastPage = response.data.last_page;
 
                         this.isLoading = false;
-                    }
-                },
-                confirmDeleteMoreRelease: async function() {
-                    this.isLoading = true;
-                    var checkBoxes = document.getElementById("body-content")
-                        .querySelectorAll('input[type="checkbox"]');
-                    var releaseIDs = [];
-                    checkBoxes.forEach((checkbox) => {
-                        if (checkbox.checked && checkbox.value != 'on') {
-                            releaseIDs.push(checkbox.value);
-                            checkbox.checked = false;
+                    },
+                    enableEdit: function(id) {
+                        window.location.href = 'releasevuejs/' + id + '/edit';
+                    },
+                    deleteRelease: async function(id) {
+                        if (confirm("Are you sure you want to delete this release?")) {
+                            this.isLoading = true;
+
+                            const response = await ajax_setting(
+                                'releasevuejs/' + id + "/delete", {
+                                    _token: "{{ csrf_token() }}",
+                                },
+                                'delete',
+                            );
+
+                            if (response.status == 200) {
+                                app.success = response.data.success;
+                                app.message = response.data.message;
+                                app.getRelease();
+                            } else {
+                                app.error = response.data.error;
+                                app.message = response.data.message;
+                            }
+
+                            this.isLoading = false;
                         }
-                    });
+                    },
+                    confirmDeleteMoreRelease: async function() {
+                        this.isLoading = true;
+                        var checkBoxes = document.getElementById("body-content")
+                            .querySelectorAll('input[type="checkbox"]');
+                        var releaseIDs = [];
+                        checkBoxes.forEach((checkbox) => {
+                            if (checkbox.checked && checkbox.value != 'on') {
+                                releaseIDs.push(checkbox.value);
+                                checkbox.checked = false;
+                            }
+                        });
 
-                    if (confirm("Are you sure you want to delete this release?")) {
-                        const response = await ajax_setting(
-                            "{{ route('web_releasevuejs_delete_bulk') }}", {
-                                id: releaseIDs,
-                                _token: "{{ csrf_token() }}",
-                            },
-                            'DELETE',
-                        );
+                        if (confirm("Are you sure you want to delete this release?")) {
+                            const response = await ajax_setting(
+                                "{{ route('web_releasevuejs_delete_bulk') }}", {
+                                    id: releaseIDs,
+                                    _token: "{{ csrf_token() }}",
+                                },
+                                'DELETE',
+                            );
 
-                        if (response.status == 200) {
-                            app.getRelease();
-                            app.success = response.data.success;
-                            app.message = response.data.message;
+                            if (response.status == 200) {
+                                app.getRelease();
+                                app.success = response.data.success;
+                                app.message = response.data.message;
+                            } else {
+                                app.error = response.data.error;
+                                app.message = response.data.message;
+                            }
+
+                            this.isLoading = false;
+                        }
+                    },
+                    checkAll: function() {
+                        var checkBoxes = document.getElementById("body-content")
+                            .querySelectorAll('input[type="checkbox"]');
+
+                        check = document.getElementById("checkAll").checked;
+                        checkBoxes.forEach((checkbox) => {
+                            checkbox.checked = check;
+                        });
+
+                        if (check) {
+                            $(".delete-more-release").removeClass('hidden');
                         } else {
-                            app.error = response.data.error;
-                            app.message = response.data.message;
+                            $(".delete-more-release").addClass('hidden');
                         }
+                    },
+                    check: function() {
+                        var checkBoxes = document.getElementById("body-content")
+                            .querySelectorAll('input[type="checkbox"]');
 
-                        this.isLoading = false;
-                    }
-                },
-                checkAll: function() {
-                    var checkBoxes = document.getElementById("body-content")
-                        .querySelectorAll('input[type="checkbox"]');
-
-                    check = document.getElementById("checkAll").checked;
-                    checkBoxes.forEach((checkbox) => {
-                        checkbox.checked = check;
-                    });
-
-                    if (check) {
-                        $(".delete-more-release").removeClass('hidden');
-                    } else {
-                        $(".delete-more-release").addClass('hidden');
-                    }
-                },
-                check: function() {
-                    var checkBoxes = document.getElementById("body-content")
-                        .querySelectorAll('input[type="checkbox"]');
-
-                    var check = true;
-                    var count = 0;
-                    checkBoxes.forEach((checkbox) => {
-                        if (!checkbox.checked) {
+                        var check = true;
+                        if (!checkBoxes.length) {
                             check = false;
                         } else {
-                            count++;
+                            var count = 0;
+                            checkBoxes.forEach((checkbox) => {
+                                if (!checkbox.checked) {
+                                    check = false;
+                                } else {
+                                    count++;
+                                }
+                            });
                         }
-                    });
 
-                    if (checkBoxes.length) {}
-                    document.getElementById("checkAll").checked = check;
+                        document.getElementById("checkAll").checked = check;
 
-                    if (count) {
-                        $(".delete-more-release").removeClass('hidden');
-                    } else {
-                        $(".delete-more-release").addClass('hidden');
-                    }
-                },
-                showReleaseDetailPage: function(id) {
-                    window.location.href = 'releasevuejs/' + id;
-                },
-                sortRelease: function(newOrderBy) {
-                    //if orderBy is null or not equal newOrderBy => set sortedBy = asc
-                    if (this.params.orderBy == null || this.params.orderBy != newOrderBy) {
-                        this.params.orderBy = newOrderBy;
-                        this.params.sortedBy = 'asc';
-                    } else {
-                        //if orderBy is equal newOrderBy => change sortedBy
-                        if (this.params.sortedBy == null) {
+                        if (count) {
+                            $(".delete-more-release").removeClass('hidden');
+                        } else {
+                            $(".delete-more-release").addClass('hidden');
+                        }
+                    },
+                    showReleaseDetailPage: function(id) {
+                        window.location.href = 'releasevuejs/' + id;
+                    },
+                    sortRelease: function(newOrderBy) {
+                        //if orderBy is null or not equal newOrderBy => set sortedBy = asc
+                        if (this.params.orderBy == null || this.params.orderBy != newOrderBy) {
+                            this.params.orderBy = newOrderBy;
                             this.params.sortedBy = 'asc';
                         } else {
-                            this.params.sortedBy = this.params.sortedBy == 'asc' ? 'desc' : 'asc';
+                            //if orderBy is equal newOrderBy => change sortedBy
+                            if (this.params.sortedBy == null) {
+                                this.params.sortedBy = 'asc';
+                            } else {
+                                this.params.sortedBy = this.params.sortedBy == 'asc' ? 'desc' : 'asc';
+                            }
                         }
-                    }
 
-                    // change color icon
-                    $('.icon-nm').css('color', '#3f4254');
-                    $('.icon-' + this.params.orderBy).css('display', 'inline-block');
-                    $('.icon-' + this.params.orderBy).css('color', '#a9cef3');
-                    $('.icon-' + this.params.orderBy + '.icon-' + this.params.sortedBy).css('color', '#3699FF');
-                    $('.field').css('color', '#3f4254');
-                    $('.field-' + this.params.orderBy).css('color', '#3699FF');
+                        // change color icon
+                        $('.icon-nm').css('color', '#3f4254');
+                        $('.icon-' + this.params.orderBy).css('display', 'inline-block');
+                        $('.icon-' + this.params.orderBy).css('color', '#a9cef3');
+                        $('.icon-' + this.params.orderBy + '.icon-' + this.params.sortedBy).css('color', '#3699FF');
+                        $('.field').css('color', '#3f4254');
+                        $('.field-' + this.params.orderBy).css('color', '#3699FF');
 
-                },
-                showSearch: function() {
-                    $('.boloc-show').toggleClass('hidden');
-                },
-                searchRelease: function() {
-                    this.isLoading = true;
-
-                    var title = $('.search-title').val();
-                    var description = $('.search-description').val();
-                    var date = $('.search-date').val();
-
-                    var field_title = $('.field-search-title').val();
-                    var field_description = $('.field-search-description').val();
-
-                    search = '';
-                    searchFields = '';
-                    if (title != '') {
-                        search += 'title_description:' + title;
-                    }
-
-                    if (description != '') {
-                        if (title != '') {
-                            search += ';detail_description:' + description;
-                        } else {
-                            search += 'detail_description:' + description;
-                        }
-                    }
-
-                    if (date != '') {
-                        if (title != '' || description != '') {
-                            search += ';created_at:' + date;
-                        } else {
-                            search += 'created_at:' + date;
-                        }
-                    }
-
-                    if (field_title != 'like') {
-                        searchFields += 'title_description:' + field_title;
-                    }
-
-                    if (field_description != 'like') {
-                        if (field_title != 'like') {
-                            searchFields += ';detail_description:' + field_description;
-                        } else {
-                            searchFields += 'detail_description:' + field_description;
-                        }
-                    } else {
-                        if (field_title == 'like') {
-                            searchFields = null;
-                        }
-                    }
-
-                    if (search != '') {
-                        this.params.search = search;
-                    }
-
-                    if (searchFields != '') {
-                        this.params.searchFields = searchFields;
-                    }
-
-                    this.isLoading = false;
-                },
-                limitRelease: function() {
-                    this.params.limit = $('.form-limit').val();
-
-                    this.params.page = 1;
-                },
-                strip_tags: function(description) {
-                    return description.replace(/(<([^>]+)>)/gi, "");
-                },
-                mb_str_split: function(description) {
-                    if (description.length > 20) {
-                        return description.substring(0, 20).concat('...');
-                    } else {
-                        return description;
-                    }
-                },
-                resetParams: function() {
-                    this.isLoading = true;
-
-                    // clear params
-                    this.params.orderBy = null;
-                    this.params.sortedBy = null;
-                    this.params.limit = null;
-                    this.params.page = null;
-                    this.params.search = null;
-                    this.params.searchFields = null;
-
-                    // clear message
-                    this.success = null;
-                    this.error = null;
-                    this.message = null;
-
-                    // clear search
-                    $('.search-title').val('');
-                    $('.search-description').val('');
-                    $('.search-date').val('');
-
-                    $('.field-search-title').val('like');
-                    $('.field-search-description').val('like');
-
-                    $('.boloc-show').addClass('hidden');
-
-                    // clear icon
-                    $('.form-limit').val(10);
-
-                    $('.icon-nm').css('color', '#3f4254');
-                    $('.field').css('color', '#3f4254');
-
-                    // clear checkbox
-                    var checkBoxes = document.getElementById("body-content")
-                        .querySelectorAll('input[type="checkbox"]');
-                    checkBoxes.forEach((checkbox) => {
-                        if (checkbox.checked) {
-                            checkbox.checked = false;
-                        }
-                    });
-                    this.check();
-
-                    this.isLoading = false;
-                },
-                cssPagination: function(page) {
-                    if (page == this.params.page || (page == 1 && this.params.page == null)) {
-                        return {
-                            'background-color': '#3699FF',
-                            'color': 'white',
-                        };
-                    }
-                },
-                changePage: function(page) {
-                    if (page == this.params.page || (page == -1 && this.params.page == null)) {
-                        return;
-                    }
-                    if (page == 1) {
-                        $(".previous").addClass("disabled");
-                        $(".previous").removeClass("cursor-pointer");
-                    } else {
-                        $(".previous").removeClass("disabled");
-                        $(".previous").addClass("cursor-pointer");
-                    }
-
-                    if (page == this.lastPage) {
-                        $(".next").addClass("disabled");
-                        $(".next").removeClass("cursor-pointer");
-                    } else {
-                        $(".next").removeClass("disabled");
-                        $(".next").addClass("cursor-pointer");
-                    }
-
-                    this.params.page = page;
-                },
-            },
-            watch: {
-                releases: function() {
-                    console.log("Releases changed: ", this.releases);
-                    this.$nextTick(() => {
-                        app.check();
-                    });
-                },
-                total: function() {
-                    console.log("Rotal changed: " + this.total);
-                },
-                length: function() {
-                    console.log("Length changed: " + this.length);
-                },
-                params: {
-                    handler: function() {
-                        this.getRelease();
-                        console.log("Params changed: ", this.params);
                     },
-                    deep: true,
+                    showSearch: function() {
+                        $('.boloc-show').toggleClass('hidden');
+                    },
+                    searchRelease: function() {
+                        this.isLoading = true;
+
+                        this.resetParams(true);
+
+                        var title = $('.search-title').val();
+                        var description = $('.search-description').val();
+                        var date = $('.search-date').val();
+
+                        var field_title = $('.field-search-title').val();
+                        var field_description = $('.field-search-description').val();
+
+                        search = '';
+                        searchFields = '';
+                        if (title != '') {
+                            search += 'title_description:' + title;
+                        }
+
+                        if (description != '') {
+                            if (title != '') {
+                                search += ';detail_description:' + description;
+                            } else {
+                                search += 'detail_description:' + description;
+                            }
+                        }
+
+                        if (date != '') {
+                            if (title != '' || description != '') {
+                                search += ';created_at:' + date;
+                            } else {
+                                search += 'created_at:' + date;
+                            }
+                        }
+
+                        if (field_title != 'like') {
+                            searchFields += 'title_description:' + field_title;
+                        }
+
+                        if (field_description != 'like') {
+                            if (field_title != 'like') {
+                                searchFields += ';detail_description:' + field_description;
+                            } else {
+                                searchFields += 'detail_description:' + field_description;
+                            }
+                        } else {
+                            if (field_title == 'like') {
+                                searchFields = null;
+                            }
+                        }
+
+                        if (search != '') {
+                            this.params.search = search;
+                        }
+
+                        if (searchFields != '') {
+                            this.params.searchFields = searchFields;
+                        }
+
+                        this.isLoading = false;
+                    },
+                    limitRelease: function() {
+                        this.params.limit = $('.form-limit').val();
+
+                        this.params.page = 1;
+                    },
+                    strip_tags: function(description) {
+                        return description.replace(/(<([^>]+)>)/gi, "");
+                    },
+                    mb_str_split: function(description) {
+                        if (description.length > 20) {
+                            return description.substring(0, 20).concat('...');
+                        } else {
+                            return description;
+                        }
+                    },
+                    resetParams: function(searching = false) {
+                        this.isLoading = true;
+
+                        // clear params
+                        this.params.orderBy = null;
+                        this.params.sortedBy = null;
+                        this.params.limit = null;
+                        this.params.page = 1;
+                        this.params.search = null;
+                        this.params.searchFields = null;
+
+                        // clear message
+                        this.success = null;
+                        this.error = null;
+                        this.message = null;
+
+                        // clear search
+
+                        if (!searching) {
+                            $('.search-title').val('');
+                            $('.search-description').val('');
+                            $('.search-date').val('');
+
+                            $('.field-search-title').val('like');
+                            $('.field-search-description').val('like');
+
+                            $('.boloc-show').addClass('hidden');
+                        }
+                        // clear icon
+                        $('.form-limit').val(10);
+
+                        $('.icon-nm').css('color', '#3f4254');
+                        $('.field').css('color', '#3f4254');
+
+                        // clear checkbox
+                        var checkBoxes = document.getElementById("body-content")
+                            .querySelectorAll('input[type="checkbox"]');
+                        checkBoxes.forEach((checkbox) => {
+                            if (checkbox.checked) {
+                                checkbox.checked = false;
+                            }
+                        });
+                        this.check();
+
+                        this.isLoading = false;
+                    },
+                    changePage: function(page) {
+                        this.params.page = page;
+                    },
                 },
-                lastPage: function() {
-                    console.log("LastPage changed: " + this.lastPage);
-                },
-            }
-        })
-    </script>
-@endsection
+                watch: {
+                    releases: function() {
+                        console.log("Releases changed: ", this.releases);
+                        this.$nextTick(() => {
+                            app.check();
+                        });
+                    },
+                    total: function() {
+                        console.log("Rotal changed: " + this.total);
+                    },
+                    length: function() {
+                        console.log("Length changed: " + this.length);
+                    },
+                    params: {
+                        handler: function() {
+                            this.getRelease();
+                            console.log("Params changed: ", this.params);
+                        },
+                        deep: true,
+                    },
+                    lastPage: function() {
+                        console.log("LastPage changed: " + this.lastPage);
+                    },
+                }
+            })
+        </script>
+    @endsection
