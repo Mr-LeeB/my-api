@@ -17,10 +17,6 @@ Route::prefix('releasevuejs')->middleware(['auth:web'])->group(function () {
         'as'   => 'web_releasevuejs_edit',
         'uses' => 'Controller@edit'
     ]);
-    Route::get('/{id}', [
-        'as'   => 'web_releasevuejs_show',
-        'uses' => 'Controller@show'
-    ]);
     Route::get('/', [
         'as'   => 'web_releasevuejs_get_all_release',
         'uses' => 'Controller@getAllRelease'

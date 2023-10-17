@@ -1,4 +1,3 @@
-
 async function ajax_setting(url, data, method) {
     let response;
 
