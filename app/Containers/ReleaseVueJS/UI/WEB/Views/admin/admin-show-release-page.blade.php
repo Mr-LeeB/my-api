@@ -6,6 +6,7 @@
 
 @php
     $view_load_theme = 'base';
+    session()->put('url.back', url()->current());
 @endphp
 
 @section('header_sub')
@@ -300,8 +301,8 @@
                     getRelease: async function() {
                         this.isLoading = true;
 
-                        const response = await ajax_setting(
-                            'releasevuejs', {
+                        const response = await handleCallAjax(
+                            '{{ route('web_releasevuejs_get_all_release') }}', {
                                 orderBy: this.params.orderBy,
                                 sortedBy: this.params.sortedBy,
                                 limit: this.params.limit,
@@ -319,14 +320,14 @@
                         this.isLoading = false;
                     },
                     enableEdit: function(id) {
-                        window.location.href = 'releasevuejs/' + id + '/edit';
+                        window.location.href = '/releasevuejs/' + id + '/edit';
                     },
                     deleteRelease: async function(id) {
                         if (confirm("Are you sure you want to delete this release?")) {
                             this.isLoading = true;
 
-                            const response = await ajax_setting(
-                                'releasevuejs/' + id + "/delete", {
+                            const response = await handleCallAjax(
+                                '/releasevuejs/' + id + "/delete", {
                                     _token: "{{ csrf_token() }}",
                                 },
                                 'delete',
@@ -357,7 +358,7 @@
                         });
 
                         if (confirm("Are you sure you want to delete this release?")) {
-                            const response = await ajax_setting(
+                            const response = await handleCallAjax(
                                 "{{ route('web_releasevuejs_delete_bulk') }}", {
                                     id: releaseIDs,
                                     _token: "{{ csrf_token() }}",
@@ -574,26 +575,26 @@
                 },
                 watch: {
                     releases: function() {
-                        console.log("Releases changed: ", this.releases);
+                        // console.log("Releases changed: ", this.releases);
                         this.$nextTick(() => {
                             app.check();
                         });
                     },
                     total: function() {
-                        console.log("Rotal changed: " + this.total);
+                        // console.log("Rotal changed: " + this.total);
                     },
                     length: function() {
-                        console.log("Length changed: " + this.length);
+                        // console.log("Length changed: " + this.length);
                     },
                     params: {
                         handler: function() {
                             this.getRelease();
-                            console.log("Params changed: ", this.params);
+                            // console.log("Params changed: ", this.params);
                         },
                         deep: true,
                     },
                     lastPage: function() {
-                        console.log("LastPage changed: " + this.lastPage);
+                        // console.log("LastPage changed: " + this.lastPage);
                     },
                 }
             })

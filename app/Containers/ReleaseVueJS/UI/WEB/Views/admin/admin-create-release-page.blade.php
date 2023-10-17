@@ -31,13 +31,13 @@
     $title_description = old('title_description', null);
     $detail_description = old('detail_description', null);
     $date_created = old('date_created', date('Y-m-d'));
-    if (old('is_publish', null) == true) {
+    if (old('is_publish', null)) {
         $is_publish = 'checked';
     } else {
         $is_publish = '';
     }
     $id = 0;
-    $list_images = null;
+    $list_images = old('images', null);
 
     if (isset($release)) {
         $name = old('name', $release->name);
@@ -61,7 +61,7 @@
             <div class="col-6 create-form">
                 <div class="card card-custom">
                     <div class="card-header">
-                        <h3 class="card-title">
+                        <h3 class="card-title" style="font-size: 24px">
                             @if (isset($release))
                                 {{ __('Edit release') }}
                             @else
@@ -104,6 +104,11 @@
                             </div>
                             <div>
                                 <div class="list-input-hidden-upload">
+                                    @for ($i = 0; $i < 10; $i++)
+                                        @if ($errors->has('images.' . $i))
+                                            <span style="color:red">{{ $errors->first('images.' . $i) }} </span>
+                                        @endif
+                                    @endfor
                                     <input type="file" id="file_upload" class="hidden"
                                         accept=".jpeg, .png, .jpg, .gif, .svg, .webp" multiple>
                                 </div>
@@ -178,16 +183,19 @@
                         @if (session('success'))
                             <h3 style="color:blue">Success!!</h3>
                             {!! session('success') !!}
-                        @else
-                            @if (!isset($release))
-                                <h4>No Release(s) created recently!</h4>
-                            @endif
+                        @elseif (session('error'))
+                            <h3 style="color:red">Error!!</h3>
+                            {!! session('error') !!}
+                        @elseif (!isset($release))
+                            <h4>No Release(s) created recently!</h4>
                         @endif
+
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    <div class="template hidden"></div>
 @endsection
 
 
@@ -215,12 +223,11 @@
                 ]
             },
         });
-        let detail_description = '{!! $detail_description !!}';
-        detail_description = quill.clipboard.convert(detail_description.toString());
+        let detail_description = @json($detail_description);
+        detail_description = quill.clipboard.convert(detail_description);
         quill.setContents(detail_description, 'silent');
 
         $(".ql-editor").attr('id', 'detail_description_editor');
-
 
         quill.getModule('toolbar').addHandler('image', () => {
             const input = document.createElement('input');
@@ -343,7 +350,7 @@
                 return;
             }
 
-            if (name === '{{ $name }}') {
+            if (name === @json($name)) {
                 $("#name").removeAttr('name');
             }
 
@@ -362,14 +369,16 @@
                 $(".validate-description").removeClass('hidden');
                 return;
             } else {
-                var img = $(".ql-editor").find('img');
-                img.each(function(index) {
-                    if ($(this).attr('src').indexOf('/storage/') == -1) {
-                        $(this).attr('src', 'image_' + index);
+                var temp = $('.template').append($(".ql-editor").html());
+                var img = $(".template").find('img');
+                var count = 0;
+                img.each(function() {
+                    if ($(this).attr('src').indexOf('/storage/images-release/') == -1) {
+                        $(this).attr('src', 'image_' + count++);
                     }
                 });
+                $("#detail_description").val($(".template").html());
             }
-            $("#detail_description").val($(".ql-editor").html());
 
             $('#file_upload').removeAttr('name');
             if (is_publish) {
@@ -381,7 +390,6 @@
             if ({{ isset($release) ? 'true' : 'false' }} == true) {
                 $('#form-create-release').attr('action', '{{ route('web_releasevuejs_update', $id) }}')
                 $('#form-create-release').append('<input type="hidden" name="_method" value="PUT">');
-
                 if (confirm('Are you sure you want to update this release?')) {
                     $('#form-create-release').submit();
                 }
@@ -529,7 +537,7 @@
 
             @if (isset($release) && $release->images != null)
                 @foreach ($list_images as $key => $img)
-                    id = '{{ $key }}';
+                    id = @json($key);
                     initActionImage(id, $('.box-image').eq({{ $key }}));
                 @endforeach
             @endif

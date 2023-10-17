@@ -7,8 +7,8 @@ use App\Containers\ReleaseVueJS\Actions\DeleteBulkReleaseVueJSAction;
 use App\Containers\ReleaseVueJS\Actions\DeleteReleaseVueJSAction;
 use App\Containers\ReleaseVueJS\Actions\FindReleaseVueJSByIdAction;
 use App\Containers\ReleaseVueJS\Actions\GetAllReleaseVueJsAction;
-
 use App\Containers\ReleaseVueJS\Actions\UpdateReleaseVueJSAction;
+
 use App\Containers\ReleaseVueJS\UI\WEB\Requests\CreateReleaseVueJSRequest;
 use App\Containers\ReleaseVueJS\UI\WEB\Requests\DeleteBulkReleaseVueJSRequest;
 use App\Containers\ReleaseVueJS\UI\WEB\Requests\DeleteReleaseVueJSRequest;
@@ -47,6 +47,7 @@ class Controller extends WebController
                 $releases,
             );
         }
+
         return view('releasevuejs::admin.admin-show-release-page', compact('releases'));
     }
 
@@ -79,7 +80,8 @@ class Controller extends WebController
      */
     public function store(StoreReleaseVueJSRequest $request)
     {
-        $requestData = $request->only(['name', 'title_description', 'detail_description', 'is_publish', 'images']);
+        $requestData           = $request->only(['name', 'title_description', 'detail_description', 'is_publish']);
+        $requestData['images'] = [];
 
         if ($request->hasFile('images_from_quill')) {
             $detail_description = $requestData['detail_description'];
@@ -89,14 +91,13 @@ class Controller extends WebController
 
                 $this->resizeAndSaveImage($file, $name);
 
-                $requestData['images'][$key] = '/storage/images-release/' . $name;
+                $requestData['images'][] = '/storage/images-release/' . $name;
 
                 $detail_description = str_replace('src="image_' . $key . '"', 'src="/storage/images-release/' . $name . '"', $detail_description);
             }
             $requestData['detail_description'] = $detail_description;
 
-        } else
-            $requestData['images'] = [];
+        }
 
         if ($request->images) {
             foreach ($request->images as $key => $file) {
@@ -106,6 +107,8 @@ class Controller extends WebController
 
                 $requestData['images'][] = '/storage/images-release/' . $name;
             }
+        } else if ($requestData['images'] == []) {
+            $requestData['images'] = null;
         }
 
         try {
@@ -140,9 +143,9 @@ class Controller extends WebController
     public function update(UpdateReleaseVueJSRequest $request)
     {
         try {
-            $result      = App::make(FindReleaseVueJSByIdAction::class)->run(new DataTransporter($request));
-            $requestData = $request->only(['id', 'name', 'title_description', 'detail_description', 'is_publish']);
-
+            $result                = App::make(FindReleaseVueJSByIdAction::class)->run(new DataTransporter($request));
+            $requestData           = $request->only(['id', 'name', 'title_description', 'detail_description', 'is_publish']);
+            $requestData['images'] = [];
             if ($result->images) {
                 if ($request->images_old) {
                     foreach ($result->images as $key => $value) {
@@ -155,10 +158,7 @@ class Controller extends WebController
                     foreach ($result->images as $key => $value) {
                         Storage::disk('public')->delete(substr($value, 8));
                     }
-                    $requestData['images'] = [];
                 }
-            } else {
-                $requestData['images'] = [];
             }
 
             if ($request->hasFile('images_from_quill')) {
@@ -183,7 +183,10 @@ class Controller extends WebController
 
                     $requestData['images'][] = '/storage/images-release/' . $name;
                 }
+            } else if ($requestData['images'] == []) {
+                $requestData['images'] = null;
             }
+
             $release = App::make(UpdateReleaseVueJSAction::class)->run(new DataTransporter($requestData));
 
         } catch (Exception $e) {
@@ -228,6 +231,7 @@ class Controller extends WebController
 
         return redirect()->route('web_releasevuejs_get_all_release')->with('success', '<p style="color:blue">Release <strong>' . $result->name . '</strong> Deleted Successfully</p>');
     }
+
     public function deleteBulk(DeleteBulkReleaseVueJSRequest $request)
     {
         try {

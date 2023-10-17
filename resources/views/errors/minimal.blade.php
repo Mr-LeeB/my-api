@@ -10,67 +10,11 @@
     <!-- Fonts -->
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css?family=Nunito" rel="stylesheet">
-
-    <!-- Styles -->
-    <style>
-        /* html,
-        body {
-            background-color: #fff;
-            color: #636b6f;
-            font-family: 'Nunito', sans-serif;
-            font-weight: 100;
-            height: 100vh;
-            margin: 0;
-        }
-
-        .full-height {
-            height: 100vh;
-        }
-
-        .flex-center {
-            align-items: center;
-            display: flex;
-            justify-content: center;
-        }
-
-        .position-ref {
-            position: relative;
-        }
-
-        .code {
-            border-right: 2px solid;
-            font-size: 26px;
-            padding: 0 15px 0 15px;
-            text-align: center;
-        }
-
-        .message {
-            font-size: 18px;
-            text-align: center;
-        }
-
-        .home {
-            font-size: 18px;
-            text-align: center;
-        } */
-    </style>
 </head>
 
 <body>
-    {{-- <div class="flex-center position-ref full-height">
-        <div class="code">
-            @yield('code')
-        </div>
+    <h1> {{ $exception->getStatusCode() }} </h1>
 
-        <div class="message" style="padding: 10px;">
-            @yield('message')
-        </div>
-
-        <div class="home" style="padding: 10px;">
-            <a href="{{ url('/') }}">Home</a>
-        </div>
-    </div> --}}
-    <h1> @yield('code') </h1>
     <div class="cloak__wrapper">
         <div class="cloak__container">
             <div class="cloak"></div>
@@ -79,7 +23,13 @@
     <div class="info">
         <h2> @yield('message')</h2>
         <p>We're fairly sure that page used to be here, but seems to have gone missing. We do apologise on it's
-            behalf.</p><a href="{{ url('/') }}" rel="noreferrer noopener">Home</a>
+            behalf.</p>
+
+        @if (in_array($exception->getStatusCode(), [404, 419, 429, 500, 503]))
+            <a href="" rel="noreferrer noopener">go back</a>
+        @else
+            <a href="{{ url('/login') }}" rel="noreferrer noopener">Login</a>
+        @endif
     </div>
 </body>
 
@@ -167,7 +117,17 @@
         color: transparent;
     }
 
-
+    h1:after {
+        -webkit-animation: swing var(--speed) infinite alternate ease-in-out;
+        animation: swing var(--speed) infinite alternate ease-in-out;
+        content: '{{ $exception->getStatusCode() }}';
+        position: absolute;
+        top: 0;
+        left: 0;
+        color: var(--shadow);
+        filter: blur(1.5vmin);
+        transform: scale(1.05) translate3d(0, 12%, -10vmin) translate(calc((var(--swing-x, 0) * 0.05) * 1%), calc((var(--swing-y) * 0.05) * 1%));
+    }
 
     .cloak {
         animation: swing var(--speed) infinite alternate-reverse ease-in-out;

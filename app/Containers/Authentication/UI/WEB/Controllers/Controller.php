@@ -68,11 +68,13 @@ class Controller extends WebController
             $permissions = [];
         }
 
-        foreach ($permissions as $key => $value) {
-            if ($value == 'access-dashboard') {
-                return redirect('userdashboard');
+        if (in_array('access-dashboard', $permissions->toArray())) {
+            if (session()->has('url.intended')) {
+                return redirect(strpos(session()->get('url.intended.ajax'), '/error/') ? session()->get('url.intended.apiato') : session()->get('url.intended.ajax'));
             }
+            return redirect('userdashboard');
         }
+
         return is_array($result) ? redirect('login')->with($result) : redirect('user');
     }
 
