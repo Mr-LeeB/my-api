@@ -201,26 +201,29 @@
 
 @section('javascript')
     <script>
+        const toolbarOptions = {
+            container: [
+                [{
+                    header: [1, 2, 3, 4, 5, false]
+                }],
+                ['bold', 'italic', 'underline'],
+                [{
+                    list: 'ordered'
+                }, {
+                    list: 'bullet'
+                }],
+                [{
+                    'align': []
+                }],
+                ['image'],
+                ['clean'],
+                ['link'],
+            ],
+        }
         var quill = new Quill('#editor', {
             theme: 'snow',
             modules: {
-                toolbar: [
-                    [{
-                        header: [1, 2, 3, 4, 5, false]
-                    }],
-                    ['bold', 'italic', 'underline'],
-                    [{
-                        list: 'ordered'
-                    }, {
-                        list: 'bullet'
-                    }],
-                    [{
-                        'align': []
-                    }],
-                    ['image'],
-                    ['clean'],
-                    ['link'],
-                ]
+                toolbar: toolbarOptions,
             },
         });
         let detail_description = @json($detail_description);
@@ -267,10 +270,27 @@
         });
 
         quill.on('text-change', function(delta, oldDelta, source) {
-            if (source == 'user') {
-                if (quill.getLength() > 0) {
-                    $(".validate-description").addClass('hidden');
+            console.log(delta.ops, oldDelta.ops, source);
+            if (source == 'api') {
+                foreach(delta.ops, function(op) {
+                    if (op.insert && op.insert.image) {
+                        console.log(op.insert.image);
+                    }
+                });
+            }
+            
+        });
+
+        quill.on('selection-change', function(range, oldRange, source) {
+            if (range) {
+                if (range.length == 0) {
+                    console.log('User cursor is on', range.index);
+                } else {
+                    var text = quill.getText(range.index, range.length);
+                    console.log('User has highlighted', text);
                 }
+            } else {
+                console.log('Cursor not in the editor');
             }
         });
 
@@ -338,7 +358,7 @@
         $('#btn-confirm-save').on('click', function() {
             var name = $('#name').val().trim();
             var title_description = $('#title_description').val().trim();
-            var detail_description = $('#detail_description_editor').text().trim();
+            var detail_description = quill.root.textContent.trim();
             var date_created = $('#date_created').val();
             var is_publish = $('#is_publish').is(':checked');
 
@@ -369,7 +389,7 @@
                 $(".validate-description").removeClass('hidden');
                 return;
             } else {
-                var temp = $('.template').append($(".ql-editor").html());
+                var temp = $('.template').append(quill.root.innerHTML);
                 var img = $(".template").find('img');
                 var count = 0;
                 img.each(function() {

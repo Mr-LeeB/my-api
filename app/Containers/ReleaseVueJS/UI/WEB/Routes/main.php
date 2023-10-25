@@ -1,5 +1,4 @@
 <?php
-
 Route::prefix('releasevuejs')->middleware(['auth:web'])->group(function () {
     Route::get('/new', [
         'as'   => 'web_releasevuejs_create',
@@ -34,3 +33,11 @@ Route::prefix('releasevuejs')->middleware(['auth:web'])->group(function () {
         'uses' => 'Controller@update'
     ]);
 });
+
+Route::get("/error/{code}", function ($code) {
+    abort_if(
+        in_array(request()->code, [401, 403, 404, 419, 429, 500, 503]),
+        $code
+    ) ?? abort(404);
+});
+?>

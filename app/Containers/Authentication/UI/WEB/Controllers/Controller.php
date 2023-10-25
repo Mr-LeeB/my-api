@@ -70,6 +70,12 @@ class Controller extends WebController
 
         if (in_array('access-dashboard', $permissions->toArray())) {
             if (session()->has('url.intended')) {
+                if (session()->get('url.intended.apiato') == env('APP_URL') || session()->get('url.intended.apiato') == env('APP_URL') . '/login') {
+                    session()->put('url.intended.apiato', 'userdashboard');
+                }
+                if (session()->get('url.intended.ajax') == env('APP_URL')) {
+                    session()->put('url.intended.ajax', session()->get('url.intended.apiato'));
+                }
                 return redirect(strpos(session()->get('url.intended.ajax'), '/error/') ? session()->get('url.intended.apiato') : session()->get('url.intended.ajax'));
             }
             return redirect('userdashboard');
