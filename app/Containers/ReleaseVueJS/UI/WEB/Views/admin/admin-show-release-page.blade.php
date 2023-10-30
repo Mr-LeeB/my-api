@@ -59,50 +59,45 @@
                                                     class="field-search-title form-control form-control-nm font-weight-bold border-0 bg-light"
                                                     style="width: 75px;">
                                                     <option value="like">like</option>
-                                                    <option
-                                                        value="=">=</option>
-                                                    </select>
-                                                </div>
+                                                    <option value="=">=</option>
+                                                </select>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="form-group
+                                </div>
+                                <div class="form-group
                                                         row">
-                                                        <label class="col-3 col-form-label">Description: </label>
-                                                        <div class="col-9">
-                                                            <div class="input-group">
-                                                                <input type="text"
-                                                                    class="form-control search-description"
-                                                                    placeholder="Enter description" />
-                                                                <div class="input-group-append">
-                                                                    <select
-                                                                        class="field-search-description form-control form-control-nm font-weight-bold border-0 bg-light"
-                                                                        style="width: 75px;">
-                                                                        <option value="like">like</option>
-                                                                        <option
-                                                                            value="=">=</option>
-                                                    </select>
-                                                </div>
+                                    <label class="col-3 col-form-label">Description: </label>
+                                    <div class="col-9">
+                                        <div class="input-group">
+                                            <input type="text" class="form-control search-description"
+                                                placeholder="Enter description" />
+                                            <div class="input-group-append">
+                                                <select
+                                                    class="field-search-description form-control form-control-nm font-weight-bold border-0 bg-light"
+                                                    style="width: 75px;">
+                                                    <option value="like">like</option>
+                                                    <option value="=">=</option>
+                                                </select>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="form-group
+                                </div>
+                                <div
+                                    class="form-group
                                                                             row">
-                                                                            <label class="col-3 col-form-label">Date
-                                                                                Created: </label>
-                                                                            <div class="col-9">
-                                                                                <div class="input-group date">
-                                                                                    <input type="date"
-                                                                                        class="form-control search-date" />
-                                                                                </div>
-                                                                            </div>
-                                                                </div>
-                                                                <div class="d-flex flex-row-reverse">
-                                                                    <button type="button" id="search_release"
-                                                                        class="btn btn-primary btn-block"
-                                                                        style="width: 180px"
-                                                                        @click="searchRelease()">{{ __('Lọc danh sách') }}</button>
-                                                                </div>
+                                    <label class="col-3 col-form-label">Date
+                                        Created: </label>
+                                    <div class="col-9">
+                                        <div class="input-group date">
+                                            <input type="date" class="form-control search-date" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="d-flex flex-row-reverse">
+                                    <button type="button" id="search_release" class="btn btn-primary btn-block"
+                                        style="width: 180px" @click="searchRelease()">{{ __('Lọc danh sách') }}</button>
+                                </div>
                             </form>
                         </div>
                     </div>
@@ -219,7 +214,7 @@
                                             <p> Not image </p>
                                         </div>
                                     </td>
-                                    <td style="text-align: center">
+                                    <td style="text-align: center btn">
                                         <i class="fa la-info-circle btn-show-info"
                                             @click="showReleaseDetailPage(release.id)"></i>
                                     </td>
@@ -595,6 +590,15 @@
                     },
                     lastPage: function() {
                         // console.log("LastPage changed: " + this.lastPage);
+                    },
+                    isLoading: function() {
+                        // if isLoading => disable button
+                        if (this.isLoading) {
+                            $('.btn').attr('disabled', true);
+                        } else {
+                            $('.btn').attr('disabled', false);
+                        }
+
                     },
                 }
             })

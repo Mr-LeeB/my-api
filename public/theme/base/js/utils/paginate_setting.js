@@ -34,6 +34,18 @@ Vue.component('setup-paginate', {
                 };
             }
         },
+        showPageNumber: function (page) {
+            if (page < 3) return page;
+            else if (page > this.last_page - 2) return page;
+            else if (page == this.current_page || page == this.current_page + 1 || page == this.current_page - 1) return page;
+            else return "...";
+        },
+        hidePageNumber: function (page) {
+            if (page < 3) return true;
+            else if (page > this.last_page - 2) return true;
+            else if (page < this.current_page - 2 || page > this.current_page + 2) return false;
+            else return true;
+        }
     },
     template: `
                 <div class="paginate">
@@ -46,8 +58,8 @@ Vue.component('setup-paginate', {
                                 </div>
                             </li>
                             <li class="page-item cursor-pointer" v-for="page in last_page">
-                                <div class="page-link" @click="changePage(page)" :style="cssPagination(page)">
-                                    {{ page }}
+                                <div class="page-link" @click="changePage(page)" :style="cssPagination(page)" v-if="hidePageNumber(page)">
+                                    {{ showPageNumber(page) }}
                                 </div>
                             </li>
                             <li class="page-item cursor-pointer next">

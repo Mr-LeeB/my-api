@@ -232,6 +232,10 @@
 
         $(".ql-editor").attr('id', 'detail_description_editor');
 
+        // Init list images
+        let images = new Object()
+        let input_image = new Object()
+
         quill.getModule('toolbar').addHandler('image', () => {
             const input = document.createElement('input');
             input.setAttribute('type', 'file');
@@ -249,10 +253,10 @@
                     $('#file_upload').attr('id', 'files')
 
                     let input_type_file =
-                        '<input type="file" name="images_from_quill[]" id="file_upload" class="hidden" multiple>';
+                        '<input type="file" name="images_from_quill[]" id="file_upload" class="hidden" accept=".jpeg, .png, .jpg, .gif, .svg, .webp" multiple>';
                     $('.list-input-hidden-upload').append(input_type_file);
 
-                    createImageBox(imageLink, file, input_type_file);
+                    input_image = createImageBox(imageLink, file, input_type_file);
 
                     $('#files').remove();
 
@@ -269,16 +273,65 @@
             };
         });
 
+        var linkNode = document.querySelectorAll('#editor img');
+        linkNode.forEach(function(item, index) {
+            var linkBlot = Quill.find(item);
+            images[index] = {
+                index: quill.getIndex(linkBlot),
+                box_image: $('.box-image').eq(index),
+            };
+        });
+
         quill.on('text-change', function(delta, oldDelta, source) {
-            console.log(delta.ops, oldDelta.ops, source);
-            if (source == 'api') {
-                foreach(delta.ops, function(op) {
-                    if (op.insert && op.insert.image) {
-                        console.log(op.insert.image);
+            const index = delta.ops[0].retain == undefined ? 0 : delta.ops[0].retain;
+            const data = index ? delta.ops[1] : delta.ops[0];
+
+            if (data.insert) {
+                if (source == 'api') {
+                    images[input_image.id] = {
+                        index: index,
+                        box_image: input_image.box_image,
+                    };
+                }
+
+                foreach(images, function(value, key) {
+                    if (value.index > index) {
+                        value.index += data.insert.image ? 1 : data.insert.length;
+                    } else if (value.index == index) {
+                        const isFirstImage = Object.keys(images).length == 1;
+                        if (!isFirstImage && key !== input_image.id) {
+                            value.index += data.insert.image ? 1 : data.insert.length;
+                        }
                     }
                 });
             }
-            
+
+            if (data.delete && source == 'user') {
+                for (let i = index; i < index + data.delete; i++) {
+                    foreach(images, function(value, key) {
+                        console.log(value.index, i)
+                        if (value.index == i) {
+                            handleRemoveImageInListImages(key, value.box_image);
+                            delete images[key];
+                        }
+                    });
+                }
+                foreach(images, function(value, key) {
+                    if (value.index > index) {
+                        value.index -= data.delete;
+                    }
+                });
+            } else if (data.delete && source == 'api') {
+                foreach(images, function(value, key) {
+                    console.log("api", value.index, index)
+                    if (value.index > index) {
+                        console.log("decrease", value.index, index)
+                        value.index -= data.delete;
+                    }
+                });
+            }
+
+            console.log(images);
         });
 
         quill.on('selection-change', function(range, oldRange, source) {
@@ -302,6 +355,11 @@
                 };
                 reader.readAsDataURL(blob);
             });
+        }
+
+        function handleRemoveImageInListImages(id, box_image) {
+            $('#' + id).remove();
+            box_image.remove();
         }
     </script>
     <script>
@@ -461,6 +519,11 @@
 
             id = time + "_" + random;
             initActionImage(id, box_image);
+
+            return param = {
+                id: id,
+                box_image: box_image
+            };
         }
 
         function initActionImage(id, box_image) {
@@ -496,8 +559,14 @@
             });
 
             img.on('remove', function() {
-                $('#' + id).remove();
-                box_image.remove();
+                foreach(images, function(value, key) {
+                    if (key == id) {
+                        console.log(value, key)
+                        quill.deleteText(value.index, 1);
+                        delete images[key];
+                    }
+                })
+                handleRemoveImageInListImages(id, box_image);
             });
         }
         $(document).ready(function() {
@@ -510,7 +579,7 @@
                 let files = $('#files').prop('files');
 
                 let input_type_file =
-                    '<input type="file" name="images[]" id="file_upload" class="hidden" multiple>';
+                    '<input type="file" name="images[]" id="file_upload" class="hidden" accept=".jpeg, .png, .jpg, .gif, .svg, .webp" multiple>';
                 $('.list-input-hidden-upload').append(input_type_file);
 
                 for (let i = 0; i < event.target.files.length; i++) {
