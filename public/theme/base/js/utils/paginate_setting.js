@@ -5,7 +5,7 @@ Vue.component('setup-paginate', {
     },
     methods: {
         changePage(page) {
-            if (page == this.current_page || (page == -1 && this.current_page == null)) {
+            if (page == this.current_page || page < 1 || page > this.last_page) {
                 return;
             }
             if (page == 1) {
@@ -51,9 +51,8 @@ Vue.component('setup-paginate', {
                 <div class="paginate">
                     <nav aria-label="navigation">
                         <ul class="pagination">
-                            <li class="page-item previous disabled">
-                                <div class="page-link" aria-label="Previous"
-                                    @click="changePage(current_page-1)">
+                            <li v-bind:class="[this.current_page == 1 ? 'page-item previous disabled' : 'page-item previous cursor-pointer']">
+                                <div class="page-link" aria-label="Previous" @click="changePage(current_page-1)">
                                     <span aria-hidden="true">&laquo;</span>
                                 </div>
                             </li>
@@ -62,7 +61,7 @@ Vue.component('setup-paginate', {
                                     {{ showPageNumber(page) }}
                                 </div>
                             </li>
-                            <li class="page-item cursor-pointer next">
+                            <li v-bind:class="[(this.last_page != 1 && this.current_page != this.last_page) ? 'page-item cursor-pointer next' : 'page-item next disabled']">
                                 <div class="page-link" aria-label="Next" @click="changePage(current_page+1)">
                                     <span aria-hidden="true">&raquo;</span>
                                 </div>

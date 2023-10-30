@@ -26,7 +26,7 @@
             behalf.</p>
 
         @if (in_array($exception->getStatusCode(), [404, 419, 429, 500, 503]))
-            <a href="" rel="noreferrer noopener">go back</a>
+            <a href="{{ url()->previous() }}" rel="noreferrer noopener">go back</a>
         @else
             <a href="{{ url('/login') }}" rel="noreferrer noopener">Login</a>
         @endif

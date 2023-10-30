@@ -140,7 +140,7 @@
                     </div>
                 </div>
 
-                <div class="card-body py-0">
+                <div class="card-body py-0 overlay-parent">
                     <table class="table">
                         <thead>
                             <tr>
@@ -176,65 +176,64 @@
 
                             </tr>
                         </thead>
-                        <tbody id="body-content">
-                            <div v-if="length > 0">
-                                <tr class="bg-hover-secondary" v-for="release in releases">
-                                    <td style="text-align: center;">
-                                        <input type="checkbox" :value="release.id" @click="check()">
-                                    </td>
-                                    <td>
-                                        @{{ release.id }}
-                                    </td>
-                                    <td>
-                                        @{{ mb_str_split(release.name) }}
-                                    </td>
-                                    <td class="">
-                                        @{{ mb_str_split(release.title_description) }}
-                                    </td>
-                                    <td>
-                                        @{{ mb_str_split(strip_tags(release.detail_description)) }}
-                                    </td>
-                                    <td class="text-center">
-                                        @{{ release.created_at.substring(0, 10) }}
-                                    </td>
-                                    <td class="text-center">
-                                        @{{ release.is_publish }}
-                                    </td>
-                                    <td>
-                                        <div class="small-image d-flex flex-column align-items-center"
-                                            v-if="release.images != null">
-                                            <div class="symbol symbol-40 mr-3">
-                                                <img alt="Image" :src="release.images[0]" />
-                                            </div>
-                                            <span style="font-size: 12px" v-if="release.images.length > 1">
-                                                More @{{ release.images.length - 1 }} image(s)
-                                            </span>
+
+                        <tbody id="body-content" v-if="!isLoading">
+                            <tr class="bg-hover-secondary" v-for="release in releases" v-if="length > 0">
+                                <td style="text-align: center;">
+                                    <input type="checkbox" :value="release.id" @click="check()">
+                                </td>
+                                <td>
+                                    <span v-html="release.id">Release id</span>
+                                </td>
+                                <td>
+                                    <span v-html="mb_str_split(release.name)"> Release name</span>
+                                </td>
+                                <td>
+                                    <span v-html="mb_str_split(release.title_description)"> Release title</span>
+                                </td>
+                                <td>
+                                    <span v-html="mb_str_split(strip_tags(release.detail_description))"> Release
+                                        description</span>
+                                </td>
+                                <td class="text-center">
+                                    <span v-html="release.created_at.substring(0, 10)"> Release date created</span>
+                                </td>
+                                <td class="text-center">
+                                    <span v-html="release.is_publish">Is publish</span>
+                                </td>
+                                <td>
+                                    <div class="small-image d-flex flex-column align-items-center"
+                                        v-if="release.images != null">
+                                        <div class="symbol symbol-40 mr-3">
+                                            <img alt="Image" :src="release.images[0]" />
                                         </div>
-                                        <div class="small-image d-flex flex-column align-items-center" v-else>
-                                            <p> Not image </p>
-                                        </div>
-                                    </td>
-                                    <td style="text-align: center btn">
-                                        <i class="fa la-info-circle btn-show-info"
-                                            @click="showReleaseDetailPage(release.id)"></i>
-                                    </td>
-                                    <td style="text-align: center">
-                                        <i class="fa fa-pen btn-edit" @click="enableEdit(release.id)"></i>
-                                    </td>
-                                    <td style="text-align: center">
-                                        <i class="fa fa-trash btn-delete-one" @click="deleteRelease(release.id)"></i>
-                                    </td>
-                                </tr>
-                            </div>
-                            <div v-else="">
-                                <tr v-if="length == 0">
-                                    <td colspan="100%" class=" bg-hover-secondary text-center">
-                                        <b>{{ __('global.no_data') }}</b>
-                                    </td>
-                                </tr>
-                            </div>
+                                        <span style="font-size: 12px" v-if="release.images.length > 1">
+                                            More <span v-html="release.images.length - 1"></span> image(s)
+                                        </span>
+                                    </div>
+                                    <div class="small-image d-flex flex-column align-items-center" v-else>
+                                        <p> Not image </p>
+                                    </div>
+                                </td>
+                                <td style="text-align: center btn">
+                                    <i class="fa la-info-circle btn-show-info"
+                                        @click="showReleaseDetailPage(release.id)"></i>
+                                </td>
+                                <td style="text-align: center">
+                                    <i class="fa fa-pen btn-edit" @click="enableEdit(release.id)"></i>
+                                </td>
+                                <td style="text-align: center">
+                                    <i class="fa fa-trash btn-delete-one" @click="deleteRelease(release.id)"></i>
+                                </td>
+                            </tr>
+                            <tr v-else>
+                                <td colspan="100%" class=" bg-hover-secondary text-center">
+                                    <b>{{ __('global.no_data') }}</b>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
+                    <div class="overlay-child" v-if="isLoading"></div>
                 </div>
 
                 <div class="card-footer pt-0">
@@ -254,7 +253,8 @@
                                     <option value="50">50</option>
                                     <option value="100">100</option>
                                 </select>
-                                <span class="text-muted">Displaying @{{ length }} of @{{ total }}
+                                <span class="text-muted">Displaying <span v-html="length"></span> of
+                                    <span v-html="total"></span>
                                     records</span>
                             </div>
                         </div>
@@ -263,6 +263,9 @@
                                 @handle_change="changePage" />
                         </div>
                     </div>
+                    <form id="form-access">
+                        {{ csrf_field() }}
+                    </form>
                 </div>
             </div>
         </div>
@@ -295,7 +298,6 @@
                 methods: {
                     getRelease: async function() {
                         this.isLoading = true;
-
                         const response = await handleCallAjax(
                             '{{ route('web_releasevuejs_get_all_release') }}', {
                                 orderBy: this.params.orderBy,
@@ -322,9 +324,8 @@
                             this.isLoading = true;
 
                             const response = await handleCallAjax(
-                                '/releasevuejs/' + id + "/delete", {
-                                    _token: "{{ csrf_token() }}",
-                                },
+                                '/releasevuejs/' + id + "/delete",
+                                $('#form-access').serialize(),
                                 'delete',
                             );
 
@@ -353,11 +354,12 @@
                         });
 
                         if (confirm("Are you sure you want to delete this release?")) {
+                            releaseIDs.forEach((id) => {
+                                $('#form-access').append('<input type="hidden" name="id[]" value="' + id + '">');
+                            });
                             const response = await handleCallAjax(
-                                "{{ route('web_releasevuejs_delete_bulk') }}", {
-                                    id: releaseIDs,
-                                    _token: "{{ csrf_token() }}",
-                                },
+                                "{{ route('web_releasevuejs_delete_bulk') }}",
+                                $('#form-access').serialize(),
                                 'DELETE',
                             );
 

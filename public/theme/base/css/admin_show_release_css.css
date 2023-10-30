@@ -237,3 +237,17 @@ input[type="checkbox"] {
     cursor: pointer;
     background-color: aliceblue !important;
 }
+
+.overlay-child {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 999;
+
+    width: 100vh;
+    height: 20vh;
+}
+
+.overlay-parent {
+    position: relative;
+}
