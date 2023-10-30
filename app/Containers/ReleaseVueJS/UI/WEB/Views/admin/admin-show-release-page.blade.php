@@ -355,7 +355,8 @@
 
                         if (confirm("Are you sure you want to delete this release?")) {
                             releaseIDs.forEach((id) => {
-                                $('#form-access').append('<input type="hidden" name="id[]" value="' + id + '">');
+                                $('#form-access').append('<input type="hidden" name="id[]" value="' + id +
+                                    '">');
                             });
                             const response = await handleCallAjax(
                                 "{{ route('web_releasevuejs_delete_bulk') }}",
@@ -572,29 +573,20 @@
                 },
                 watch: {
                     releases: function() {
-                        // console.log("Releases changed: ", this.releases);
                         this.$nextTick(() => {
                             app.check();
                         });
                     },
-                    total: function() {
-                        // console.log("Rotal changed: " + this.total);
-                    },
-                    length: function() {
-                        // console.log("Length changed: " + this.length);
-                    },
+                    total: function() {},
+                    length: function() {},
                     params: {
                         handler: function() {
                             this.getRelease();
-                            // console.log("Params changed: ", this.params);
                         },
                         deep: true,
                     },
-                    lastPage: function() {
-                        // console.log("LastPage changed: " + this.lastPage);
-                    },
+                    lastPage: function() {},
                     isLoading: function() {
-                        // if isLoading => disable button
                         if (this.isLoading) {
                             $('.btn').attr('disabled', true);
                         } else {
