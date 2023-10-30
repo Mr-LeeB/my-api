@@ -309,7 +309,6 @@
             if (data.delete && source == 'user') {
                 for (let i = index; i < index + data.delete; i++) {
                     foreach(images, function(value, key) {
-                        console.log(value.index, i)
                         if (value.index == i) {
                             handleRemoveImageInListImages(key, value.box_image);
                             delete images[key];
@@ -323,28 +322,12 @@
                 });
             } else if (data.delete && source == 'api') {
                 foreach(images, function(value, key) {
-                    console.log("api", value.index, index)
                     if (value.index > index) {
-                        console.log("decrease", value.index, index)
                         value.index -= data.delete;
                     }
                 });
             }
 
-            console.log(images);
-        });
-
-        quill.on('selection-change', function(range, oldRange, source) {
-            if (range) {
-                if (range.length == 0) {
-                    console.log('User cursor is on', range.index);
-                } else {
-                    var text = quill.getText(range.index, range.length);
-                    console.log('User has highlighted', text);
-                }
-            } else {
-                console.log('Cursor not in the editor');
-            }
         });
 
         function convertBlobToDataURL(blob) {
