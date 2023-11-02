@@ -3,6 +3,7 @@
 namespace App\Containers\Welcome\UI\WEB\Controllers;
 
 use App\Ship\Parents\Controllers\WebController;
+use Exception;
 
 /**
  * Class Controller

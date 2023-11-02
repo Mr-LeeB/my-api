@@ -21,11 +21,10 @@
         </div>
     </div>
     <div class="info">
-        <h2> @yield('message')</h2>
-        <p>We're fairly sure that page used to be here, but seems to have gone missing. We do apologise on it's
-            behalf.</p>
+        <h2> @yield('title') </h2>
+        <p> @yield('message') </p>
 
-        @if (in_array($exception->getStatusCode(), [404, 419, 429, 500, 503]))
+        @if (in_array($exception->getStatusCode(), [404, 419, 422, 429, 500, 503]))
             <a href="{{ url()->previous() }}" rel="noreferrer noopener">go back</a>
         @else
             <a href="{{ url('/login') }}" rel="noreferrer noopener">Login</a>
