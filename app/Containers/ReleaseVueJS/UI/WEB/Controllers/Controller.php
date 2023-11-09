@@ -274,7 +274,7 @@ class Controller extends WebController
     function resizeAndSaveImage($file, $name)
     {
         $image_resize = Image::make($file->getRealPath());
-        $image_resize->resize(400, 400);
+        $image_resize->resizeCanvas(400, 400);
         $image_resize->save(public_path('storage/images/' . $name));
 
         $saved_image_uri = $image_resize->dirname . '/' . $name;

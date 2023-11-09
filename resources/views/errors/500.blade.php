@@ -1,4 +1,16 @@
-@extends('errors::minimal')
+@extends('errors.layout')
 
-@section('title', __('Server Error'))
-@section('message', __('Server Error'))
+@php
+	$error_number = 500;
+@endphp
+
+@section('title')
+	It's not you, it's me.
+@endsection
+
+@section('description')
+	@php
+	  $default_error_message = "An internal server error has occurred. If the error persists please contact the development team.";
+	@endphp
+	{!! isset($exception)? ($exception->getMessage()?e($exception->getMessage()):$default_error_message): $default_error_message !!}
+@endsection

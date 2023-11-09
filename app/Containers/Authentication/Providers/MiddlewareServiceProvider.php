@@ -2,6 +2,7 @@
 
 namespace App\Containers\Authentication\Providers;
 
+use App\Containers\Authentication\Middlewares\RedirectIfAuthenticated;
 use App\Containers\Authentication\Middlewares\WebAuthentication;
 use App\Ship\Parents\Providers\MiddlewareProvider;
 use \Illuminate\Routing\Middleware\ThrottleRequests;
@@ -40,6 +41,8 @@ class MiddlewareServiceProvider extends MiddlewareProvider
     // apiato User Authentication middleware for Web Pages
     'auth:web' => WebAuthentication::class,
     'throttle' => ThrottleRequests::class,
+    'guest' => RedirectIfAuthenticated::class,
+
     // ..
   ];
 }
