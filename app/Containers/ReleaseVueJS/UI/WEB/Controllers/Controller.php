@@ -273,11 +273,28 @@ class Controller extends WebController
 
     function resizeAndSaveImage($file, $name)
     {
-        $image_resize = Image::make($file->getRealPath());
-        $image_resize->resize(400, 400);
-        $image_resize->save(public_path('storage/images/' . $name));
+        $imgsize = getimagesize($file->getRealPath());
+        $width   = $imgsize[0];
+        $height  = $imgsize[1];
 
-        $saved_image_uri = $image_resize->dirname . '/' . $name;
+        $canvas       = Image::canvas(400, 400);
+        $image_resize = Image::make($file->getRealPath());
+
+        if ($width > $height) {
+            $image_resize->resize(400, null, function ($constraint) {
+                $constraint->aspectRatio();
+            });
+        } else {
+            $image_resize->resize(null, 400, function ($constraint) {
+                $constraint->aspectRatio();
+            });
+        }
+
+        $canvas->insert($image_resize, 'center')->encode('png', 100);
+
+        $canvas->save(public_path('storage/images/' . $name));
+
+        $saved_image_uri = $canvas->dirname . '/' . $name;
 
         Storage::disk('public')->putFileAs('images-release', new File($saved_image_uri), $name, 'public');
 
