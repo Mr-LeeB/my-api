@@ -58,7 +58,6 @@ class StoreReleaseVueJSRequest extends Request
             'is_publish'          => 'boolean',
             'images'              => 'array',
             'images.*'            => 'image|mimes:jpeg,png,jpg,gif,svg,webp|max:6144',
-
             'images_from_quill'   => 'array',
             'images_from_quill.*' => 'image|mimes:jpeg,png,jpg,gif,svg,webp|max:6144',
         ];
