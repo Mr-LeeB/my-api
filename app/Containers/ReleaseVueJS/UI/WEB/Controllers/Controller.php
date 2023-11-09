@@ -80,12 +80,12 @@ class Controller extends WebController
      */
     public function store(StoreReleaseVueJSRequest $request)
     {
-        $requestData = $request->only(['name', 'title_description', 'detail_description', 'is_publish']);
+        $requestData           = $request->only(['name', 'title_description', 'detail_description', 'is_publish']);
         $requestData['images'] = [];
 
         if ($request->hasFile('images_from_quill')) {
             $detail_description = $requestData['detail_description'];
-            $images_from_quill = $request->images_from_quill;
+            $images_from_quill  = $request->images_from_quill;
             foreach ($images_from_quill as $key => $file) {
                 $name = time() . rand(1, 100) . '.' . $file->getClientOriginalName();
 
@@ -141,8 +141,8 @@ class Controller extends WebController
     public function update(UpdateReleaseVueJSRequest $request)
     {
         try {
-            $result = App::make(FindReleaseVueJSByIdAction::class)->run(new DataTransporter($request));
-            $requestData = $request->only(['id', 'name', 'title_description', 'detail_description', 'is_publish']);
+            $result                = App::make(FindReleaseVueJSByIdAction::class)->run(new DataTransporter($request));
+            $requestData           = $request->only(['id', 'name', 'title_description', 'detail_description', 'is_publish']);
             $requestData['images'] = [];
             if ($result->images) {
                 if ($request->images_old) {
@@ -161,14 +161,14 @@ class Controller extends WebController
 
             if ($request->hasFile('images_from_quill')) {
                 $detail_description = $requestData['detail_description'];
-                $images_from_quill = $request->images_from_quill;
+                $images_from_quill  = $request->images_from_quill;
                 foreach ($images_from_quill as $key => $file) {
                     $name = time() . rand(1, 100) . '.' . $file->getClientOriginalName();
 
                     $this->resizeAndSaveImage($file, $name);
 
                     $requestData['images'][] = '/storage/images-release/' . $name;
-                    $detail_description = str_replace('src="image_' . $key . '"', 'src="/storage/images-release/' . $name . '"', $detail_description);
+                    $detail_description      = str_replace('src="image_' . $key . '"', 'src="/storage/images-release/' . $name . '"', $detail_description);
                 }
                 $requestData['detail_description'] = $detail_description;
             }
@@ -215,7 +215,7 @@ class Controller extends WebController
             if ($request->expectsJson()) {
                 return response()->json([
                     'message' => '',
-                    'error' => '<p style="color:red"> Release Not Found </p>',
+                    'error'   => '<p style="color:red"> Release Not Found </p>',
                 ]);
             }
             return redirect()->route('web_releasevuejs_get_all_release')->with('error', '<p style="color:red"> Release Not Found </p>');
@@ -256,7 +256,7 @@ class Controller extends WebController
             if ($request->expectsJson()) {
                 return response()->json([
                     'message' => '',
-                    'error' => '<p style="color:red"> Release(s) Not Found </p>',
+                    'error'   => '<p style="color:red"> Release(s) Not Found </p>',
                 ]);
             }
             return redirect()->route('web_releasevuejs_get_all_release')->with('error', '<p style="color:red"> Release(s) Not Found </p>');
@@ -274,7 +274,7 @@ class Controller extends WebController
     function resizeAndSaveImage($file, $name)
     {
         $image_resize = Image::make($file->getRealPath());
-        $image_resize->resizeCanvas(400, 400);
+        $image_resize->resize(400, 400);
         $image_resize->save(public_path('storage/images/' . $name));
 
         $saved_image_uri = $image_resize->dirname . '/' . $name;
@@ -284,4 +284,5 @@ class Controller extends WebController
         $image_resize->destroy();
         unlink($saved_image_uri);
     }
+
 }

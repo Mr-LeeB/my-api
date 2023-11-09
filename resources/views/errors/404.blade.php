@@ -1,16 +1,4 @@
-@extends('errors.layout')
+@extends('errors::minimal')
 
-@php
-  $error_number = 404;
-@endphp
-
-@section('title')
-  Page not found.
-@endsection
-
-@section('description')
-  @php
-    $default_error_message = "Please <a href='javascript:history.back()''>go back</a> or return to <a href='".url('')."'>our homepage</a>.";
-  @endphp
-  {!! isset($exception)? ($exception->getMessage()?e($exception->getMessage()):$default_error_message): $default_error_message !!}
-@endsection
+@section('title', __('Not Found'))
+@section('message', __("We can't find that page"))

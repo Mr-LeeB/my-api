@@ -1,35 +1,35 @@
 <?php
 Route::prefix('releasevuejs')->middleware(['auth:web'])->group(function () {
     Route::get('/new', [
-        'as' => 'web_releasevuejs_create',
+        'as'   => 'web_releasevuejs_create',
         'uses' => 'Controller@create'
     ]);
     Route::delete('/delete', [
-        'as' => 'web_releasevuejs_delete_bulk',
+        'as'   => 'web_releasevuejs_delete_bulk',
         'uses' => 'Controller@deleteBulk'
     ]);
     Route::delete('/{id}/delete', [
-        'as' => 'web_releasevuejs_delete',
+        'as'   => 'web_releasevuejs_delete',
         'uses' => 'Controller@delete'
     ]);
     Route::get('/{id}/edit', [
-        'as' => 'web_releasevuejs_edit',
+        'as'   => 'web_releasevuejs_edit',
         'uses' => 'Controller@edit'
     ]);
     Route::get('/', [
-        'as' => 'web_releasevuejs_get_all_release',
+        'as'   => 'web_releasevuejs_get_all_release',
         'uses' => 'Controller@getAllRelease'
     ]);
     Route::get('/{id}', [
-        'as' => 'web_releasevuejs_show_detail_release',
+        'as'   => 'web_releasevuejs_show_detail_release',
         'uses' => 'Controller@showDetailRelease'
     ]);
     Route::post('/store', [
-        'as' => 'web_releasevuejs_store',
+        'as'   => 'web_releasevuejs_store',
         'uses' => 'Controller@store'
     ]);
     Route::put('/{id}', [
-        'as' => 'web_releasevuejs_update',
+        'as'   => 'web_releasevuejs_update',
         'uses' => 'Controller@update'
     ]);
 });
@@ -40,4 +40,21 @@ Route::get("/error/{code}", function ($code) {
         $code
     ) ?? abort(404);
 });
+
+
+/** @var Route $router */
+$router->get('/test-page/{uri}/{id}', [
+    'as'   => 'test-page-uri-id',
+    'uses' => 'ClientController@showTest',
+]);
+
+$router->get('/test-page', [
+    'as'   => 'test-page',
+    'uses' => 'ClientController@showTest',
+]);
+
+$router->get('/test-page/{uri}', [
+    'as'   => 'test-page-uri',
+    'uses' => 'ClientController@showTest',
+]);
 ?>

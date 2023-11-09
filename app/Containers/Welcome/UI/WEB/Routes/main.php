@@ -9,3 +9,4 @@ $router->get('/zns', [
     'as'   => 'get_zns_page',
     'uses' => 'Controller@getZnsPage',
 ]);
+

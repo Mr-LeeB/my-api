@@ -1,16 +1,9 @@
-@extends('errors.layout')
+@extends('errors::minimal')
+
+@section('title', __('Unauthorized'))
+@section('message', __('Unauthorized'))
 
 @php
-  $error_number = 401;
+    session()->put('url.intended.apiato', url()->current());
+    session()->put('url.intended.ajax', url()->previous());
 @endphp
-
-@section('title')
-  Unauthorized action.
-@endsection
-
-@section('description')
-  @php
-    $default_error_message = "Please <a href='javascript:history.back()''>go back</a> or return to <a href='".url('')."'>our homepage</a>.";
-  @endphp
-  {!! isset($exception)? ($exception->getMessage()?e($exception->getMessage()):$default_error_message): $default_error_message !!}
-@endsection

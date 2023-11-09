@@ -34,7 +34,6 @@
     "ext-openssl": "*",
     "ext-pdo": "*",
     "ext-tokenizer": "*",
-    "backpack/crud": "4.1.*",
     "doctrine/dbal": "2.5.*",
     "fideloper/proxy": "^4.2",
     "fruitcake/laravel-cors": "^1.0",
@@ -47,7 +46,6 @@
     "wikimedia/composer-merge-plugin": "^1.3.1"
   },
   "require-dev": {
-    "backpack/generators": "^4.0",
     "facade/ignition": "^2.0",
     "fzaninotto/faker": "^1.9.1",
     "laravel/dusk": "^6.25",
