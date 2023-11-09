@@ -176,7 +176,6 @@ return [
        * Third Party Service Providers...
        */
     Laravel\Dusk\DuskServiceProvider::class,
-    Backpack\CRUD\BackpackServiceProvider::class,
 
   ],
 
